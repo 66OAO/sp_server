@@ -37,10 +37,12 @@
 #define BIGBATTLE_NPC_X_RESPONSE	17424
 #define CARD_SEARCH_RESPONSE	17459
 #define BIGBATTLE_NPC_KO_RESPONSE  17303
+#define BIGBATTLE_PLAYER_JOIN_RESPONSE  17304 //guess
 #define PLAYER_KICK_RESPONSE	17185
 #define CHANGE_ROOMTITLE_RESPONSE	17257
 #define TRADE_SUCCESS_RESPONSE	17217
 #define SHOP_BUY_ELEMENTCARD_RESPONSE	17465
+#define ADD_CARD_SLOT_RESPONSE 17512
 
 struct LobbyUserInfoResponse {
 	int size; //0x3C
@@ -174,7 +176,7 @@ struct JoinChannelPlayerDataResponse {
 	bool bunk[7]; //1 0 1 1 1 1 0 0
 	int Rank;
 	int unk43; //1
-	int unk44; //0x108
+	int maxroom; //0x108
 	int munk1, munk2, munk3, munk4, munk5, munk6, munk7, munk8; //-1
 	int unk45; //7
 	int zero5[2];
@@ -370,24 +372,24 @@ struct RoomListResponse {
 	int unk1; //11036
 	int checksum;
 	int state;
-	int roomnumber[22];
-	char title[22][29];
+	int roomnumber[50];
+	char title[50][29];
 	short zero1;
-	int mode[22];
-	int map[22];
-	int unks2[22]; //1
-	int maxplayers[22];
+	int mode[50];
+	int map[50];
+	int unks2[50]; //1
+	int maxplayers[50];
 	int zeros[5];
 	short szero;
-	bool bPotion[22];
-	bool bClosed[22];
+	bool bPotion[50];
+	bool bClosed[50];
 	short szero1;
 	int unk3[11];
-	int unks4[22]; //-1,-1
-	int players[22][8]; //0x8C
+	int unks4[50]; //-1,-1
+	int players[50][8]; //0x8C
 	int unks6[291];
 	short zero2;
-	bool bunk[22]; //1..
+	bool bunk[50]; //1..
 	int zeros1[5];
 	int unk4; // 0x500000
 };
@@ -448,7 +450,7 @@ struct RoomExitResponse {
 	int unk1; //11036
 	int checksum;
 	int state;
-	int unk2; //0
+	int exitslot; //0
 	char username[16];
 };
 
@@ -816,6 +818,41 @@ struct TradeSuccessResponse {
 	int FireElements;
 	int EarthElements;
 	int WindElements;
+};
+
+struct BigBattlePlayerJoinResponse //Unknown Response
+{
+
+	int size; //0x04D8 1240byte
+	int type;
+	int unk1; //11036
+	int checksum;
+	int state;
+	int unk2;
+	int unk3;
+	NpcData slot[39];
+	//NpcData npc[33];
+	char idc[208];
+};
+
+struct ShopBuyEleResponse
+{
+	int size; //0x1C
+	int type;
+	int unk1; //11036
+	int checksum;
+	int state;
+	int unk2;
+};
+
+struct AddCardSlotResponse
+{
+	int size; //0x18
+	int type;
+	int unk1; //11036
+	int checksum;
+	int state;
+	int addcheck;
 };
 
 #endif

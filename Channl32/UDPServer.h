@@ -19,7 +19,7 @@ private:
 
 public:
 	UDPServer() {
-		for(int i = 0; i < 2000; i++)
+		for (int i = 0; i < 2000; i++)
 			buffer[i] = 0;
 
 		serverlen = sizeof(server);
@@ -31,7 +31,7 @@ public:
 	}
 
 	bool Start() {
-		if(WSAStartup(514, &wsaData)) {
+		if (WSAStartup(514, &wsaData)) {
 			cout << "WSAStartup Error#" << WSAGetLastError() << endl;
 			return false;
 		}
@@ -43,12 +43,12 @@ public:
 
 		listen_socket = socket(PF_INET, SOCK_DGRAM, 0);
 
-		if(listen_socket == INVALID_SOCKET) {
+		if (listen_socket == INVALID_SOCKET) {
 			cout << "Channel Server: listen_socket Error#" << WSAGetLastError() << endl;
 			return false;
 		}
 
-		if(bind(listen_socket, (struct sockaddr*)&server, serverlen) == SOCKET_ERROR) {
+		if (bind(listen_socket, (struct sockaddr*)&server, serverlen) == SOCKET_ERROR) {
 			cout << "Channel Server: bind Error#" << WSAGetLastError() << endl;
 			return false;
 		}
@@ -60,12 +60,12 @@ public:
 		MySQL MySql;
 		bool bExit = false, sclosed = false;
 		int retbufsize = 0;
-		while(!bExit) {
+		while (!bExit) {
 			msg_socket = listen_socket;
 			retbufsize = recvfrom(msg_socket, (char*)buffer, sizeof(buffer), 0, (struct sockaddr *)&client, &clientlen);
 
-			if(buffer[0] == 0x34) {
-				for(int i = 4; i < *(int*)buffer; i++)
+			if (buffer[0] == 0x34) {
+				for (int i = 4; i < *(int*)buffer; i++)
 					buffer[i] = ~((BYTE)(buffer[i] >> 3) | (BYTE)(buffer[i] << 5));
 				char name[16], IP[16];
 				strcpy(name, (const char*)(buffer + 0x14));
@@ -74,32 +74,34 @@ public:
 				HandleList.updateUdpClient(name, client);
 				*(int*)(buffer + 0x10) = HandleList.updateUdpState(name);
 				*(int*)(buffer + 0x0C) = cIOSocket.MakeDigest((uint8*)buffer);
-				for(int i = 4; i < *(int*)buffer; i++)
+				for (int i = 4; i < *(int*)buffer; i++)
 					buffer[i] = ~((BYTE)(buffer[i] << 3) | (BYTE)(buffer[i] >> 5));
 				retbufsize = sendto(msg_socket, (char*)buffer, 0x34, 0, (struct sockaddr *)&client, clientlen);
-			} else
-				if(buffer[0] == 0x2c) {
-					unsigned char Send1[] = {0x2c,0x0,0x0,0x0,0x0,0x11,0x0,0x0,0x1c,0x2b,0x0,0x0,0xc2,0x6d,0x80,0xa1,0xc9,0xc9,0x83,0x4,0x53,0x70,0x72,0x31,0x6e,0x67,0x0,0x0,0x60,0xbc,0x12,0x0,0x65,0x35,0x37,0x0,0xce,0xc7,0xf0,0x17,0x90,0x5c,0x8d,0x4};
-					for(int i = 4; i < *(int*)buffer; i++)
+			}
+			else
+				if (buffer[0] == 0x2c) {
+					unsigned char Send1[] = { 0x2c,0x0,0x0,0x0,0x0,0x11,0x0,0x0,0x1c,0x2b,0x0,0x0,0xc2,0x6d,0x80,0xa1,0xc9,0xc9,0x83,0x4,0x53,0x70,0x72,0x31,0x6e,0x67,0x0,0x0,0x60,0xbc,0x12,0x0,0x65,0x35,0x37,0x0,0xce,0xc7,0xf0,0x17,0x90,0x5c,0x8d,0x4 };
+					for (int i = 4; i < *(int*)buffer; i++)
 						buffer[i] = ~((BYTE)(buffer[i] >> 3) | (BYTE)(buffer[i] << 5));
 					char name[16];
 					strcpy(name, (const char*)(buffer + 0x14));
 					//*(int*)(buffer+0x14) = 0;
 					*(int*)(Send1 + 0x10) = HandleList.updateUdpState(name);
 					*(int*)(Send1 + 0x0C) = cIOSocket.MakeDigest((uint8*)Send1);
-					for(int i = 4; i < *(int*)Send1; i++)
+					for (int i = 4; i < *(int*)Send1; i++)
 						Send1[i] = ~((BYTE)(Send1[i] << 3) | (BYTE)(Send1[i] >> 5));
 					retbufsize = sendto(msg_socket, (char*)Send1, 0x2C, 0, (struct sockaddr *)&client, clientlen);
-				} else {
-					for(int i = 4; i < *(int*)buffer; i++)
+				}
+				else {
+					for (int i = 4; i < *(int*)buffer; i++)
 						buffer[i] = ~((BYTE)(buffer[i] >> 3) | (BYTE)(buffer[i] << 5));
 					int room = *(int*)(buffer + 0x14);
 					int source = *(int*)(buffer + 0x18);
 					int dest = *(int*)(buffer + 0x1C);
-					for(int i = 4; i < *(int*)buffer; i++)
+					for (int i = 4; i < *(int*)buffer; i++)
 						buffer[i] = ~((BYTE)(buffer[i] << 3) | (BYTE)(buffer[i] >> 5));
 					sockaddr_in *udp_client = RoomList.GetClientUdp(room, dest);
-					if(udp_client)
+					if (udp_client)
 						retbufsize = sendto(msg_socket, (char*)buffer, *(int*)buffer, 0, (struct sockaddr *)udp_client, clientlen);
 				}
 		}
@@ -112,10 +114,11 @@ public:
 void PacketHandler::startUDP() {
 	UDPServer UDPServ;
 
-	if(UDPServ.Start()) {
+	if (UDPServ.Start()) {
 		printf("----- UDP Server Started -----\n");
 		UDPServ.CommLoop();
-	} else printf("----- UDP Server Error -----\n");
+	}
+	else printf("----- UDP Server Error -----\n");
 }
 
 struct udp_handshake {

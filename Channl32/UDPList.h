@@ -24,20 +24,20 @@ public:
 	}
 	void insert(string s) {
 		udpUser *currPtr = head, *prevPtr = 0;
-		while(currPtr != NULL && s.compare(currPtr->name) < 0) {
+		while (currPtr != NULL && s.compare(currPtr->name) < 0) {
 			prevPtr = currPtr;
 			currPtr = currPtr->ptr;
 		}
-		if(prevPtr == NULL)
+		if (prevPtr == NULL)
 			head = new udpUser(s, currPtr);
 		else
 			prevPtr->ptr = new udpUser(s, currPtr);
 	}
 	int updateState(string s) {
 		udpUser *currPtr = head;
-		while(currPtr != NULL && s.compare(currPtr->name) != 0)
+		while (currPtr != NULL && s.compare(currPtr->name) != 0)
 			currPtr = currPtr->ptr;
-		if(currPtr)
+		if (currPtr)
 			return currPtr->updateState();
 		else {
 			cout << "Unable to update " << s.c_str() << "state : UDPLIST" << endl;

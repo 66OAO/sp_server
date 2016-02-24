@@ -19,29 +19,29 @@ void PacketHandler::GetUserItems() {
 }
 
 void PacketHandler::GetChatMessage(ChatResponse *Chat_Response) {
-	if(Chat_Response->chatType == 0 || Chat_Response->chatType == 7)
-		if(Info.usr_room != -1)return;
-	if(Chat_Response->chatType == 1)
-		if(strcmp(Chat_Response->recieverId, Info.usr_name) != 0)return;
+	if (Chat_Response->chatType == 0 || Chat_Response->chatType == 7)
+		if (Info.usr_room != -1)return;
+	if (Chat_Response->chatType == 1)
+		if (strcmp(Chat_Response->recieverId, Info.usr_name) != 0)return;
 	Chat_Response->state = UpdateState();
 	Chat_Response->checksum = cIOSocket.MakeDigest((uint8*)Chat_Response);
 	unsigned char msg[0x80];
 	memcpy(msg, Chat_Response, 0x7C);
 	//Encrypt(msg);
-	for(int i = 4; i < *(int*)msg; i++)
+	for (int i = 4; i < *(int*)msg; i++)
 		msg[i] = ~((BYTE)(msg[i] << 3) | (BYTE)(msg[i] >> 5));
 	send(msg_socket, (char*)msg, *(int*)msg, 0);
 }
 
 void PacketHandler::GetLobbyMessage(LobbyUserInfoResponse* LUIR) {
-	if(Info.usr_room != -1)return;
+	if (Info.usr_room != -1)return;
 
 	LUIR->state = UpdateState();
 	LUIR->checksum = cIOSocket.MakeDigest((uint8*)LUIR);
 	unsigned char msg[0x40];
 	memcpy(msg, LUIR, 0x3C);
 	//Encrypt((unsigned char*)&msg);
-	for(int i = 4; i < *(int*)msg; i++)
+	for (int i = 4; i < *(int*)msg; i++)
 		msg[i] = ~((BYTE)(msg[i] << 3) | (BYTE)(msg[i] >> 5));
 
 	send(msg_socket, (char*)msg, *(int*)msg, 0);
@@ -52,7 +52,7 @@ void PacketHandler::GetNewRoomMessage(LobbyRoomResponse* LRR) {
 	LRR->checksum = cIOSocket.MakeDigest((uint8*)LRR);
 	unsigned char msg[0xB4];
 	memcpy(msg, LRR, 0xB0);
-	for(int i = 4; i < *(int*)msg; i++)
+	for (int i = 4; i < *(int*)msg; i++)
 		msg[i] = ~((BYTE)(msg[i] << 3) | (BYTE)(msg[i] >> 5));
 
 	send(msg_socket, (char*)msg, *(int*)msg, 0);
@@ -63,7 +63,7 @@ void PacketHandler::GetInRoomPlayerList(RoomPlayerDataResponse* RPDR) {
 	RPDR->checksum = cIOSocket.MakeDigest((uint8*)RPDR);
 	unsigned char msg[0x120];
 	memcpy(msg, RPDR, 0x120);
-	for(int i = 4; i < *(int*)msg; i++)
+	for (int i = 4; i < *(int*)msg; i++)
 		msg[i] = ~((BYTE)(msg[i] << 3) | (BYTE)(msg[i] >> 5));
 
 	send(msg_socket, (char*)msg, *(int*)msg, 0);
@@ -74,16 +74,16 @@ void PacketHandler::GetExitRoomResponse() {
 	Room_Exit_Response.size = 0x28;
 	Room_Exit_Response.type = ROOM_EXIT_RESPONSE;
 	Room_Exit_Response.unk1 = 11036;
-	Room_Exit_Response.unk2 = Info.usr_slot;
+	Room_Exit_Response.exitslot = Info.usr_slot;
 	strcpy(Room_Exit_Response.username, LobbyInfo.name.c_str());
 	RoomList.ProdcastPlayerExitRoom(this, &Room_Exit_Response, Info.usr_room);
 	Room_Exit_Response.state = UpdateState();
 	Room_Exit_Response.checksum = cIOSocket.MakeDigest((uint8*)&Room_Exit_Response);
 	buffer = (unsigned char*)&Room_Exit_Response;
-	for(int i = 4; i < *(int*)buffer; i++)
+	for (int i = 4; i < *(int*)buffer; i++)
 		buffer[i] = ~((BYTE)(buffer[i] << 3) | (BYTE)(buffer[i] >> 5));
 	send(msg_socket, (char*)buffer, *(int*)buffer, 0);
-	if(RoomList.ExitPlayer(Info.usr_room, this)) {
+	if (RoomList.ExitPlayer(Info.usr_room, this)) {
 		HandleList.ProdcastNewRoom(this, 0, false, Info.usr_room);
 	}
 	LastPosition = 0;
@@ -102,7 +102,7 @@ void PacketHandler::GetPlayerExitRoomResponse(RoomExitResponse *RER) {
 	RER->checksum = cIOSocket.MakeDigest((uint8*)RER);
 	unsigned char msg[0x2C];
 	memcpy(msg, RER, 0x2C);
-	for(int i = 4; i < *(int*)msg; i++)
+	for (int i = 4; i < *(int*)msg; i++)
 		msg[i] = ~((BYTE)(msg[i] << 3) | (BYTE)(msg[i] >> 5));
 
 	send(msg_socket, (char*)msg, *(int*)msg, 0);
@@ -111,7 +111,7 @@ void PacketHandler::GetPlayerExitRoomResponse(RoomExitResponse *RER) {
 void PacketHandler::GetInRoomData(RoomPlayerDataResponse* RPDR, bool started) {
 	RPDR->Character = Info.usr_char;
 	strcpy(RPDR->netip, IP);
-	if(!LocIP[0]) {
+	if (!LocIP[0]) {
 		MySql.GetUserIP(Info.usr_id, LocIP);
 	}
 	strcpy(RPDR->locip, LocIP);
@@ -123,19 +123,20 @@ void PacketHandler::GetInRoomData(RoomPlayerDataResponse* RPDR, bool started) {
 	RPDR->unk4 = 1;
 	RPDR->unk9 = 0x01FFFFFF;
 	RPDR->team = Info.usr_team;
-	if(Info.usr_mode == DUEL_MODE) {
-		if(Info.usr_slot) RPDR->team = 20;
+	if (Info.usr_mode == DUEL_MODE) {
+		if (Info.usr_slot) RPDR->team = 20;
 		else              RPDR->team = 10;
 	}
-	if(started && Info.usr_ready && !Joined) {
+	if (started && Info.usr_ready && !Joined) {
 		RPDR->Start = 0;
 		RPDR->bunk1 = false; //0 = GameStart
-		if(Info.rm_master == Info.usr_slot)RoomList.InitializeLife(Info.usr_room);
-	} else {
+		if (Info.rm_master == Info.usr_slot)RoomList.InitializeLife(Info.usr_room);
+	}
+	else {
 		RPDR->Start = 2;
 		RPDR->bunk1 = false; //0 = GameStart
 	}
-	if(Info.rm_master != Info.usr_slot)
+	if (Info.rm_master != Info.usr_slot)
 		RPDR->bunk1 = true;
 	//RPDR->unk22 = 0x01010101;
 	RPDR->bunk2 = Info.questlife; //QuestLife
@@ -151,7 +152,7 @@ void PacketHandler::GetInRoomUpgradeResponse(CardUpgradeResponse *CUR) {
 	CUR->checksum = cIOSocket.MakeDigest((uint8*)CUR);
 	unsigned char msg[0x5C];
 	memcpy(msg, CUR, 0x5C);
-	for(int i = 4; i < *(int*)msg; i++)
+	for (int i = 4; i < *(int*)msg; i++)
 		msg[i] = ~((BYTE)(msg[i] << 3) | (BYTE)(msg[i] >> 5));
 
 	send(msg_socket, (char*)msg, *(int*)msg, 0);
@@ -163,12 +164,12 @@ void PacketHandler::GetRoomListResponse() {
 	Room_List_Response.type = ROOM_LIST_RESPONSE;
 	Room_List_Response.unk1 = 11036;
 	Room_List_Response.unk4 = 0x500000;
-	for(int i = 0; i < 22; i++)Room_List_Response.bunk[i] = true;
+	for (int i = 0; i < 50; i++)Room_List_Response.bunk[i] = true;
 	RoomList.GetRoomList(&Room_List_Response);
 	Room_List_Response.state = UpdateState();
 	Room_List_Response.checksum = cIOSocket.MakeDigest((uint8*)&Room_List_Response);
 	buffer = (unsigned char*)&Room_List_Response;
-	for(int i = 4; i < *(int*)buffer; i++)
+	for (int i = 4; i < *(int*)buffer; i++)
 		buffer[i] = ~((BYTE)(buffer[i] << 3) | (BYTE)(buffer[i] >> 5));
 	send(msg_socket, (char*)buffer, *(int*)buffer, 0);
 }
@@ -181,7 +182,7 @@ bool PacketHandler::GetRoomJoinResponse() {
 	Room_Join_Response.roomnumber = Room_Join_Request->roomnumber;
 	Info.usr_room = Room_Join_Request->roomnumber;
 	bool join = RoomList.JoinRoom(this, &LobbyInfo.name, Room_Join_Request->roomnumber, Info.gender, Info.Level);
-	if(join)RoomList.GetRoomData(&Room_Join_Response);
+	if (join)RoomList.GetRoomData(&Room_Join_Response);
 	Room_Join_Response.unk2 = !join;
 	Room_Join_Response.unk05 = 1; //1
 	Room_Join_Response.Slot = Info.usr_slot; //1
@@ -191,14 +192,14 @@ bool PacketHandler::GetRoomJoinResponse() {
 	Room_Join_Response.state = UpdateState();
 	Room_Join_Response.checksum = cIOSocket.MakeDigest((uint8*)&Room_Join_Response);
 	buffer = (unsigned char*)&Room_Join_Response;
-	if(join)Lobby.Delete(LobbyInfo.name);
-	if(join)HandleList.ProdcastLobbyInfo(this, &LobbyInfo, false);
-	if(join)HandleList.ProdcastRoomUpdate(Info.usr_room);
-	for(int i = 4; i < *(int*)buffer; i++)
+	if (join)Lobby.Delete(LobbyInfo.name);
+	if (join)HandleList.ProdcastLobbyInfo(this, &LobbyInfo, false);
+	if (join)HandleList.ProdcastRoomUpdate(Info.usr_room);
+	for (int i = 4; i < *(int*)buffer; i++)
 		buffer[i] = ~((BYTE)(buffer[i] << 3) | (BYTE)(buffer[i] >> 5));
 	send(msg_socket, (char*)buffer, *(int*)buffer, 0);
 	//nOfPackets = 0;
-	if(join)GenerateResponse(ROOM_PLAYERDATA_RESPONSE);
+	if (join)GenerateResponse(ROOM_PLAYERDATA_RESPONSE);
 	return join;
 }
 
@@ -232,7 +233,7 @@ void PacketHandler::GetRoomCreateResponse() {
 	HandleList.ProdcastNewRoom(this, &Create_Room_Response, true);
 	Lobby.Delete(LobbyInfo.name);
 	HandleList.ProdcastLobbyInfo(this, &LobbyInfo, false);
-	for(int i = 4; i < *(int*)buffer; i++)
+	for (int i = 4; i < *(int*)buffer; i++)
 		buffer[i] = ~((BYTE)(buffer[i] << 3) | (BYTE)(buffer[i] >> 5));
 	send(msg_socket, (char*)buffer, *(int*)buffer, 0);
 	GenerateResponse(ROOM_PLAYERDATA_RESPONSE);
@@ -243,8 +244,8 @@ void PacketHandler::GetInRoomDeathResponse(PlayerKilledResponse *PKR) {
 	/*
 	if(Info.usr_slot == PKR->DeadplayerSlot)
 	{
-		 PKR->GainedPoints = -Points;
-		 PKR->LostPoints = Points;
+		PKR->GainedPoints = -Points;
+		PKR->LostPoints = Points;
 	}
 	else
 	{*/
@@ -255,10 +256,10 @@ void PacketHandler::GetInRoomDeathResponse(PlayerKilledResponse *PKR) {
 	PKR->checksum = cIOSocket.MakeDigest((uint8*)PKR);
 	unsigned char msg[0xB0];
 	memcpy(msg, PKR, 0xB0);
-	for(int i = 4; i < *(int*)msg; i++)
+	for (int i = 4; i < *(int*)msg; i++)
 		msg[i] = ~((BYTE)(msg[i] << 3) | (BYTE)(msg[i] >> 5));
 	send(msg_socket, (char*)msg, *(int*)msg, 0);
-	if(Info.usr_mode == 32) {
+	if (Info.usr_mode == 32) {
 		NewKing_Response.size = 0x18;
 		NewKing_Response.type = IN_GAME_RESPONSE;
 		NewKing_Response.unk1 = 11036;
@@ -266,10 +267,10 @@ void PacketHandler::GetInRoomDeathResponse(PlayerKilledResponse *PKR) {
 		NewKing_Response.state = UpdateState();
 		NewKing_Response.checksum = cIOSocket.MakeDigest((uint8*)&NewKing_Response);
 		buffer = (unsigned char*)&NewKing_Response;
-		for(int i = 4; i < *(int*)buffer; i++)
+		for (int i = 4; i < *(int*)buffer; i++)
 			buffer[i] = ~((BYTE)(buffer[i] << 3) | (BYTE)(buffer[i] >> 5));
 		send(msg_socket, (char*)buffer, *(int*)buffer, 0);
-		if(Info.usr_slot != Killer) {
+		if (Info.usr_slot != Killer) {
 			RoundClear_Response.size = 0x38;
 			RoundClear_Response.type = ROUND_CLEAR_RESPONSE;
 			RoundClear_Response.unk1 = 11036;
@@ -281,7 +282,7 @@ void PacketHandler::GetInRoomDeathResponse(PlayerKilledResponse *PKR) {
 			RoundClear_Response.state = UpdateState();
 			RoundClear_Response.checksum = cIOSocket.MakeDigest((uint8*)&RoundClear_Response);
 			buffer = (unsigned char*)&RoundClear_Response;
-			for(int i = 4; i < *(int*)buffer; i++)
+			for (int i = 4; i < *(int*)buffer; i++)
 				buffer[i] = ~((BYTE)(buffer[i] << 3) | (BYTE)(buffer[i] >> 5));
 			send(msg_socket, (char*)buffer, *(int*)buffer, 0);
 		}
@@ -293,7 +294,7 @@ void PacketHandler::Trader() {
 	Trade_Struct.state = UpdateState();
 	Trade_Struct.checksum = cIOSocket.MakeDigest((uint8*)&Trade_Struct);
 	buffer = (unsigned char*)&Trade_Struct;
-	for(int i = 4; i < *(int*)buffer; i++)
+	for (int i = 4; i < *(int*)buffer; i++)
 		buffer[i] = ~((BYTE)(buffer[i] << 3) | (BYTE)(buffer[i] >> 5));
 	send(msg_socket, (char*)buffer, *(int*)buffer, 0);
 }
@@ -303,18 +304,18 @@ void PacketHandler::GetTradeResponse(TradeStruct *TS) {
 	TS->checksum = cIOSocket.MakeDigest((uint8*)TS);
 	unsigned char msg[0x9C];
 	memcpy(msg, TS, 0x9C);
-	for(int i = 4; i < *(int*)msg; i++)
+	for (int i = 4; i < *(int*)msg; i++)
 		msg[i] = ~((BYTE)(msg[i] << 3) | (BYTE)(msg[i] >> 5));
 	send(msg_socket, (char*)msg, *(int*)msg, 0);
 }
 
 void PacketHandler::GetRoomPlayerData() {
-	if(Joined) {
+	if (Joined) {
 		GetMasterResponse(Info.rm_master);
 		Joined = false;
 	}
 	int x = RoomList.GetInRoomPlayerList(Info.usr_room, pack);
-	for(int i = 0; i < x; i++) {
+	for (int i = 0; i < x; i++) {
 		*(int*)(pack + (i * 0x118) + 0x10) = UpdateState();
 		*(int*)(pack + (i * 0x118) + 0x0C) = cIOSocket.MakeDigest((uint8*)(pack + (i * 0x118)));
 		Encrypt(pack + (i * 0x118));
@@ -323,16 +324,16 @@ void PacketHandler::GetRoomPlayerData() {
 	/*NpcList myList;
 	RoomList.GetNpcList(&myList,Info.usr_room);
 	if(Info.usr_ready)
-		 if(myList.size == 0x404)
-		 {
-			  myList.state = UpdateState();
-			  myList.checksum = cIOSocket.MakeDigest((uint8*)&myList);
-			  unsigned char *msg = (unsigned char*)&myList;
-			  for (int i = 4; i < *(int*)msg; i++)
-					msg[i] = ~((BYTE)(msg[i] << 3) | (BYTE)(msg[i] >> 5));
-			  send(msg_socket,(char*)msg,*(int*)msg, 0);
-		 }
-	  */
+		if(myList.size == 0x404)
+		{
+			myList.state = UpdateState();
+			myList.checksum = cIOSocket.MakeDigest((uint8*)&myList);
+			unsigned char *msg = (unsigned char*)&myList;
+			for (int i = 4; i < *(int*)msg; i++)
+				msg[i] = ~((BYTE)(msg[i] << 3) | (BYTE)(msg[i] >> 5));
+			send(msg_socket,(char*)msg,*(int*)msg, 0);
+		}
+		*/
 }
 
 void PacketHandler::GetMasterResponse(int mSlot) {
@@ -346,25 +347,25 @@ void PacketHandler::GetMasterResponse(int mSlot) {
 	NMR.state = UpdateState();
 	NMR.checksum = cIOSocket.MakeDigest((uint8*)&NMR);
 	unsigned char *msg = (unsigned char*)&NMR;
-	for(int i = 4; i < *(int*)msg; i++)
+	for (int i = 4; i < *(int*)msg; i++)
 		msg[i] = ~((BYTE)(msg[i] << 3) | (BYTE)(msg[i] >> 5));
 	send(msg_socket, (char*)msg, *(int*)msg, 0);
 }
 
 void PacketHandler::GetNpcList(NpcList *npc) {
-	if(!Info.usr_ready)return;
+	if (!Info.usr_ready)return;
 	npc->state = UpdateState();
 	npc->checksum = cIOSocket.MakeDigest((uint8*)npc);
 	unsigned char msg[0x408];
 	memcpy(msg, npc, 0x408);
-	for(int i = 4; i < *(int*)msg; i++)
+	for (int i = 4; i < *(int*)msg; i++)
 		msg[i] = ~((BYTE)(msg[i] << 3) | (BYTE)(msg[i] >> 5));
 	send(msg_socket, (char*)msg, *(int*)msg, 0);
 }
 
 void PacketHandler::GetExpGainResponse(QuestGainResponse *QGR) {
-	if(Info.usr_slot >= 0 && Info.usr_slot < 8) {
-		if(QGR->killerslot == Info.usr_slot && QGR->eleType > 0 && QGR->eleType < 5)
+	if (Info.usr_slot >= 0 && Info.usr_slot < 8) {
+		if (QGR->killerslot == Info.usr_slot && QGR->eleType > 0 && QGR->eleType < 5)
 			MySql.GetExp(Info.usr_id, QGR->exp.exp[Info.usr_slot] * QGR->exp.cpMul[Info.usr_slot], ElementTypes[QGR->eleType], QGR->eleBase*QGR->eleMul);
 		else MySql.GetExp(Info.usr_id, QGR->exp.exp[Info.usr_slot] * QGR->exp.cpMul[Info.usr_slot]);
 	}
@@ -372,7 +373,7 @@ void PacketHandler::GetExpGainResponse(QuestGainResponse *QGR) {
 	QGR->checksum = cIOSocket.MakeDigest((uint8*)QGR);
 	unsigned char msg[0xB4];
 	memcpy(msg, QGR, 0xB4);
-	for(int i = 4; i < *(int*)msg; i++)
+	for (int i = 4; i < *(int*)msg; i++)
 		msg[i] = ~((BYTE)(msg[i] << 3) | (BYTE)(msg[i] >> 5));
 	send(msg_socket, (char*)msg, *(int*)msg, 0);
 }
@@ -382,7 +383,7 @@ void PacketHandler::GetReviveResponse(ReviveResponse *Revive_Response) {
 	Revive_Response->checksum = cIOSocket.MakeDigest((uint8*)Revive_Response);
 	unsigned char msg[0x24];
 	memcpy(msg, Revive_Response, 0x24);
-	for(int i = 4; i < *(int*)msg; i++)
+	for (int i = 4; i < *(int*)msg; i++)
 		msg[i] = ~((BYTE)(msg[i] << 3) | (BYTE)(msg[i] >> 5));
 	send(msg_socket, (char*)msg, *(int*)msg, 0);
 }
@@ -395,13 +396,13 @@ void PacketHandler::GetResultResponse(ResultsResponse* Results_Response) {
 	Results_Response->checksum = cIOSocket.MakeDigest((uint8*)Results_Response);
 	unsigned char msg[0x94];
 	memcpy(msg, Results_Response, 0x94);
-	for(int i = 4; i < *(int*)msg; i++)
+	for (int i = 4; i < *(int*)msg; i++)
 		msg[i] = ~((BYTE)(msg[i] << 3) | (BYTE)(msg[i] >> 5));
 	send(msg_socket, (char*)msg, *(int*)msg, 0);
 }
 
 void PacketHandler::GetBigBattleNpcMultiplier() {
-	if(Info.usr_mode != 0x21)return;
+	if (Info.usr_mode != 0x21)return;
 	BigBattleNpcMultiplier BBNM;
 	BBNM.size = 0x38;
 	BBNM.type = BIGBATTLE_NPC_X_RESPONSE;
@@ -409,12 +410,12 @@ void PacketHandler::GetBigBattleNpcMultiplier() {
 	BBNM.x[0] = 2;
 	BBNM.x[1] = 5;
 	BBNM.x[2] = 10;
-	for(int i = 3; i < 36; i++)//36
+	for (int i = 3; i < 36; i++)//36
 		BBNM.x[i] = 1;
 	BBNM.state = UpdateState();
 	BBNM.checksum = cIOSocket.MakeDigest((uint8*)&BBNM);
 	unsigned char *msg = (unsigned char*)&BBNM;
-	for(int i = 4; i < *(int*)msg; i++)
+	for (int i = 4; i < *(int*)msg; i++)
 		msg[i] = ~((BYTE)(msg[i] << 3) | (BYTE)(msg[i] >> 5));
 	send(msg_socket, (char*)msg, *(int*)msg, 0);
 }
@@ -424,12 +425,12 @@ void PacketHandler::GetJoinResponse2() {
 	RJR2.size = 0x24;
 	RJR2.type = ROOM_JOIN_RESPONSE2;
 	RJR2.unk1 = 11036;
-	for(int i = 0; i < 4; i++)
+	for (int i = 0; i < 4; i++)
 		RJR2.unks[i] = -1;
 	RJR2.state = UpdateState();
 	RJR2.checksum = cIOSocket.MakeDigest((uint8*)&RJR2);
 	unsigned char *msg = (unsigned char*)&RJR2;
-	for(int i = 4; i < *(int*)msg; i++)
+	for (int i = 4; i < *(int*)msg; i++)
 		msg[i] = ~((BYTE)(msg[i] << 3) | (BYTE)(msg[i] >> 5));
 	send(msg_socket, (char*)msg, *(int*)msg, 0);
 }
@@ -443,11 +444,11 @@ void PacketHandler::GetKickResponse(int slot) {
 	PKR.state = UpdateState();
 	PKR.checksum = cIOSocket.MakeDigest((uint8*)&PKR);
 	unsigned char *msg = (unsigned char*)&PKR;
-	for(int i = 4; i < *(int*)msg; i++)
+	for (int i = 4; i < *(int*)msg; i++)
 		msg[i] = ~((BYTE)(msg[i] << 3) | (BYTE)(msg[i] >> 5));
 	send(msg_socket, (char*)msg, *(int*)msg, 0);
-	if(Info.usr_slot == slot) {
-		if(RoomList.ExitPlayer(Info.usr_room, this))
+	if (Info.usr_slot == slot) {
+		if (RoomList.ExitPlayer(Info.usr_room, this))
 			HandleList.ProdcastNewRoom(this, 0, false, Info.usr_room);
 		Info.usr_char = Info.DefaultCharacter + Info.premium;
 		Lobby.Insert(LobbyInfo);
@@ -464,7 +465,7 @@ void PacketHandler::GetTitleChange(RoomTitleChangeResponse *RTCR) {
 	RTCR->checksum = cIOSocket.MakeDigest((uint8*)RTCR);
 	unsigned char msg[0x38];
 	memcpy(msg, RTCR, 0x34);
-	for(int i = 4; i < *(int*)msg; i++)
+	for (int i = 4; i < *(int*)msg; i++)
 		msg[i] = ~((BYTE)(msg[i] << 3) | (BYTE)(msg[i] >> 5));
 	send(msg_socket, (char*)msg, *(int*)msg, 0);
 }

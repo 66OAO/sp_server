@@ -6,17 +6,17 @@ HANDLE hConsoleOutput;
 
 int main()
 {
-    hConsoleOutput = GetStdHandle(STD_OUTPUT_HANDLE);
+	hConsoleOutput = GetStdHandle(STD_OUTPUT_HANDLE);
 	//printf("%x\n",sizeof(TrainingDoneResponse));
-    cLoginServer *LoginServer = new cLoginServer;
+	cLoginServer *LoginServer = new cLoginServer;
 
-    if (LoginServer->Start())
-        printf("----- Server Started -----\n");
+	if (LoginServer->Start())
+		printf("----- Server Started -----\n");
 
-    LoginServer->CommLoop();
-    delete LoginServer;
+	LoginServer->CommLoop();
+	delete LoginServer;
 
-    printf("Server Closing\n");
+	printf("Server Closing\n");
 
-    return 0;
+	return 0;
 }

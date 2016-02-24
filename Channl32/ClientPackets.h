@@ -38,7 +38,7 @@
 #define CHANGE_ROOMTITLE_REQ  17232
 #define UNKNOW_ROOM_JOIN_REQ  17410
 #define SHOP_BUY_ELEMENTCARD_REQ  17464
-
+#define ADD_CARD_SLOT_REQ 17511
 struct JoinChannelRequest {
 	int size;
 	int type;
@@ -194,7 +194,7 @@ struct ShopBuyRequest {
 	int unk1; //11036
 	int checksum;
 	int state;
-	int unk2; //-1
+	int slot; // = FF FF FF FF -> buy new items ; = slot -> gold force/silver force charge
 	int item;
 	int gf;
 	int unk3;
@@ -391,13 +391,18 @@ struct CardSearchRequest {
 
 struct BigBattlePlayerJoinRequest //Unknown Request
 {
-	int size; //0x04 0xD8 1240byte
+	int size; //0x04D8 1240byte
 	int type;
-	int unk1; // 11036
+	int unk1; //11036
 	int checksum;
 	int state;
+	int unk2;
+	int unk3;
+	NpcData slot[39];
+	char idc[208];
 };
-struct BigBattleNpcKoRequest {
+struct BigBattleNpcKoRequest
+{
 	int size; //0x40
 	int type;
 	int unk1; //11036
@@ -446,4 +451,13 @@ struct RoomTitleChangeRequest {
 	char title[32];
 };
 
+struct AddCardSlotRequest
+{
+	int size; //0x18
+	int type;
+	int unk1; //11036
+	int checksum;
+	int state;
+	int slotn;
+};
 #endif
