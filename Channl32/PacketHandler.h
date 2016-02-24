@@ -48,7 +48,6 @@ private:
 	NpcKillRequest *NpcKill_Request;
 	PlayerKickRequest *PlayerKick_Request;
 	RoomTitleChangeRequest *RoomTitleChange_Request;
-    ShopBuyElementCardRequest *Shop_Buy_ElementCard_Request;
     AddCardSlotRequest *AddCardSlot_Request;
 
 // Server Packet Structures

@@ -43,11 +43,7 @@ void MySQL::GetUserInfo(int id, MyCharInfo &info)
         printf(mysql_error(connection));
     MYSQL_RES *res = mysql_use_result(connection);
     MYSQL_ROW result = mysql_fetch_row(res);
-    if(!result)
-    {
-        printf("No Data\n");
-        return;
-    }
+    if (!res->row_count) return;
     info.DefaultCharacter = atoi(result[0]);
     info.Points = _atoi64(result[1]);
     info.Code = _atoi64(result[2]);

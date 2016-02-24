@@ -896,6 +896,7 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
         nOfPackets = 0;
         break;
     case SHOP_BUY_ELEMENTCARD_RESPONSE:
+    {
         CardType2 type;
         int result = 0;
         switch (Shop_Buy_ElementCard_Request->cardType) {
@@ -943,6 +944,7 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
     }
     break;
     case ADD_CARD_SLOT_RESPONSE:
+    {
         memset(&AddCardSlot_Response, 0, sizeof(AddCardSlotResponse));
         MySql.AddCardSlot(Info.usr_id, AddCardSlot_Request->slotn);
         AddCardSlot_Response.size = 0x18;
@@ -954,9 +956,6 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
         buffer = (unsigned char*)&AddCardSlot_Response;
         break;
     }
-}
-
-        break;
     }
 }
 

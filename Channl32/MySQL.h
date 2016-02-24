@@ -37,7 +37,6 @@ void GetExp(int usr_id, int usr_exp, const char *Elements = 0, int amount = 0);
 void BuyElementCard(MyCharInfo *Info, CardType2 type, int amount);
 void UpdateItem(MyCharInfo*, int, int, int);
 void AddCardSlot(int, int);
-void BuyElementCard(MyCharInfo *Info, CardType2 type, int amount);
 };
 
 struct LobbyUser
