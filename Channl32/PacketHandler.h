@@ -30,6 +30,7 @@ private:
     RoomJoinRequest *Room_Join_Request;
     ShopBuyRequest *Shop_Buy_Request;
     ShopSellRequest *Shop_Sell_Request;
+	ShopBuyElementCardRequest *Shop_Buy_ElementCard_Request;
     InRoomRequest *In_Room_Request;
     CardUpgradeRequest *Card_Upgrade_Request;
     PlayerKilledRequest *Player_Killed_Request;

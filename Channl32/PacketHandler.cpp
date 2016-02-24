@@ -896,7 +896,6 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
         nOfPackets = 0;
         break;
     case SHOP_BUY_ELEMENTCARD_RESPONSE:
-    {
         CardType2 type;
         int result = 0;
         switch (Shop_Buy_ElementCard_Request->cardType) {
@@ -953,6 +952,10 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
         AddCardSlot_Response.state = UpdateState();
         AddCardSlot_Response.checksum = cIOSocket.MakeDigest((uint8*)&AddCardSlot_Response);
         buffer = (unsigned char*)&AddCardSlot_Response;
+        break;
+    }
+}
+
         break;
     }
 }

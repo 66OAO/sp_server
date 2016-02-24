@@ -177,7 +177,6 @@ enum CardType2
 	wind = 4 * 10
 };
 
-
 enum Weapon
 {
 	axe = 1 + 100 + 1000,
