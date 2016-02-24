@@ -453,11 +453,11 @@ struct RoomTitleChangeRequest {
 
 struct AddCardSlotRequest
 {
-    int size; //0x18
-    int type;
-    int unk1; //11036
-    int checksum;
-    int state;
-    int slotn;
+	int size; //0x18
+	int type;
+	int unk1; //11036
+	int checksum;
+	int state;
+	int slotn;
 };
 #endif

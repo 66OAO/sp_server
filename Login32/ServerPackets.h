@@ -81,7 +81,7 @@ struct DefaultCharacterChangeResponse {
 	int unk4;
 	int unk5;
 };
-const int t_items[] = {11204, 11203, 11202, 11201, 11101, 11102, 11103, 11104, 11301, 2910};
+const int t_items[] = { 11204, 11203, 11202, 11201, 11101, 11102, 11103, 11104, 11301, 2910 };
 struct TrainingDoneResponse {
 	int size; //0x98
 	int type;

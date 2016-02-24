@@ -279,7 +279,7 @@ public:
 		return false;
 	}
 	int GetUpgradeCost(int type, int level, int UpgradeType) {
-		switch(IdentifyItem(type)) {
+		switch (IdentifyItem(type)) {
 		case ct_mag:
 			if (UpgradeType == 1)
 				return MagicEleLvlCost[level];
@@ -291,25 +291,30 @@ public:
 			else
 				return WeaponSkCost[level];
 		case ct_arm:
-			if(type % 10 == 1) {
+			if (type % 10 == 1) {
 				if (UpgradeType == 1)
 					return ShdEleLvlCost[level];
 				else
 					return ShieldSkCost[level];
-			} else if(type % 10 == 4) {
+			}
+			else if (type % 10 == 4) {
 				if (UpgradeType == 1)
 					return WpnEleLvlCost[level];
 				else
 					return BootSkCost[level];
-			} else {
-				if(UpgradeType == 1) {
+			}
+			else {
+				if (UpgradeType == 1) {
 					return ArmEleLvlCost[level];
-				} else if(type % 10 == 2) {
-					return PendantSkCost[level];
-				} else if(type % 10 == 3) {
-					return ShieldSkCost[level];
-				} else {}
 				}
+				else if (type % 10 == 2) {
+					return PendantSkCost[level];
+				}
+				else if (type % 10 == 3) {
+					return ShieldSkCost[level];
+				}
+				else {}
+			}
 		default:
 			break;
 		}
@@ -350,16 +355,17 @@ public:
 				Skill Sk(Skill1, Skill2, Skill3);
 				return Sk.getType();
 			}
-			if(b == ct_wpn) {
-				if(a == 1 || a == 3) {
+			if (b == ct_wpn) {
+				if (a == 1 || a == 3) {
 					Skill2 = MeleeWpnSkill2[rand() % (sizeof(MeleeWpnSkill2) / sizeof(MeleeWpnSkill2[0]))];
-				} else if(a == 2 || a == 4) {
+				}
+				else if (a == 2 || a == 4) {
 					Skill2 = RangedWpnSkill2[rand() % (sizeof(RangedWpnSkill2) / sizeof(RangedWpnSkill2[0]))];
 				}
 				Skill Sk(Skill1, Skill2, Skill3);
 				return Sk.getType();
 			}
-			if(b == ct_mag) {
+			if (b == ct_mag) {
 				do
 				{
 					Skill2 = MagicSkill[rand() % (sizeof(MagicSkill) / sizeof(MagicSkill[0]))];
@@ -471,7 +477,7 @@ public:
 				return Sk.getType();
 			}
 		}
-			break;
+		break;
 		case 9://Skill 2 - 2 Fusion
 		{
 			int a = Type % 10, b = IdentifyItem(Type);
@@ -481,7 +487,7 @@ public:
 			Skill Sk(Skill1, Skill2, Skill3);
 			return Sk.getType();
 		}
-			break;
+		break;
 		case 2://Elements
 		case 4://Skill Fusion
 		default:
@@ -523,13 +529,14 @@ public:
 				if (a == 1 || a == 3)
 				{
 					Skill3 = MeleeWpnSkill2[rand() % 106];
-				} else if(a == 2 || a == 4) {
+				}
+				else if (a == 2 || a == 4) {
 					Skill3 = RangedWpnSkill2[rand() % 107];
 				}
 				Skill Sk(Skill1, Skill2, Skill3);
 				return Sk.getType();
 			}
-			if(b == ct_mag) {
+			if (b == ct_mag) {
 				Skill2 = MagicSkill[rand() % 104];
 				Skill3 = MagicSkill[rand() % 104];
 				Skill Sk(Skill1, Skill2, Skill3);
@@ -559,7 +566,7 @@ public:
 		return 7000;
 	}
 	void Calculate(short npcType, ExpGain *gain, int *damages) {
-		if(damages) {
+		if (damages) {
 			int totaldmg = 0, totalexp = CalculateNpcExp(npcType);
 			for (int i = 0; i < 8; i++)
 				totaldmg += damages[i];
@@ -567,9 +574,10 @@ public:
 				if (damages[i]) {
 					gain->exp[i] = totalexp*(1.0*damages[i] / totaldmg);
 					gain->cpMul[i] = rand() % 10 + 1;
-				} else gain->exp[i] = 0;
 				}
+				else gain->exp[i] = 0;
 		}
+	}
 
 };
 

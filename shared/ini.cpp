@@ -9,14 +9,14 @@ CIni::~CIni() {
 }
 
 int CIni::ReadInteger(const char* key, int defaultValue, const char* section) const {
-	if(!section)
+	if (!section)
 		section = _section.c_str();
 
 	return GetPrivateProfileInt(section, key, defaultValue, _fileName.c_str());
 }
 
 float CIni::ReadFloat(const char* key, float defaultValue, const char* section) const {
-	if(!section)
+	if (!section)
 		section = _section.c_str();
 
 	char defaultVal[256];
@@ -29,7 +29,7 @@ float CIni::ReadFloat(const char* key, float defaultValue, const char* section) 
 }
 
 bool CIni::ReadBoolean(const char* key, bool defaultValue, const char* section) const {
-	if(!section)
+	if (!section)
 		section = _section.c_str();
 
 	char defaultVal[256];
@@ -42,7 +42,7 @@ bool CIni::ReadBoolean(const char* key, bool defaultValue, const char* section) 
 }
 
 char * CIni::ReadString(const char* key, const char* defaultValue, const char* section) const {
-	if(!section)
+	if (!section)
 		section = _section.c_str();
 
 	char* result = new char[256];
@@ -53,7 +53,7 @@ char * CIni::ReadString(const char* key, const char* defaultValue, const char* s
 
 
 void CIni::WriteInteger(const char* key, int val, const char* section) const {
-	if(!section)
+	if (!section)
 		section = _section.c_str();
 
 	char _val[256];
@@ -62,7 +62,7 @@ void CIni::WriteInteger(const char* key, int val, const char* section) const {
 }
 
 void CIni::WriteFloat(const char* key, float val, const char* section) const {
-	if(!section)
+	if (!section)
 		section = _section.c_str();
 
 	char _val[256];
@@ -71,7 +71,7 @@ void CIni::WriteFloat(const char* key, float val, const char* section) const {
 }
 
 void CIni::WriteBoolean(const char* key, bool val, const char* section) const {
-	if(!section)
+	if (!section)
 		section = _section.c_str();
 
 	char _val[256];
@@ -80,7 +80,7 @@ void CIni::WriteBoolean(const char* key, bool val, const char* section) const {
 }
 
 void CIni::WriteString(const char* key, char* val, const char* section) const {
-	if(!section)
+	if (!section)
 		section = _section.c_str();
 
 	WritePrivateProfileString(section, key, val, _fileName.c_str());
