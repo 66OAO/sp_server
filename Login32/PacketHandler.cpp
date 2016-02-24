@@ -156,7 +156,7 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
             Server_Info[0].channel = 1;
             Server_Info[0].servernumber = 0;
 
-            strcpy(Server_Info[0].ip, config.ReadString("ip", "192.168.31.116"));
+            strcpy(Server_Info[0].ip, config.ReadString("ip", "127.0.0.1"));
 
             Server_Info[0].port = config.ReadInteger("port", 9303);
             Server_Info[0].serverload = 0;
@@ -169,7 +169,7 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
             Server_Info[0].channel = 2;
             Server_Info[0].servernumber = 0;
 
-            strcpy(Server_Info[0].ip, config.ReadString("ip", "192.168.31.116"));
+            strcpy(Server_Info[0].ip, config.ReadString("ip", "127.0.0.1"));
 
             Server_Info[0].port = config.ReadInteger("port", 9303);
             Server_Info[0].serverload = 0;
@@ -182,7 +182,7 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
             Server_Info[0].channel = 3;
             Server_Info[0].servernumber = 0;
 
-            strcpy(Server_Info[0].ip, config.ReadString("ip", "192.168.31.116"));
+            strcpy(Server_Info[0].ip, config.ReadString("ip", "127.0.0.1"));
 
             Server_Info[0].port = config.ReadInteger("port", 9303);
             Server_Info[0].serverload = 0;
@@ -197,7 +197,7 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
             Server_Info[1].channel = 3;
             Server_Info[1].servernumber = 1;
 
-            strcpy(Server_Info[1].ip, config.ReadString("ip", "192.168.31.116"));
+            strcpy(Server_Info[1].ip, config.ReadString("ip", "127.0.0.1"));
 
             Server_Info[1].port = config.ReadInteger("port", 9303);
             Server_Info[1].serverload = 0;
@@ -221,7 +221,7 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
         Default_Character_Change_Response.character = Default_Character_Change_Request->character;
         Default_Character_Change_Response.checksum = cIOSocket.MakeDigest((unsigned char*)&Default_Character_Change_Response);
         buffer = (unsigned char*)&Default_Character_Change_Response;
-        SetDefaultCharacter(Default_Character_Change_Request->character);
+        MySql.SetDefaultCharacter(usr_id,Default_Character_Change_Request->character);
         break;
     case TRAINING_DONE_RESPONSE:
         TrainingDone_Response.size = 0x98;

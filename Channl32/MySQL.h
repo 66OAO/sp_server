@@ -34,6 +34,9 @@ void UpdateScrolls(int id,int slot,int scroll);
 void IncreaseMission(int id,int n);
 void SearchShop(CardSearchResponse*,SearchType);
 void GetExp(int usr_id, int usr_exp,const char *Elements=0, int Ammount=0);
+void UpdateItem(MyCharInfo*, int, int, int);
+void AddCardSlot(int, int);
+void BuyElementCard(MyCharInfo *Info, CardType2 type, int amount);
 };
 
 struct LobbyUser

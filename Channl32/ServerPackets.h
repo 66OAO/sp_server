@@ -37,9 +37,12 @@
 #define BIGBATTLE_NPC_X_RESPONSE	17424
 #define CARD_SEARCH_RESPONSE	17459
 #define BIGBATTLE_NPC_KO_RESPONSE  17303
+#define BIGBATTLE_PLAYER_JOIN_RESPONSE  17304 //guess
 #define PLAYER_KICK_RESPONSE	17185
 #define CHANGE_ROOMTITLE_RESPONSE	17257
 #define TRADE_SUCCESS_RESPONSE	17217
+#define SHOP_BUY_ELEMENTCARD_RESPONSE	17465
+#define ADD_CARD_SLOT_RESPONSE 17512
 
 struct LobbyUserInfoResponse
 {
@@ -177,7 +180,7 @@ struct JoinChannelPlayerDataResponse
     bool bunk[7]; //1 0 1 1 1 1 0 0
     int Rank;
     int unk43; //1
-    int unk44; //0x108
+    int maxroom; //0x108
     int munk1, munk2, munk3, munk4, munk5, munk6, munk7, munk8; //-1
     int unk45; //7
     int zero5[2];
@@ -461,7 +464,7 @@ struct RoomExitResponse
     int unk1; //11036
     int checksum;
     int state;
-    int unk2; //0
+    int exitslot; //0
     char username[16];
 };
 
@@ -492,6 +495,21 @@ struct ShopBuyResponse
     unsigned __int64 Code;
     unsigned __int64 Cash;
     unsigned __int64 unk4;
+};
+
+struct ShopBuyElementCardResponse
+{
+	int size; //0x30
+	int type;
+	int unk1; //11036
+	int checksum;
+	int state;
+	int unk2; //1
+	unsigned __int64 Code;
+	int WaterElements;
+	int FireElements;
+	int EarthElements;
+	int WindElements;
 };
 
 struct ShopSellResponse
@@ -839,6 +857,41 @@ struct TradeSuccessResponse
     int FireElements;
     int EarthElements;
     int WindElements; 
+};
+
+struct BigBattlePlayerJoinResponse //Unknown Response
+{
+    
+    int size; //0x04D8 1240byte
+    int type;
+    int unk1; //11036
+    int checksum;
+    int state;
+    int unk2;
+    int unk3;
+    NpcData slot[39];
+    //NpcData npc[33];
+    char idc[208];
+};
+
+struct ShopBuyEleResponse
+{
+	int size; //0x1C
+	int type;
+	int unk1; //11036
+	int checksum;
+	int state;
+	int unk2;
+};
+
+struct AddCardSlotResponse
+{
+	int size; //0x18
+	int type;
+	int unk1; //11036
+	int checksum;
+	int state;
+	int addcheck;
 };
 
 #endif

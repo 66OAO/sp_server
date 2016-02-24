@@ -47,6 +47,8 @@ private:
 	NpcKillRequest *NpcKill_Request;
 	PlayerKickRequest *PlayerKick_Request;
 	RoomTitleChangeRequest *RoomTitleChange_Request;
+    ShopBuyElementCardRequest *Shop_Buy_ElementCard_Request;
+    AddCardSlotRequest *AddCardSlot_Request;
 
 // Server Packet Structures
     JoinChannelResponse Join_Channel_Response;
@@ -72,10 +74,12 @@ private:
 	MissionCompleteResponse MissionComplete;
 	MissionAfterResponse MissionAfter_Response;
 	CardSearchResponse CardSearch_Response;
+    BigBattlePlayerJoinResponse BigBattlePlayerJoin_Response;
 	BigBattleNpcKoResponse BigBattleNpcKo_Response;
 	QuestGainResponse QuestGain_Response;
 	NpcListResponse NpcList_Response;
-
+	ShopBuyElementCardResponse Shop_Buy_ElementCard_Response;
+	AddCardSlotResponse AddCardSlot_Response;
 
 public:
     JoinChannelPlayerDataResponse Join_Channel_PlayerData_Response;

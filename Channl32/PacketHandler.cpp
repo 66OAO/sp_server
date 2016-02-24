@@ -101,23 +101,25 @@ void PacketHandler::Handle(unsigned char *buf)
         In_Room_Request = (InRoomRequest*)buf;
         cout << "IN_ROOM_REQ " << IP << " Team : " << In_Room_Request->team << endl;
         Info.usr_team = In_Room_Request->team;
-        if (In_Room_Request->GameStart == 1)//Player change team
+        switch (In_Room_Request->GameStart)
         {
+        case 0://Player change character
             Info.usr_char = In_Room_Request->Character;
-            Info.usr_team = In_Room_Request->team;
-            cout << "ROOM PROD: " << Info.usr_room << endl;
             HandleList.ProdcastRoomUpdate(Info.usr_room);
             GenerateResponse(ROOM_PLAYERDATA_RESPONSE);
-        }
-        else if (In_Room_Request->GameStart == 2)//Player ready
-        {
+        case 1://Player change team
+            Info.usr_team = In_Room_Request->team;
+            HandleList.ProdcastRoomUpdate(Info.usr_room);
+            GenerateResponse(ROOM_PLAYERDATA_RESPONSE);
+            break;
+        case 2://Player ready
             Info.usr_ready = (BYTE)In_Room_Request->Ready;
             //if(In_Room_Request->Ready > 10)
             //	Info.usr_ready = 0;
             GetBigBattleNpcMultiplier();
             GenerateResponse(ROOM_PLAYERDATA_RESPONSE);
+            break;
         }
-        //GenerateResponse(NPC_LIST_RESPONSE);
         break;
     case IN_GAME_REQ:
         InGame_Request = (InGameRequest*)buf;
@@ -187,7 +189,8 @@ void PacketHandler::Handle(unsigned char *buf)
         */
     case BIGBATTLE_PLAYER_JOIN_REQ:
         BigBattlePlayerJoin_Request = (BigBattlePlayerJoinRequest*)buf;
-        cout << "BIGBATTLE_PLAYER_JOIN" << endl;
+        cout << "BIGBATTLE_PLAYER_JOIN_REQ" << endl;
+        GenerateResponse(BIGBATTLE_PLAYER_JOIN_RESPONSE);
         break;
     case BIGBATTLE_NPC_KO_REQ:
         BigBattleNpcKo_Request = (BigBattleNpcKoRequest*)buf;
@@ -205,8 +208,10 @@ void PacketHandler::Handle(unsigned char *buf)
         GenerateResponse(REVIVE_RESPONSE);
         break;
     case ROOM_QUIT_REQ:
+        cout << "ROOM_QUIT_REQ" << endl;
+        GenerateResponse(ROOM_EXIT_RESPONSE);
     case ROOM_EXIT_REQ:
-        cout << "ROOM_EXIT/QUIT_REQ" << endl;
+        cout << "ROOM_EXIT_REQ" << endl;
         GenerateResponse(ROOM_EXIT_RESPONSE);
         break;
     case CHAT_REQ:
@@ -218,6 +223,16 @@ void PacketHandler::Handle(unsigned char *buf)
         Quest_Progress = (QuestProgress*)buf;
         cout << "QUEST_PROG_REQ" << endl;
         RoomList.UpdateProgress(Info.usr_room, Quest_Progress->progress);
+        break;
+    case SHOP_BUY_ELEMENTCARD_REQ:
+        Shop_Buy_ElementCard_Request = (ShopBuyElementCardRequest*)buf;
+        cout << "SHOP_BUY_ELEMENTCARD_REQ" << endl;
+        GenerateResponse(SHOP_BUY_ELEMENTCARD_RESPONSE);
+        break;
+    case ADD_CARD_SLOT_REQ:
+        AddCardSlot_Request = (AddCardSlotRequest*)buf;
+        cout << "ADD_CARD_SLOT_REQ" << endl;
+        GenerateResponse(ADD_CARD_SLOT_RESPONSE);
         break;
     default:
         cout << "-- UNKNOW_REQ --" << endl;
@@ -264,7 +279,7 @@ int PacketHandler::UpdateState(int S)
 int PacketHandler::IdentifyPacketType(unsigned char* buf)
 {
     int Handler_ipt = *(int*)(buf + 4);
-    cout << "-- IdentifyPacketType: " << Handler_ipt <<" --"<< endl;
+    cout << "-- IdentifyPacketType: " << Handler_ipt << " --" << endl;
     return Handler_ipt;
 }
 
@@ -290,7 +305,7 @@ void PacketHandler::Decrypt(unsigned char *buf)
     time(&rawtime);
     timeinfo = localtime(&rawtime);
     cout << "---- Decrypted Data  ----" << endl;
-    printf("Time: %s \n", asctime(timeinfo));
+    cout << "Time:" << asctime(timeinfo) << endl;
     for (int i = 0; i < sz; i++)
     {
         if (i && i % 16 == 0)cout << endl;
@@ -449,7 +464,7 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
         Join_Channel_PlayerData_Response.bunk[6] = 0;
         Join_Channel_PlayerData_Response.Rank = 101;
         Join_Channel_PlayerData_Response.unk43 = 1; //1
-        Join_Channel_PlayerData_Response.unk44 = 22; //0x108
+        Join_Channel_PlayerData_Response.maxroom = 22; //0x108
         memset((void*)&Join_Channel_PlayerData_Response.munk1, -1, 4 * 8); //-1
         Join_Channel_PlayerData_Response.unk45 = 7; //7
         Join_Channel_PlayerData_Response.unk46 = 0x120101; //0x120101
@@ -471,8 +486,64 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
         Shop_Buy_Response.type = SHOP_BUY_RESPONSE;
         Shop_Buy_Response.unk1 = 11036; //11036
         Shop_Buy_Response.unk2 = 1; //1
-        MySql.InsertNewItem(&Info, Shop_Buy_Request->item, Shop_Buy_Request->gf, Shop_Buy_Request->level, 0);
-        printf("-- Buy Item --");
+        if (Shop_Buy_Request->slot == -1)
+        {
+            switch (Shop_Buy_Request->item)
+            {
+            case 2500:
+                MySql.InsertNewItem(&Info, 2015, 6000, 25, 0);
+                MySql.InsertNewItem(&Info, 2018, 6000, 1, 0);
+                MySql.InsertNewItem(&Info, 2019, 6000, 1, 0);
+                MySql.InsertNewItem(&Info, 2020, 6000, 1, 0);
+                break;
+            case 2501:
+                MySql.InsertNewItem(&Info, 2015, 6000, 15, 0);
+                MySql.InsertNewItem(&Info, 2015, 6000, 1, 0);
+                MySql.InsertNewItem(&Info, 2016, 6000, 1, 0);
+                break;
+            case 2502:
+                MySql.InsertNewItem(&Info, 2016, 6000, 25, 0);
+                MySql.InsertNewItem(&Info, 2018, 6000, 1, 0);
+                MySql.InsertNewItem(&Info, 2019, 6000, 1, 0);
+                MySql.InsertNewItem(&Info, 2020, 6000, 1, 0);
+                break;
+            case 2503:
+                MySql.InsertNewItem(&Info, 2016, 6000, 15, 0);
+                MySql.InsertNewItem(&Info, 2015, 6000, 1, 0);
+                MySql.InsertNewItem(&Info, 2016, 6000, 1, 0);
+                break;
+            case 2504:
+                MySql.InsertNewItem(&Info, 2009, 6000, 25, 0);
+                MySql.InsertNewItem(&Info, 2014, 6000, 2, 0);
+                break;
+            case 2505:
+                MySql.InsertNewItem(&Info, 2009, 6000, 15, 0);
+                MySql.InsertNewItem(&Info, 2013, 6000, 2, 0);
+                break;
+            case 2506:
+                MySql.InsertNewItem(&Info, 2004, 6000, 1, 0);
+                MySql.InsertNewItem(&Info, 2005, 6000, 1, 0);
+                MySql.InsertNewItem(&Info, 2005, 6000, 1, 0);
+                MySql.InsertNewItem(&Info, 2018, 6000, 1, 0);
+                MySql.InsertNewItem(&Info, 2019, 6000, 1, 0);
+                MySql.InsertNewItem(&Info, 2020, 6000, 1, 0);
+                break;
+            case 2507:
+                MySql.InsertNewItem(&Info, 2004, 6000, 1, 0);
+                MySql.InsertNewItem(&Info, 2005, 6000, 1, 0);
+                MySql.InsertNewItem(&Info, 2015, 6000, 1, 0);
+                MySql.InsertNewItem(&Info, 2016, 6000, 1, 0);
+                break;
+            default:
+                MySql.InsertNewItem(&Info, Shop_Buy_Request->item, Shop_Buy_Request->gf, Shop_Buy_Request->level, 0);
+                break;
+            }
+
+        }
+        else if (-1 < Shop_Buy_Request->slot < 96)
+        {
+            MySql.UpdateItem(&Info, Shop_Buy_Request->slot, Shop_Buy_Request->item, Shop_Buy_Request->gf);
+        }
         MySql.GetUserItems(Info.usr_id, Shop_Buy_Response.bMyCard, 0, Shop_Buy_Response.TypeMyCard, Shop_Buy_Response.GFMyCard, Shop_Buy_Response.LevelMyCard, Shop_Buy_Response.SkillMyCard);
         Shop_Buy_Response.Slots = Info.nSlots;
         {
@@ -505,7 +576,7 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
         Card_Upgrade_Response.type = CARD_UPGRADE_RESPONSE;
         Card_Upgrade_Response.unk1 = 11036;
         Card_Upgrade_Response.Slot = Card_Upgrade_Request->Slot;
-        Card_Upgrade_Response.UpgradeType = Card_Upgrade_Request->UpgradeType; //1 = Lvl, 2 = Skill
+        Card_Upgrade_Response.UpgradeType = Card_Upgrade_Request->UpgradeType;// 1 = Lvl, 2 = Skill, 3 Level Fusion, 4 Skill Fusion, 5 Skill 1 Fusion, 6 Skill 2 Fusion, 7 Skill 1 - 1 Fusion, 8 Skill 2 - 1 Fusion, 9 Skill 2 - 2 Fusion
         Card_Upgrade_Response.unk2 = Card_Upgrade_Request->UpgradeType; //1 lvl, 5 skill
         Card_Upgrade_Response.UpgradeType2 = Card_Upgrade_Request->UpgradeType;
         MySql.UpgradeCard(&Info, &Card_Upgrade_Response);
@@ -774,13 +845,24 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
         nOfPackets = sizeof(respawn);
         }
         break;*/
+    case BIGBATTLE_PLAYER_JOIN_RESPONSE:
+        /*cout << "BIGBATTLE_PLAYER_JOIN_RESPONSE\n" << endl;
+        BigBattlePlayerJoin_Response.size = 0x38;
+        BigBattlePlayerJoin_Response.type = BIGBATTLE_PLAYER_JOIN_RESPONSE;
+        BigBattlePlayerJoin_Response.unk1 = 11036;
+        for (int i = 0; i < 39; i++)
+            BigBattlePlayerJoin_Response.slot[i] = BigBattlePlayerJoin_Request->slot[i];
+        BigBattlePlayerJoin_Response.state = UpdateState();
+        BigBattlePlayerJoin_Response.checksum = cIOSocket.MakeDigest((uint8*)&BigBattlePlayerJoin_Response);
+        buffer = (unsigned char*)&BigBattlePlayerJoin_Response;*/
+        break;
     case BIGBATTLE_NPC_KO_RESPONSE:
         BigBattleNpcKo_Response.size = 0xA4;
         BigBattleNpcKo_Response.type = BIGBATTLE_NPC_KO_RESPONSE;
         BigBattleNpcKo_Response.unk1 = 11036;
         BigBattleNpcKo_Response.deadslot = BigBattleNpcKo_Request->deadslot;//The Dead Slot
         BigBattleNpcKo_Response.zero = 0;
-        BigBattleNpcKo_Response.luckmul = rand()%100;//Lucky Point Multiplier
+        BigBattleNpcKo_Response.luckmul = rand() % 100;//Lucky Point Multiplier
         BigBattleNpcKo_Response.multiplier = 10;//1
         BigBattleNpcKo_Response.unk3 = 1;//1
         BigBattleNpcKo_Response.unk4 = 1;//1
@@ -812,6 +894,65 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
     case ROOM_EXIT_RESPONSE:
         GetExitRoomResponse();
         nOfPackets = 0;
+        break;
+    case SHOP_BUY_ELEMENTCARD_RESPONSE:
+    {
+        CardType2 type;
+        int result = 0;
+        switch (Shop_Buy_ElementCard_Request->cardType) {
+        case 0x1770:
+            type = water;
+            break;
+        case 0x1771:
+            type = fire;
+            break;
+        case 0x1772:
+            type = earth;
+            break;
+        case 0x1773:
+            type = wind;
+            break;
+        default:
+            cout << "Unknown Type" << endl;
+            break;
+        }
+        unsigned long long code;
+        int cash;
+        if (type) {
+            if (Info.Code >= Shop_Buy_ElementCard_Request->amount * ElementCardCost) {
+                MySql.GetMoneyAmmount(Info.usr_id, &cash, &code, '-', 0, Shop_Buy_ElementCard_Request->amount * ElementCardCost);
+                MySql.BuyElementCard(&Info, type, Shop_Buy_ElementCard_Request->amount);
+                cout << "-- Buy Element Card --" << endl;
+                result = 1;
+            }
+        }
+        else {
+            code = Info.Code;
+        }
+        Shop_Buy_ElementCard_Response.size = 0x30;
+        Shop_Buy_ElementCard_Response.unk2 = result;
+        Shop_Buy_ElementCard_Response.Code = code;
+        Shop_Buy_ElementCard_Response.EarthElements = Info.Earth;
+        Shop_Buy_ElementCard_Response.FireElements = Info.Fire;
+        Shop_Buy_ElementCard_Response.WaterElements = Info.Water;
+        Shop_Buy_ElementCard_Response.WindElements = Info.Wind;
+        Shop_Buy_ElementCard_Response.type = SHOP_BUY_ELEMENTCARD_RESPONSE;
+        Shop_Buy_ElementCard_Response.unk1 = 11036;
+        Shop_Buy_ElementCard_Response.state = UpdateState();
+        Shop_Buy_ElementCard_Response.checksum = cIOSocket.MakeDigest((uint8*)&Shop_Buy_ElementCard_Response);
+        buffer = (unsigned char*)&Shop_Buy_ElementCard_Response;
+    }
+    break;
+    case ADD_CARD_SLOT_RESPONSE:
+        memset(&AddCardSlot_Response, 0, sizeof(AddCardSlotResponse));
+        MySql.AddCardSlot(Info.usr_id, AddCardSlot_Request->slotn);
+        AddCardSlot_Response.size = 0x18;
+        AddCardSlot_Response.type = ADD_CARD_SLOT_RESPONSE;
+        AddCardSlot_Response.unk1 = 11036;
+        AddCardSlot_Response.addcheck = 2;
+        AddCardSlot_Response.state = UpdateState();
+        AddCardSlot_Response.checksum = cIOSocket.MakeDigest((uint8*)&AddCardSlot_Response);
+        buffer = (unsigned char*)&AddCardSlot_Response;
         break;
     }
 }

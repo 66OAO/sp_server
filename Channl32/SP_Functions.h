@@ -81,7 +81,7 @@ void PacketHandler::GetExitRoomResponse()
     Room_Exit_Response.size = 0x28;
     Room_Exit_Response.type = ROOM_EXIT_RESPONSE;
     Room_Exit_Response.unk1 = 11036;
-    Room_Exit_Response.unk2 = Info.usr_slot;
+    Room_Exit_Response.exitslot = Info.usr_slot;
     strcpy(Room_Exit_Response.username,LobbyInfo.name.c_str());
     RoomList.ProdcastPlayerExitRoom(this,&Room_Exit_Response,Info.usr_room);
     Room_Exit_Response.state = UpdateState();

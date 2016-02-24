@@ -77,7 +77,7 @@ void Comm(void *args)
 
             if (!retbufsize)
             {
-                printf("Channel Server: Connection closed by client\n");
+                cout << "Channel Server: Connection closed by client" << endl;
                 closesocket(msg_socket);
                 break;
             }
@@ -88,7 +88,7 @@ void Comm(void *args)
                 closesocket(msg_socket);
                 break;
             }
-            else printf("recv %d bytes success\n",retbufsize);
+            else cout << "recv " << retbufsize << "bytes success";
 
 
 			int32 sz = *(int32*)buffer;
@@ -102,7 +102,7 @@ void Comm(void *args)
             {
                 n = 1;
                 PackHandle.Handle(buffer);
-                printf("Channel Server: Sending First Response\n");
+                cout << "Channel Server: Sending First Response" << endl;
                 retbufsize = send(msg_socket,(char*)buffer,PackHandle.ServerResponse(buffer)*buffer[0], 0);
 
                 PackHandle.GenerateResponse(JOIN_MISSIONLEVEL_RESPONSE);
@@ -164,7 +164,7 @@ bool ChannelServer::CommLoop()
         {
 			args.msg_socket = msg_socket;
             strcpy(args.LastIP,inet_ntoa(client.sin_addr));
-            printf("Channel Server: Accept Client with IP:%s\n",args.LastIP);
+            cout << "Channel Server: Accept Client with IP: " << args.LastIP << endl;
         }
         _beginthread((void (*)(void *))Comm,0,(void *)&args);
 		Sleep(50);
