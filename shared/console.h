@@ -2,8 +2,7 @@
 #define CONSOLE_H
 #include <iostream>
 
-static const void MakeMeFocused(char *output,bool type)
-{
+static const void MakeMeFocused(char *output, bool type) {
 	HANDLE hConsoleOutput = GetStdHandle(STD_OUTPUT_HANDLE);
 
 	SetConsoleTextAttribute(hConsoleOutput,

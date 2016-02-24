@@ -31,8 +31,7 @@ LobbyList::LobbyList()
     root = 0;
 }
 
-void LobbyList::Insert(LobbyUser user)
-{
+void LobbyList::Insert(LobbyUser user) {
     count++;
     LobbyUser *Temp = new LobbyUser;
     Temp->name = user.name;
@@ -43,12 +42,10 @@ void LobbyList::Insert(LobbyUser user)
 
     if (!root)
         root = Temp;
-    else
-    {
+	else {
         LobbyUser *p;
         for (p = root; p->ptr; p = p->ptr)
-            if (p->name.compare(user.name) == 0)
-            {
+			if(p->name.compare(user.name) == 0) {
                 delete Temp;
                 return;
             }
@@ -56,18 +53,14 @@ void LobbyList::Insert(LobbyUser user)
     }
 }
 
-void LobbyList::Delete(string username)
-{
+void LobbyList::Delete(string username) {
     LobbyUser *delPtr, *currPtr;
     if (!root)return;
     count--;
-    if (root->name.compare(username) == 0)
-    {
+	if(root->name.compare(username) == 0) {
         delPtr = root;
         root = root->ptr;
-    }
-    else
-    {
+	} else {
         currPtr = root;
         if (currPtr->ptr == 0)return;
         while (currPtr->ptr->name.compare(username) != 0) {
@@ -80,8 +73,7 @@ void LobbyList::Delete(string username)
     delete delPtr;
 }
 
-int LobbyList::GetList(unsigned char *packet)
-{
+int LobbyList::GetList(unsigned char *packet) {
     LobbyUserInfoResponse Lobby_UserInfo_Response;
     memset(&Lobby_UserInfo_Response, 0, sizeof(Lobby_UserInfo_Response));
     Lobby_UserInfo_Response.size = 0x3C;
@@ -91,8 +83,7 @@ int LobbyList::GetList(unsigned char *packet)
     Lobby_UserInfo_Response.b5 = 1; //1
     Lobby_UserInfo_Response.b6 = 1; //1
     int i = 0;
-    for (LobbyUser *p = root; p; p = p->ptr, i++)
-    {
+	for(LobbyUser *p = root; p; p = p->ptr, i++) {
         Lobby_UserInfo_Response.gender = p->gender;
         strcpy(Lobby_UserInfo_Response.username, p->name.c_str());
         Lobby_UserInfo_Response.level = p->level;
@@ -103,8 +94,7 @@ int LobbyList::GetList(unsigned char *packet)
     return count;
 }
 
-struct LobbyRoom
-{
+struct LobbyRoom {
     int n, p, master, progress, mission;
     bool started;
     char title[29];
@@ -117,8 +107,7 @@ struct LobbyRoom
     //NpcList npc;
 };
 
-class _RoomList
-{
+class _RoomList {
 private:
     LobbyRoom Rooms[50];
 public:
@@ -131,8 +120,7 @@ public:
             Rooms[i].progress = 0;
             Rooms[i].mission = 0;
             Rooms[i].started = false;
-            for (int j = 0; j < 8; j++)
-            {
+			for(int j = 0; j < 8; j++) {
                 Rooms[i].level[j] = -99;
                 Rooms[i].gender[j] = false;
                 Rooms[i].users[j] = 0;
@@ -143,39 +131,32 @@ public:
             }
         }
     }
-    sockaddr_in* GetClientUdp(int room, int slot)
-    {
+	sockaddr_in* GetClientUdp(int room, int slot) {
         for (int i = 0; i < 50; i++)
-            if (Rooms[i].n == room)
-            {
+			if(Rooms[i].n == room) {
                 if (slot >= 0 && slot < 8)
                     if (Rooms[i].Player[slot])
                         return Rooms[i].Player[slot]->GetClientUdp();
             }
         return 0;
     }
-    void GetUserName(char *name, int room, int slot)
-    {
+	void GetUserName(char *name, int room, int slot) {
         for (int i = 0; i < 50; i++)
-            if (Rooms[i].n == room)
-            {
+			if(Rooms[i].n == room) {
                 if (slot >= 0 && slot < 8)
                     if (Rooms[i].Player[slot])
                         strcpy(name, Rooms[i].Player[slot]->Info.usr_name);
             }
     }
-    void CreateRoom(LobbyRoom *data)
-    {
+	void CreateRoom(LobbyRoom *data) {
         for (int i = 0; i < 50; i++)
-            if (Rooms[i].n == -1)
-            {
+			if(Rooms[i].n == -1) {
                 Rooms[i].n = data->n;
                 strcpy(Rooms[i].title, data->title);
                 Rooms[i].mode = data->mode;
                 Rooms[i].map = data->map;
                 Rooms[i].maxp = data->maxp;
-                for (int j = 0; j < 8; j++)
-                {
+				for(int j = 0; j < 8; j++) {
                     Rooms[i].level[j] = data->level[j];
                     Rooms[i].gender[j] = data->gender[j];
                     Rooms[i].users[j] = data->users[j];
@@ -184,11 +165,9 @@ public:
                 break;
             }
     }
-    void CreateRoom(PacketHandler *newPlayer, string *s, CreateRoomResponse *CRR, bool gender, int level)
-    {
+	void CreateRoom(PacketHandler *newPlayer, string *s, CreateRoomResponse *CRR, bool gender, int level) {
         for (int i = 0; i < 50; i++)
-            if (Rooms[i].n == -1)
-            {
+			if(Rooms[i].n == -1) {
                 Rooms[i].n = CRR->roomnumber;
                 strcpy(Rooms[i].title, CRR->roomname);
                 Rooms[i].mode = CRR->mode;
@@ -212,15 +191,12 @@ public:
                 break;
             }
     }
-    bool JoinRoom(PacketHandler *newPlayer, string *s, int n, bool gender, int level)
-    {
+	bool JoinRoom(PacketHandler *newPlayer, string *s, int n, bool gender, int level) {
         int join = false;
         for (int i = 0; i < 50; i++)
-            if (Rooms[i].n == n)
-            {
+			if(Rooms[i].n == n) {
                 for (int j = 0; j < 8; j++)
-                    if (Rooms[i].users[j] == 0)
-                    {
+					if(Rooms[i].users[j] == 0) {
                         Rooms[i].level[j] = level;
                         Rooms[i].gender[j] = gender;
                         Rooms[i].users[j] = s;
@@ -238,11 +214,9 @@ public:
         return join;
     }
 
-    void UpdateRoomData(LobbyRoom *data)
-    {
+	void UpdateRoomData(LobbyRoom *data) {
         for (int i = 0; i < 50; i++)
-            if (Rooms[i].n == data->n)
-            {
+			if(Rooms[i].n == data->n) {
                 strcpy(Rooms[i].title, data->title);
                 Rooms[i].mode = data->mode;
                 Rooms[i].map = data->map;
@@ -250,16 +224,13 @@ public:
                 break;
             }
     }
-    void DeleteRoom(int roomnum)
-    {
+	void DeleteRoom(int roomnum) {
         for (int i = 0; i < 50; i++)
             if (Rooms[i].n == roomnum)Rooms[i].n = -1;
     }
-    void GetLobbyRoomResponse(int n, LobbyRoomResponse *LRR)
-    {
+	void GetLobbyRoomResponse(int n, LobbyRoomResponse *LRR) {
         for (int i = 0; i < 50; i++)
-            if (Rooms[i].n == n)
-            {
+			if(Rooms[i].n == n) {
                 LRR->unk2 = 1;
                 strcpy(LRR->title, Rooms[i].title);
                 //LRR->unk3 = 0;
@@ -277,12 +248,10 @@ public:
                     LRR->unk9 = 0x100;
             }
     }
-    void GetRoomList(RoomListResponse* RLR)
-    {
+	void GetRoomList(RoomListResponse* RLR) {
         int x = 0;
         for (int i = 0; i < 50; i++)
-            if (Rooms[i].n != -1)
-            {
+			if(Rooms[i].n != -1) {
                 RLR->roomnumber[x] = Rooms[i].n;
                 strcpy(RLR->title[x], Rooms[i].title);
                 RLR->mode[x] = Rooms[i].mode;
@@ -290,8 +259,7 @@ public:
                 RLR->maxplayers[x] = Rooms[i].maxp;
                 RLR->unks2[x] = 1;
                 RLR->unks4[x] = -1;
-                for (int j = 0; j < Rooms[i].maxp - 1; j++)
-                {
+				for(int j = 0; j < Rooms[i].maxp - 1; j++) {
                     RLR->players[x][j] = Rooms[i].Player[j] ? Rooms[i].Player[j]->Info.usr_char : 0;
                 }
                 x++;
@@ -302,26 +270,21 @@ public:
             x++;
         }
     }
-    void GetRoomPlayerList(int n, RoomPlayerListResponse *RPLR)
-    {
+	void GetRoomPlayerList(int n, RoomPlayerListResponse *RPLR) {
         for (int i = 0; i < 50; i++)
-            if (Rooms[i].n == n)
-            {
+			if(Rooms[i].n == n) {
                 RPLR->master = Rooms[i].master;
                 for (int j = 0; j < 8; j++)
-                    if (Rooms[i].users[j])
-                    {
+					if(Rooms[i].users[j]) {
                         RPLR->plevel[j] = Rooms[i].level[j];
                         RPLR->genders[j] = Rooms[i].gender[j];
                         strcpy(RPLR->username[j], Rooms[i].users[j]->c_str());
-                    }
-                    else RPLR->plevel[j] = -99;
+					} else RPLR->plevel[j] = -99;
 
                     break;
             }
     }
-    int GetInRoomPlayerList(int n, unsigned char *pack)
-    {
+	int GetInRoomPlayerList(int n, unsigned char *pack) {
         int count = 0;
         RoomPlayerDataResponse Room_PlayerData_Response;
         memset(&Room_PlayerData_Response, 0, sizeof(RoomPlayerDataResponse));
@@ -335,8 +298,7 @@ public:
         Room_PlayerData_Response.unk26 = -1; //-1
         Room_PlayerData_Response.team = 1;
         for (int i = 0; i < 50; i++)
-            if (Rooms[i].n == n)
-            {
+			if(Rooms[i].n == n) {
                 //if(Rooms[i].mode >= 12 && Rooms[i].mode <= 27)
                     //Room_PlayerData_Response.team = 0xA; //0xA
                 Room_PlayerData_Response.mission = Rooms[i].mission;
@@ -344,8 +306,7 @@ public:
                 else Rooms[i].started = false;
 
                 for (int j = 0; j < 8; j++)
-                    if (Rooms[i].Player[j])
-                    {
+					if(Rooms[i].Player[j]) {
                         Room_PlayerData_Response.Slot = j;
                         Rooms[i].Player[j]->GetInRoomData(&Room_PlayerData_Response, Rooms[i].started);
                         memcpy(pack + (0x118 * count), &Room_PlayerData_Response, 0x118);
@@ -356,8 +317,7 @@ public:
             }
         return count;
     }
-    void ProdcastChangeTitle(RoomTitleChangeRequest *R)
-    {
+	void ProdcastChangeTitle(RoomTitleChangeRequest *R) {
         RoomTitleChangeResponse RTCR;
         RTCR.size = 0x34;
         RTCR.type = CHANGE_ROOMTITLE_RESPONSE;
@@ -365,16 +325,14 @@ public:
         for (int i = 0; i < 32; i++)RTCR.title[i] = 0;
         strcpy(RTCR.title, R->title);
         for (int i = 0; i < 50; i++)
-            if (Rooms[i].n == R->room)
-            {
+			if(Rooms[i].n == R->room) {
                 strcpy(Rooms[i].title, RTCR.title);
                 for (int j = 0; j < 8; j++)
                     if (Rooms[i].Player[j])Rooms[i].Player[j]->GetTitleChange(&RTCR);
             }
 
     }
-    void ProdcastInRoomPlayerData(PacketHandler *newPlayer, int n)
-    {
+	void ProdcastInRoomPlayerData(PacketHandler *newPlayer, int n) {
         RoomPlayerDataResponse Room_PlayerData_Response;
         memset(&Room_PlayerData_Response, 0, sizeof(RoomPlayerDataResponse));
         Room_PlayerData_Response.size = 0x118;
@@ -388,12 +346,10 @@ public:
         //Room_PlayerData_Response.unk22 = 0x01010000; //0x01010000
         Room_PlayerData_Response.unk26 = -1; //-1
         for (int i = 0; i < 50; i++)
-            if (Rooms[i].n == n)
-            {
+			if(Rooms[i].n == n) {
                 Room_PlayerData_Response.mission = Rooms[i].mission;
                 for (int j = 0; j < 8; j++)
-                    if (Rooms[i].Player[j] == newPlayer)
-                    {
+					if(Rooms[i].Player[j] == newPlayer) {
                         //if(Rooms[i].mode >= 12 && Rooms[i].mode <= 27)
                             //Room_PlayerData_Response.team = 0xA;
 
@@ -410,27 +366,21 @@ public:
                 break;
             }
     }
-    bool CheckReady(int n)
-    {
+	bool CheckReady(int n) {
         for (int i = 0; i < 50; i++)
-            if (Rooms[i].n == n)
-            {
+			if(Rooms[i].n == n) {
                 int mode = Rooms[i].mode;
                 int Quest_Mode_Ready[15] = { 11,18,23,12,19,24,13,20,25,14,21,26,16,22,27 };
-                for (int j = 0; j < 15; j++)
-                {
-                    if (Quest_Mode_Ready[j] == Rooms[i].mode)
-                    {
+				for(int j = 0; j < 15; j++) {
+					if(Quest_Mode_Ready[j] == Rooms[i].mode) {
                         if (Rooms[i].started) return true;
-                        for (int k = 0; k < Rooms[i].p; k++)
-                        {
+						for(int k = 0; k < Rooms[i].p; k++) {
                             if (!Rooms[i].Player[k]->Info.usr_ready) return false;
                         }
                         return true;
                     }
                 }
-                switch (mode)
-                {
+				switch(mode) {
                 case BIG_BATTLE_SURVIVAL_MODE:
                     return true;
                     break;
@@ -445,15 +395,13 @@ public:
                     if (Rooms[i].started)
                         return true;
                     int TEAM1 = 0, TEAM2 = 0;
-                    for (int j = 0; j < Rooms[i].p; j++)
-                    {
+					for(int j = 0; j < Rooms[i].p; j++) {
                         if (Rooms[i].Player[j]->Info.usr_team == 10) TEAM1++;
                         else TEAM2++;
                     }
                     if (TEAM1 == 0 || TEAM2 == 0)
                         return false;
-                    for (int j = 0; j < Rooms[i].p; j++)
-                    {
+					for(int j = 0; j < Rooms[i].p; j++) {
                         if (!Rooms[i].Player[j]->Info.usr_ready)
                             return false;
                     }
@@ -463,28 +411,23 @@ public:
                 case TEAMPLAY_MODE:
                 {
                     int TEAM1 = 0, TEAM2 = 0;
-                    for (int j = 0; j < Rooms[i].p; j++)
-                    {
+					for(int j = 0; j < Rooms[i].p; j++) {
                         if (Rooms[i].Player[j]->Info.usr_team == 10) TEAM1++;
                         else TEAM2++;
                     }
-                    if (TEAM1 == TEAM2)
-                    {
-                        for (int j = 0; j < Rooms[i].p; j++)
-                        {
+					if(TEAM1 == TEAM2) {
+						for(int j = 0; j < Rooms[i].p; j++) {
                             if (!Rooms[i].Player[j]->Info.usr_ready)
                                 return false;
                         }
                         return true;
+					} else return false;
                     }
-                    else return false;
-                }
                 break;
                 case DUEL_MODE:
                 {
                     int TWO_READY = 0;
-                    for (int j = 0; j < 2; j++)
-                    {
+					for(int j = 0; j < 2; j++) {
                         if (Rooms[i].Player[j])
                             if (Rooms[i].Player[j]->Info.usr_ready) TWO_READY++;
                     }
@@ -506,8 +449,7 @@ public:
                 case INFINITY_SYMBOL_MODE:
                 {
                     int TEAM1 = 0, TEAM2 = 0;
-                    for (int j = 0; j < Rooms[i].p; j++)
-                    {
+					for(int j = 0; j < Rooms[i].p; j++) {
                         if (Rooms[i].Player[j]->Info.usr_team == 10) TEAM1++;
                         else TEAM2++;
                     }
@@ -768,41 +710,31 @@ public:
     bool IsAllReady(int n)
     {
         for (int i = 0; i < 50; i++)
-            if (Rooms[i].n == n)
-            {
+			if(Rooms[i].n == n) {
                 for (int j = 0; j < 8; j++)
                     if (Rooms[i].Player[j])
                         if (Rooms[i].Player[j]->Info.usr_ready == 0)return false;
             }
         return true;
     }
-    int CheckRound(int roomnum, int deadslot)
-    {
-        for (int i = 0; i < Rooms[roomnum].p; i++)
-        {
-            if (Rooms[roomnum].Player[i]->Info.usr_team == Rooms[roomnum].Player[deadslot]->Info.usr_team)
-            {
+	int CheckRound(int roomnum, int deadslot) {
+		for(int i = 0; i < Rooms[roomnum].p; i++) {
+			if(Rooms[roomnum].Player[i]->Info.usr_team == Rooms[roomnum].Player[deadslot]->Info.usr_team) {
                 if (Rooms[roomnum].life[deadslot] < Rooms[roomnum].life[i])
                     return false;
             }
         }
         return true;
     }
-    void ProdcastPlayerExitRoom(PacketHandler *player, RoomExitResponse *RER, int n)
-    {
+	void ProdcastPlayerExitRoom(PacketHandler *player, RoomExitResponse *RER, int n) {
         for (int i = 0; i < 50; i++)
-            if (Rooms[i].n == n)
-            {
+			if(Rooms[i].n == n) {
                 for (int j = 0; j < 8; j++)
-                    if (Rooms[i].Player[j] == player)
-                    {
-                        for (int x = 0; x < 8; x++)
-                        {
-                            if (Rooms[i].Player[x] && Rooms[i].Player[x] != Rooms[i].Player[j])
-                            {
+					if(Rooms[i].Player[j] == player) {
+						for(int x = 0; x < 8; x++) {
+							if(Rooms[i].Player[x] && Rooms[i].Player[x] != Rooms[i].Player[j]) {
                                 Rooms[i].Player[x]->GetPlayerExitRoomResponse(RER);
-                                if (Rooms[i].master == j)
-                                {
+								if(Rooms[i].master == j) {
                                     Rooms[i].master = x;
                                     for (int y = 0; y < 8; y++)
                                         if (Rooms[i].Player[y])
@@ -814,15 +746,12 @@ public:
                     }
             }
     }
-    void ProdcastInRoomUpgrade(PacketHandler *newPlayer, CardUpgradeResponse *CUR, int n)
-    {
+	void ProdcastInRoomUpgrade(PacketHandler *newPlayer, CardUpgradeResponse *CUR, int n) {
         CUR->unk5 = newPlayer->Info.usr_slot;
         for (int i = 0; i < 50; i++)
-            if (Rooms[i].n == n)
-            {
+			if(Rooms[i].n == n) {
                 for (int j = 0; j < 8; j++)
-                    if (Rooms[i].Player[j] == newPlayer)
-                    {
+					if(Rooms[i].Player[j] == newPlayer) {
                         for (int x = 0; x < 8; x++)
                             if (Rooms[i].Player[x] && Rooms[i].Player[x] != Rooms[i].Player[j])
                                 Rooms[i].Player[x]->GetInRoomUpgradeResponse(CUR);
@@ -830,27 +759,20 @@ public:
                     }
             }
     }
-    bool CheckLife(int roomnum, int mode, int deathslot)
-    {
+	bool CheckLife(int roomnum, int mode, int deathslot) {
         int Quest_Mode_Life[15] = { 11,18,23,12,19,24,13,20,25,14,21,26,16,22,27 };
-        for (int i = 0; i < 15; i++)
-        {
-            if (Quest_Mode_Life[i] == mode)
-            {
+		for(int i = 0; i < 15; i++) {
+			if(Quest_Mode_Life[i] == mode) {
                 for (int j = 0; j < Rooms[roomnum].p; j++)
                     if (Rooms[roomnum].life[j] > 0)return true;
                 return false;
             }
         }
-        switch (mode)
-        {
+		switch(mode) {
         case TEAMPLAY_MODE:
-            for (int i = 0; i < Rooms[roomnum].p; i++)
-            {
-                if (Rooms[roomnum].Player[i]->Info.usr_team == Rooms[roomnum].Player[deathslot]->Info.usr_team)
-                {
-                    if (Rooms[roomnum].life[i] >= 0)
-                    {
+			for(int i = 0; i < Rooms[roomnum].p; i++) {
+				if(Rooms[roomnum].Player[i]->Info.usr_team == Rooms[roomnum].Player[deathslot]->Info.usr_team) {
+					if(Rooms[roomnum].life[i] >= 0) {
                         return true;
                     }
                 }
@@ -868,10 +790,8 @@ public:
             break;
         }
     }
-    int CheckResult(int mode, int killerteam, int slotteam)
-    {
-        switch (mode)
-        {
+	int CheckResult(int mode, int killerteam, int slotteam) {
+		switch(mode) {
         case TEAMPLAY_MODE:
             if (killerteam == slotteam) return 1;
             else return 2;
@@ -886,8 +806,7 @@ public:
         }
 
     }
-    void ProdcastDeathResponse(PlayerKilledRequest *PK, int n)
-    {
+	void ProdcastDeathResponse(PlayerKilledRequest *PK, int n) {
         cout << "-- PlayerKilledRequest --" << endl;
         PlayerKilledResponse PKR;
         PKR.size = 0xAC;
@@ -910,8 +829,7 @@ public:
         PKR.unk03 = 1; //1
         //PKR.canRespawn = Info.quest; //0
         for (int i = 0; i < 50; i++)
-            if (Rooms[i].n == n  && Rooms[i].p >= 1)
-            {
+			if(Rooms[i].n == n  && Rooms[i].p >= 1) {
                 int KillerTeam = 0;
                 if (PK->killerslot < 8)
                 {
@@ -932,20 +850,16 @@ public:
                     Results_Response.size = 0x90;
                     Results_Response.type = RESULTS_RESPONSE;
                     Results_Response.unk1 = 11036;
-                    for (int j = 0; j < Rooms[i].p; j++)
-                    {
+					for(int j = 0; j < Rooms[i].p; j++) {
                         SlotTeam = Rooms[i].Player[j]->Info.usr_team;
                         if (Rooms[i].Player[j])Results_Response.result[j] = CheckResult(Rooms[i].mode, KillerTeam, SlotTeam);
                     }
                     for (int j = 0; j < Rooms[i].p; j++)
                         if (Rooms[i].Player[j])
                             Rooms[i].Player[j]->GetResultResponse(&Results_Response);
-                }
-                else
-                {
+				} else {
                     cout << "There is life" << endl;
-                    if (CheckRound(i, PK->deathplayerslot))
-                    {
+					if(CheckRound(i, PK->deathplayerslot)) {
                         cout << "Round Over" << endl;
                         ResultsResponse Results_Response;
                         memset(&Results_Response, 0, sizeof(Results_Response));
@@ -965,8 +879,7 @@ public:
     }
     void ProdcastRoomJoinResponse2(PacketHandler *player, int n) {
         for (int i = 0; i < 50; i++)
-            if (Rooms[i].n == n)
-            {
+			if(Rooms[i].n == n) {
                 for (int j = 0; j < 8; j++)
                     if (Rooms[i].Player[j])
                         if (Rooms[i].Player[j] != player)Rooms[i].Player[j]->GetJoinResponse2();
@@ -974,29 +887,24 @@ public:
     }
     void ProdcastNpcList(PacketHandler *pMaster, NpcList *npc, int n) {
         for (int i = 0; i < 50; i++)
-            if (Rooms[i].n == n)
-            {
+			if(Rooms[i].n == n) {
                 for (int j = 0; j < 8; j++)
                     if (Rooms[i].Player[j])
                         if (Rooms[i].Player[j] != pMaster)Rooms[i].Player[j]->GetNpcList(npc);
             }
     }
-    void ProdcastExpGain(QuestGainResponse *packet, int n)
-    {
+	void ProdcastExpGain(QuestGainResponse *packet, int n) {
         for (int i = 0; i < 50; i++)
-            if (Rooms[i].n == n)
-            {
+			if(Rooms[i].n == n) {
                 for (int j = 0; j < 8; j++)
                     if (Rooms[i].Player[j])
                         Rooms[i].Player[j]->GetExpGainResponse(packet);
             }
     }
-    void ProdcastReviveResponse(ReviveResponse *Revive_Response, int n)
-    {
+	void ProdcastReviveResponse(ReviveResponse *Revive_Response, int n) {
         Revive_Response->type = REVIVE_RESPONSE;
         for (int i = 0; i < 50; i++)
-            if (Rooms[i].n == n)
-            {
+			if(Rooms[i].n == n) {
                 if (Rooms[i].Player[Revive_Response->Slot]) {
                     for (int j = 0; j < 8; j++)
                         if (Rooms[i].Player[j])
@@ -1005,19 +913,16 @@ public:
             }
 
     }
-    void ProdcastKickResponse(int n, int slot)
-    {
+	void ProdcastKickResponse(int n, int slot) {
         for (int i = 0; i < 50; i++)
-            if (Rooms[i].n == n)
-            {
+			if(Rooms[i].n == n) {
                 int x = Rooms[i].master;
                 for (int j = 0; j < 8; j++)
                     if (Rooms[i].Player[j]) {
                         Rooms[i].Player[j]->GetKickResponse(slot);
                         if (x == Rooms[i].master)x = j;
                     }
-                if (Rooms[i].master == slot)
-                {
+				if(Rooms[i].master == slot) {
                     Rooms[i].master = x;
                     for (int y = 0; y < 8; y++)
                         if (Rooms[i].Player[y])
@@ -1025,24 +930,19 @@ public:
                 }
             }
     }
-    void SendTradeResponse(TradeStruct *TS, int n)
-    {
+	void SendTradeResponse(TradeStruct *TS, int n) {
         for (int i = 0; i < 50; i++)
-            if (Rooms[i].n == n)
-            {
+			if(Rooms[i].n == n) {
                 for (int j = 0; j < 8; j++)
-                    if (Rooms[i].users[j])
-                    {
+					if(Rooms[i].users[j]) {
                         if (!strcmp((char*)Rooms[i].users[j]->c_str(), TS->username2))
                             Rooms[i].Player[j]->GetTradeResponse(TS);
                     }
             }
     }
-    void GetRoomData(RoomJoinResponse *RJR)
-    {
+	void GetRoomData(RoomJoinResponse *RJR) {
         for (int i = 0; i < 50; i++)
-            if (Rooms[i].n == RJR->roomnumber)
-            {
+			if(Rooms[i].n == RJR->roomnumber) {
                 strcpy(RJR->title, Rooms[i].title);
                 RJR->mode = Rooms[i].mode;
                 RJR->map = Rooms[i].map;
@@ -1052,8 +952,7 @@ public:
     }
     void UpdateProgress(int n, int p) {
         for (int i = 0; i < 50; i++)
-            if (Rooms[i].n == n)
-            {
+			if(Rooms[i].n == n) {
                 Rooms[i].progress = p;
                 if (p >= 100) {
                     ResultsResponse Results_Response;
@@ -1070,14 +969,11 @@ public:
                 break;
             }
     }
-    bool ExitPlayer(int n, PacketHandler *player)
-    {
+	bool ExitPlayer(int n, PacketHandler *player) {
         for (int i = 0; i < 50; i++)
-            if (Rooms[i].n == n)
-            {
+			if(Rooms[i].n == n) {
                 for (int j = 0; j < 8; j++)
-                    if (Rooms[i].Player[j] == player)
-                    {
+					if(Rooms[i].Player[j] == player) {
                         Rooms[i].users[j] = 0;
                         player->Info.usr_ready = 0;
                         player->Info.usr_slot = -1;
@@ -1088,8 +984,7 @@ public:
                         Rooms[i].p--;
                         break;
                     }
-                if (!Rooms[i].p)
-                {
+				if(!Rooms[i].p) {
                     Rooms[i].n = -1;
                     Rooms[i].master = 0;
                     //Rooms[i].npc.size = 0;
@@ -1099,14 +994,11 @@ public:
             }
         return false;
     }
-    void InitializeLife(int n)
-    {
+	void InitializeLife(int n) {
         for (int i = 0; i < 50; i++)
-            if (Rooms[i].n == n)
-            {
+			if(Rooms[i].n == n) {
                 for (int j = 0; j < 8; j++)
-                    if (Rooms[i].Player[j])
-                    {
+					if(Rooms[i].Player[j]) {
                         if (Rooms[i].Player[j]->Info.questlife)
                             Rooms[i].life[j] = 2;
                         else Rooms[i].life[j] = 1;
@@ -1116,33 +1008,28 @@ public:
 
 }RoomList;
 
-struct UserHandle
-{
+struct UserHandle {
     PacketHandler *Handler;
     UserHandle *ptr;
 };
 
-class _HandleList
-{
+class _HandleList {
 private:
     int count;
     UserHandle *root;
 
 public:
-    _HandleList()
-    {
+	_HandleList() {
         count = 0;
         root = 0;
     }
-    void Insert(PacketHandler* pHandler)
-    {
+	void Insert(PacketHandler* pHandler) {
         count++;
         UserHandle *loc = new UserHandle;
         loc->Handler = pHandler;
         UserHandle *prevPtr = 0;
         UserHandle *currPtr = root;
-        while (currPtr != 0)
-        {
+		while(currPtr != 0) {
             if (strcmp(pHandler->Info.usr_name, currPtr->Handler->Info.usr_name) > 0)break;
             prevPtr = currPtr;
             currPtr = currPtr->ptr;
@@ -1152,21 +1039,17 @@ public:
             root = loc;
         else prevPtr->ptr = loc;
     }
-    void Delete(PacketHandler* pHandler)
-    {
+	void Delete(PacketHandler* pHandler) {
         UserHandle *Temp;
         if (!root)return;
         count--;
         UserHandle *delPtr, *currPtr;
         if (!root)return;
         count--;
-        if (root->Handler == pHandler)
-        {
+		if(root->Handler == pHandler) {
             delPtr = root;
             root = root->ptr;
-        }
-        else
-        {
+		} else {
             currPtr = root;
             while (currPtr->ptr->Handler != pHandler)
                 currPtr = currPtr->ptr;
@@ -1175,8 +1058,7 @@ public:
         }
         delete delPtr;
     }
-    int updateUdpState(char *s)
-    {
+	int updateUdpState(char *s) {
         UserHandle *currPtr = root;
         while (currPtr != NULL) {
             if (strcmp(s, currPtr->Handler->Info.usr_name) == 0)break;
@@ -1189,8 +1071,7 @@ public:
             return 0;
         }
     }
-    void updateUdpClient(char *s, sockaddr_in client)
-    {
+	void updateUdpClient(char *s, sockaddr_in client) {
         UserHandle *currPtr = root;
         while (currPtr != NULL) {
             if (strcmp(s, currPtr->Handler->Info.usr_name) == 0)break;
@@ -1201,8 +1082,7 @@ public:
         else
             cout << "Unable to update " << s << "client : UDPLIST" << endl;
     }
-    void ProdcastChat(PacketHandler* pHandler, ChatRequest *Chat_Request)
-    {
+	void ProdcastChat(PacketHandler* pHandler, ChatRequest *Chat_Request) {
         ChatResponse Chat_Response;
         memset(&Chat_Response, 0, sizeof(Chat_Response));
         Chat_Response.size = 0x7C;
@@ -1214,8 +1094,7 @@ public:
         for (UserHandle *p = root; p; p = p->ptr)
             if (pHandler != p->Handler)p->Handler->GetChatMessage(&Chat_Response);
     }
-    void ProdcastLobbyInfo(PacketHandler* pHandler, LobbyUser* LobbyInfo, bool b)
-    {
+	void ProdcastLobbyInfo(PacketHandler* pHandler, LobbyUser* LobbyInfo, bool b) {
         LobbyUserInfoResponse Lobby_UserInfo_Response;
         memset(&Lobby_UserInfo_Response, 0, sizeof(Lobby_UserInfo_Response));
         Lobby_UserInfo_Response.size = 0x3C;
@@ -1231,15 +1110,13 @@ public:
         for (UserHandle *p = root; p; p = p->ptr)
             if (pHandler != p->Handler)p->Handler->GetLobbyMessage(&Lobby_UserInfo_Response);
     }
-    void ProdcastNewRoom(PacketHandler* pHandler, CreateRoomResponse *CRR, bool b, int roomnum = 0)
-    {
+	void ProdcastNewRoom(PacketHandler* pHandler, CreateRoomResponse *CRR, bool b, int roomnum = 0) {
         LobbyRoomResponse LRR;
         memset(&LRR, 0, sizeof(LRR));
         LRR.size = 0xB0;
         LRR.type = NEW_ROOM_RESPONSE;
         LRR.unk1 = 11036;
-        if (b)
-        {
+		if(b) {
             LRR.unk2 = 1;
             LRR.roomnumber = CRR->roomnumber;
             strcpy(LRR.title, CRR->roomname);
@@ -1255,9 +1132,7 @@ public:
             for (int i = 1; i < 13; i++)
                 LRR.zeros[i] = 0;
             LRR.unk9 = 0x100;
-        }
-        else
-        {
+		} else {
             LRR.unk2 = 0;
             LRR.roomnumber = roomnum;
             LRR.mode = -1;
@@ -1269,8 +1144,7 @@ public:
             if (pHandler != p->Handler)p->Handler->GetNewRoomMessage(&LRR);
 
     }
-    void ProdcastRoomUpdate(int room)
-    {
+	void ProdcastRoomUpdate(int room) {
         LobbyRoomResponse LRR;
         LRR.size = 0xB0;
         LRR.type = NEW_ROOM_RESPONSE;
@@ -1278,8 +1152,7 @@ public:
         LRR.roomnumber = room;
         RoomList.GetLobbyRoomResponse(room, &LRR);
         UserHandle *p;
-        for (p = root; p; p = p->ptr)
-        {
+		for(p = root; p; p = p->ptr) {
             if (p->Handler->Info.usr_room == -1)
                 p->Handler->GetNewRoomMessage(&LRR);
         }
