@@ -39,8 +39,7 @@
 #define UNKNOW_ROOM_JOIN_REQ  17410
 #define SHOP_BUY_ELEMENTCARD_REQ  17464
 #define ADD_CARD_SLOT_REQ 17511
-struct JoinChannelRequest
-{
+struct JoinChannelRequest {
 	int size;
 	int type;
 	int unk1; //11036
@@ -59,8 +58,7 @@ struct JoinChannelRequest
 	int unk9;
 };
 
-struct CreateRoomRequest
-{
+struct CreateRoomRequest {
 	int size;
 	int type;
 	int unk1; //11036
@@ -82,8 +80,7 @@ struct CreateRoomRequest
 	char unk5; //0
 };
 
-struct RoomPlayerDataRequest
-{
+struct RoomPlayerDataRequest {
 	int size; //0x38
 	int type;
 	int unk1; //11036
@@ -100,8 +97,7 @@ struct RoomPlayerDataRequest
 	int unk8; //0x18B17401
 };
 
-struct NpcData
-{
+struct NpcData {
 	short xPos;
 	short yPos;
 	int unk1;
@@ -114,8 +110,7 @@ struct NpcData
 	short level;
 };
 
-struct NpcList
-{
+struct NpcList {
 	int size; //0x404
 	int type;
 	int unk1; //11036
@@ -127,8 +122,7 @@ struct NpcList
 	char idc[208];
 };
 
-struct ChatRequest
-{
+struct ChatRequest {
 	int size; //0x7C
 	int type;
 	int unk1; //11036
@@ -146,8 +140,7 @@ struct ChatRequest
 	int unk7; //0x74D2FF16
 };
 
-struct UserInfoRequest
-{
+struct UserInfoRequest {
 	int size; //0x28
 	int type;
 	int unk1; //11036
@@ -157,8 +150,7 @@ struct UserInfoRequest
 	char username[16];
 };
 
-struct EquipChangeRequest
-{
+struct EquipChangeRequest {
 	int size; //0x40
 	int type;
 	int unk1; //11036
@@ -177,8 +169,7 @@ struct EquipChangeRequest
 	int head;
 };
 
-struct RoomPlayerListRequest
-{
+struct RoomPlayerListRequest {
 	int size; //0x18
 	int type;
 	int unk1; //11036
@@ -187,8 +178,7 @@ struct RoomPlayerListRequest
 	int roomnumber;
 };
 
-struct RoomJoinRequest
-{
+struct RoomJoinRequest {
 	int size; //0x28
 	int type;
 	int unk1; //11036
@@ -198,8 +188,7 @@ struct RoomJoinRequest
 	char roompw[16];
 };
 
-struct ShopBuyRequest
-{
+struct ShopBuyRequest {
 	int size; //0x2C
 	int type;
 	int unk1; //11036
@@ -213,8 +202,7 @@ struct ShopBuyRequest
 	int unk5; //1
 };
 
-struct ShopBuyElementCardRequest
-{
+struct ShopBuyElementCardRequest {
 	int size; //0x1c
 	int type;
 	int unk1; //11036
@@ -224,8 +212,7 @@ struct ShopBuyElementCardRequest
 	int amount;
 };
 
-struct ShopSellRequest
-{
+struct ShopSellRequest {
 	int size; //0x18
 	int type;
 	int unk1; //11036
@@ -234,8 +221,7 @@ struct ShopSellRequest
 	int item_slot;
 };
 
-struct InRoomRequest
-{
+struct InRoomRequest {
 	int size; //0x30
 	int type;
 	int unk1; //11036
@@ -250,8 +236,7 @@ struct InRoomRequest
 	int unk4;
 };
 
-struct CardUpgradeRequest
-{
+struct CardUpgradeRequest {
 	int size; //0x20
 	int type;
 	int unk1; //11036
@@ -262,8 +247,7 @@ struct CardUpgradeRequest
 	int unk3; //0
 };
 
-struct PlayerKilledRequest
-{
+struct PlayerKilledRequest {
 	int size; //0x3C
 	int type;
 	int unk1; //11036
@@ -281,8 +265,7 @@ struct PlayerKilledRequest
 	int unk9;
 };
 
-struct TradeStruct
-{
+struct TradeStruct {
 	int size; //0x98
 	int type;
 	int unk1; //11036
@@ -300,8 +283,7 @@ struct TradeStruct
 	int unk08;
 };
 
-struct LobbyUsrShopResuqest
-{
+struct LobbyUsrShopResuqest {
 	int size; //0x20
 	int type;
 	int unk1; //11036
@@ -312,8 +294,7 @@ struct LobbyUsrShopResuqest
 	int item; //Shield = 21,Armor = 23,Pendant = 22
 };
 
-struct ScrollBuyRequest
-{
+struct ScrollBuyRequest {
 	int size; //0x1c
 	int type;
 	int unk1; //11036
@@ -323,8 +304,7 @@ struct ScrollBuyRequest
 	int scrollid; //0xB = bubble
 };
 
-struct ScrollUseRequest
-{
+struct ScrollUseRequest {
 	int size; //0x24
 	int type;
 	int unk1; //11036
@@ -336,8 +316,7 @@ struct ScrollUseRequest
 	int unk4;
 };
 
-struct PickScrollRequest
-{
+struct PickScrollRequest {
 	int size; //0x20
 	int type;
 	int unk1; //11036
@@ -348,8 +327,7 @@ struct PickScrollRequest
 	int slot;
 };
 
-struct QuestProgress
-{
+struct QuestProgress {
 	int size; //0x1c
 	int type;
 	int unk1; //11036
@@ -359,8 +337,7 @@ struct QuestProgress
 	int progress; //0~100
 };
 
-struct InGameRequest
-{
+struct InGameRequest {
 	int size; //0x20
 	int type;
 	int unk1; //11036
@@ -371,8 +348,7 @@ struct InGameRequest
 	int zero2;
 };
 
-struct MissionCompleteRequest
-{
+struct MissionCompleteRequest {
 	int size; //0x18
 	int type;
 	int unk1; //11036
@@ -381,8 +357,7 @@ struct MissionCompleteRequest
 	int request;
 };
 
-struct OpenUserShopRequest
-{
+struct OpenUserShopRequest {
 	int size; //0xC8
 	int type;
 	int unk1; //11036
@@ -402,8 +377,7 @@ struct OpenUserShopRequest
 	unsigned __int64 price[4];
 };
 
-struct CardSearchRequest
-{
+struct CardSearchRequest {
 	int size; //0x20
 	int type;
 	int unk1; //11036
@@ -443,8 +417,7 @@ struct BigBattleNpcKoRequest
 	char unk4[20];
 };
 
-struct NpcKillRequest
-{
+struct NpcKillRequest {
 	int size; //0x48
 	int type;
 	int unk1; //11036
@@ -459,8 +432,7 @@ struct NpcKillRequest
 	int unk2;
 };
 
-struct PlayerKickRequest
-{
+struct PlayerKickRequest {
 	int size; //0x18
 	int type;
 	int unk1; //11036
@@ -469,8 +441,7 @@ struct PlayerKickRequest
 	int slot;
 };
 
-struct RoomTitleChangeRequest
-{
+struct RoomTitleChangeRequest {
 	int size; //0x38
 	int type;
 	int unk1; //11036
