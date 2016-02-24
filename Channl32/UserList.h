@@ -120,11 +120,11 @@ struct LobbyRoom
 class _RoomList
 {
 private:
-    LobbyRoom Rooms[22];
+    LobbyRoom Rooms[50];
 public:
     _RoomList()
     {
-        for (int i = 0; i < 22; i++)
+        for (int i = 0; i < 50; i++)
         {
             Rooms[i].n = -1;
             Rooms[i].p = 0;
@@ -145,7 +145,7 @@ public:
     }
     sockaddr_in* GetClientUdp(int room, int slot)
     {
-        for (int i = 0; i < 22; i++)
+        for (int i = 0; i < 50; i++)
             if (Rooms[i].n == room)
             {
                 if (slot >= 0 && slot < 8)
@@ -156,7 +156,7 @@ public:
     }
     void GetUserName(char *name, int room, int slot)
     {
-        for (int i = 0; i < 22; i++)
+        for (int i = 0; i < 50; i++)
             if (Rooms[i].n == room)
             {
                 if (slot >= 0 && slot < 8)
@@ -166,7 +166,7 @@ public:
     }
     void CreateRoom(LobbyRoom *data)
     {
-        for (int i = 0; i < 22; i++)
+        for (int i = 0; i < 50; i++)
             if (Rooms[i].n == -1)
             {
                 Rooms[i].n = data->n;
@@ -186,7 +186,7 @@ public:
     }
     void CreateRoom(PacketHandler *newPlayer, string *s, CreateRoomResponse *CRR, bool gender, int level)
     {
-        for (int i = 0; i < 22; i++)
+        for (int i = 0; i < 50; i++)
             if (Rooms[i].n == -1)
             {
                 Rooms[i].n = CRR->roomnumber;
@@ -215,7 +215,7 @@ public:
     bool JoinRoom(PacketHandler *newPlayer, string *s, int n, bool gender, int level)
     {
         int join = false;
-        for (int i = 0; i < 22; i++)
+        for (int i = 0; i < 50; i++)
             if (Rooms[i].n == n)
             {
                 for (int j = 0; j < 8; j++)
@@ -240,7 +240,7 @@ public:
 
     void UpdateRoomData(LobbyRoom *data)
     {
-        for (int i = 0; i < 22; i++)
+        for (int i = 0; i < 50; i++)
             if (Rooms[i].n == data->n)
             {
                 strcpy(Rooms[i].title, data->title);
@@ -252,12 +252,12 @@ public:
     }
     void DeleteRoom(int roomnum)
     {
-        for (int i = 0; i < 22; i++)
+        for (int i = 0; i < 50; i++)
             if (Rooms[i].n == roomnum)Rooms[i].n = -1;
     }
     void GetLobbyRoomResponse(int n, LobbyRoomResponse *LRR)
     {
-        for (int i = 0; i < 22; i++)
+        for (int i = 0; i < 50; i++)
             if (Rooms[i].n == n)
             {
                 LRR->unk2 = 1;
@@ -280,7 +280,7 @@ public:
     void GetRoomList(RoomListResponse* RLR)
     {
         int x = 0;
-        for (int i = 0; i < 22; i++)
+        for (int i = 0; i < 50; i++)
             if (Rooms[i].n != -1)
             {
                 RLR->roomnumber[x] = Rooms[i].n;
@@ -296,7 +296,7 @@ public:
                 }
                 x++;
             }
-        while (x < 22)
+        while (x < 50)
         {
             RLR->roomnumber[x] = -1;
             x++;
@@ -304,7 +304,7 @@ public:
     }
     void GetRoomPlayerList(int n, RoomPlayerListResponse *RPLR)
     {
-        for (int i = 0; i < 22; i++)
+        for (int i = 0; i < 50; i++)
             if (Rooms[i].n == n)
             {
                 RPLR->master = Rooms[i].master;
@@ -334,7 +334,7 @@ public:
         //Room_PlayerData_Response.unk22 = 0x01010000;//0x01010000
         Room_PlayerData_Response.unk26 = -1; //-1
         Room_PlayerData_Response.team = 1;
-        for (int i = 0; i < 22; i++)
+        for (int i = 0; i < 50; i++)
             if (Rooms[i].n == n)
             {
                 //if(Rooms[i].mode >= 12 && Rooms[i].mode <= 27)
@@ -364,7 +364,7 @@ public:
         RTCR.unk1 = 11036;
         for (int i = 0; i < 32; i++)RTCR.title[i] = 0;
         strcpy(RTCR.title, R->title);
-        for (int i = 0; i < 22; i++)
+        for (int i = 0; i < 50; i++)
             if (Rooms[i].n == R->room)
             {
                 strcpy(Rooms[i].title, RTCR.title);
@@ -387,7 +387,7 @@ public:
         Room_PlayerData_Response.unk21 = -1; //-1
         //Room_PlayerData_Response.unk22 = 0x01010000; //0x01010000
         Room_PlayerData_Response.unk26 = -1; //-1
-        for (int i = 0; i < 22; i++)
+        for (int i = 0; i < 50; i++)
             if (Rooms[i].n == n)
             {
                 Room_PlayerData_Response.mission = Rooms[i].mission;
@@ -412,7 +412,7 @@ public:
     }
     bool CheckReady(int n)
     {
-        for (int i = 0; i < 22; i++)
+        for (int i = 0; i < 50; i++)
             if (Rooms[i].n == n)
             {
                 int mode = Rooms[i].mode;
@@ -767,7 +767,7 @@ public:
     }
     bool IsAllReady(int n)
     {
-        for (int i = 0; i < 22; i++)
+        for (int i = 0; i < 50; i++)
             if (Rooms[i].n == n)
             {
                 for (int j = 0; j < 8; j++)
@@ -790,7 +790,7 @@ public:
     }
     void ProdcastPlayerExitRoom(PacketHandler *player, RoomExitResponse *RER, int n)
     {
-        for (int i = 0; i < 22; i++)
+        for (int i = 0; i < 50; i++)
             if (Rooms[i].n == n)
             {
                 for (int j = 0; j < 8; j++)
@@ -817,7 +817,7 @@ public:
     void ProdcastInRoomUpgrade(PacketHandler *newPlayer, CardUpgradeResponse *CUR, int n)
     {
         CUR->unk5 = newPlayer->Info.usr_slot;
-        for (int i = 0; i < 22; i++)
+        for (int i = 0; i < 50; i++)
             if (Rooms[i].n == n)
             {
                 for (int j = 0; j < 8; j++)
@@ -909,7 +909,7 @@ public:
         PKR.unk02 = 1; //0,1 maybe king
         PKR.unk03 = 1; //1
         //PKR.canRespawn = Info.quest; //0
-        for (int i = 0; i < 22; i++)
+        for (int i = 0; i < 50; i++)
             if (Rooms[i].n == n  && Rooms[i].p >= 1)
             {
                 int KillerTeam = 0;
@@ -964,7 +964,7 @@ public:
             }
     }
     void ProdcastRoomJoinResponse2(PacketHandler *player, int n) {
-        for (int i = 0; i < 22; i++)
+        for (int i = 0; i < 50; i++)
             if (Rooms[i].n == n)
             {
                 for (int j = 0; j < 8; j++)
@@ -973,7 +973,7 @@ public:
             }
     }
     void ProdcastNpcList(PacketHandler *pMaster, NpcList *npc, int n) {
-        for (int i = 0; i < 22; i++)
+        for (int i = 0; i < 50; i++)
             if (Rooms[i].n == n)
             {
                 for (int j = 0; j < 8; j++)
@@ -983,7 +983,7 @@ public:
     }
     void ProdcastExpGain(QuestGainResponse *packet, int n)
     {
-        for (int i = 0; i < 22; i++)
+        for (int i = 0; i < 50; i++)
             if (Rooms[i].n == n)
             {
                 for (int j = 0; j < 8; j++)
@@ -994,7 +994,7 @@ public:
     void ProdcastReviveResponse(ReviveResponse *Revive_Response, int n)
     {
         Revive_Response->type = REVIVE_RESPONSE;
-        for (int i = 0; i < 22; i++)
+        for (int i = 0; i < 50; i++)
             if (Rooms[i].n == n)
             {
                 if (Rooms[i].Player[Revive_Response->Slot]) {
@@ -1007,7 +1007,7 @@ public:
     }
     void ProdcastKickResponse(int n, int slot)
     {
-        for (int i = 0; i < 22; i++)
+        for (int i = 0; i < 50; i++)
             if (Rooms[i].n == n)
             {
                 int x = Rooms[i].master;
@@ -1027,7 +1027,7 @@ public:
     }
     void SendTradeResponse(TradeStruct *TS, int n)
     {
-        for (int i = 0; i < 22; i++)
+        for (int i = 0; i < 50; i++)
             if (Rooms[i].n == n)
             {
                 for (int j = 0; j < 8; j++)
@@ -1040,7 +1040,7 @@ public:
     }
     void GetRoomData(RoomJoinResponse *RJR)
     {
-        for (int i = 0; i < 22; i++)
+        for (int i = 0; i < 50; i++)
             if (Rooms[i].n == RJR->roomnumber)
             {
                 strcpy(RJR->title, Rooms[i].title);
@@ -1051,7 +1051,7 @@ public:
             }
     }
     void UpdateProgress(int n, int p) {
-        for (int i = 0; i < 22; i++)
+        for (int i = 0; i < 50; i++)
             if (Rooms[i].n == n)
             {
                 Rooms[i].progress = p;
@@ -1072,7 +1072,7 @@ public:
     }
     bool ExitPlayer(int n, PacketHandler *player)
     {
-        for (int i = 0; i < 22; i++)
+        for (int i = 0; i < 50; i++)
             if (Rooms[i].n == n)
             {
                 for (int j = 0; j < 8; j++)
@@ -1101,7 +1101,7 @@ public:
     }
     void InitializeLife(int n)
     {
-        for (int i = 0; i < 22; i++)
+        for (int i = 0; i < 50; i++)
             if (Rooms[i].n == n)
             {
                 for (int j = 0; j < 8; j++)

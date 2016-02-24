@@ -464,7 +464,7 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
         Join_Channel_PlayerData_Response.bunk[6] = 0;
         Join_Channel_PlayerData_Response.Rank = 101;
         Join_Channel_PlayerData_Response.unk43 = 1; //1
-        Join_Channel_PlayerData_Response.maxroom = 22; //0x108
+        Join_Channel_PlayerData_Response.maxroom = 50; //0x108
         memset((void*)&Join_Channel_PlayerData_Response.munk1, -1, 4 * 8); //-1
         Join_Channel_PlayerData_Response.unk45 = 7; //7
         Join_Channel_PlayerData_Response.unk46 = 0x120101; //0x120101
@@ -616,7 +616,7 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
         Room_List_Response.type = ROOM_LIST_RESPONSE;
         Room_List_Response.unk1 = 11036;
         Room_List_Response.unk4 = 0x500000;
-        for (int i = 0; i < 22; i++)Room_List_Response.bunk[i] = true;
+        for (int i = 0; i < 50; i++)Room_List_Response.bunk[i] = true;
         RoomList.GetRoomList(&Room_List_Response);
         Room_List_Response.state = UpdateState();
         Room_List_Response.checksum = cIOSocket.MakeDigest((uint8*)&Room_List_Response);
@@ -846,15 +846,15 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
         }
         break;*/
     case BIGBATTLE_PLAYER_JOIN_RESPONSE:
-        /*cout << "BIGBATTLE_PLAYER_JOIN_RESPONSE\n" << endl;
+        cout << "BIGBATTLE_PLAYER_JOIN_RESPONSE\n" << endl;
         BigBattlePlayerJoin_Response.size = 0x38;
         BigBattlePlayerJoin_Response.type = BIGBATTLE_PLAYER_JOIN_RESPONSE;
         BigBattlePlayerJoin_Response.unk1 = 11036;
-        for (int i = 0; i < 39; i++)
+        for (int i = 0; i < 32; i++)
             BigBattlePlayerJoin_Response.slot[i] = BigBattlePlayerJoin_Request->slot[i];
         BigBattlePlayerJoin_Response.state = UpdateState();
         BigBattlePlayerJoin_Response.checksum = cIOSocket.MakeDigest((uint8*)&BigBattlePlayerJoin_Response);
-        buffer = (unsigned char*)&BigBattlePlayerJoin_Response;*/
+        buffer = (unsigned char*)&BigBattlePlayerJoin_Response;
         break;
     case BIGBATTLE_NPC_KO_RESPONSE:
         BigBattleNpcKo_Response.size = 0xA4;

@@ -179,7 +179,7 @@ void PacketHandler::GetRoomListResponse()
     Room_List_Response.type = ROOM_LIST_RESPONSE;
     Room_List_Response.unk1 = 11036;
     Room_List_Response.unk4 = 0x500000;
-    for(int i = 0; i < 22; i++)Room_List_Response.bunk[i] = true;
+    for(int i = 0; i < 50; i++)Room_List_Response.bunk[i] = true;
     RoomList.GetRoomList(&Room_List_Response);
     Room_List_Response.state = UpdateState();
     Room_List_Response.checksum = cIOSocket.MakeDigest((uint8*)&Room_List_Response);
