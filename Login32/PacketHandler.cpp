@@ -1,8 +1,7 @@
 #include "PacketHandler.h"
-#include "ini.h"
 #include <time.h>
 
-extern CIni config;
+extern Ini config;
 
 IOSocket cIOSocket;
 int PacketHandler::nOfPackets = 0, PacketHandler::State = -1;
@@ -160,12 +159,15 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
 			Server_Info[0].channel = 1;
 			Server_Info[0].servernumber = 0;
 
-			strcpy(Server_Info[0].ip, config.ReadString("ip", "127.0.0.1"));
+			string str = config.ReadString("ip", "127.0.0.1");
+			strcpy(Server_Info[0].ip, str.c_str());
 
-			Server_Info[0].port = config.ReadInteger("port", 9303);
+			Server_Info[0].port = config.ReadInt("port", 9303);
 			Server_Info[0].serverload = 0;
-			strcpy(Server_Info[0].chname, config.ReadString("name", "Test ChannelX1"));
-			strcpy(Server_Info[0].gname, config.ReadString("guild", " CaptureGuild"));
+			str = config.ReadString("name", "Test ChannelX1");
+			strcpy(Server_Info[0].chname, str.c_str());
+			str = config.ReadString("guild", "CaptureGuild");
+			strcpy(Server_Info[0].gname, str.c_str());
 		}
 		else if (Server_Info_Request->serverType == 2)
 		{
@@ -173,12 +175,15 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
 			Server_Info[0].channel = 2;
 			Server_Info[0].servernumber = 0;
 
-			strcpy(Server_Info[0].ip, config.ReadString("ip", "127.0.0.1"));
+			string str = config.ReadString("ip", "127.0.0.1");
+			strcpy(Server_Info[0].ip, str.c_str());
 
-			Server_Info[0].port = config.ReadInteger("port", 9303);
+			Server_Info[0].port = config.ReadInt("port", 9303);
 			Server_Info[0].serverload = 0;
-			strcpy(Server_Info[0].chname, config.ReadString("name", "Test ChannelX4"));
-			strcpy(Server_Info[0].gname, config.ReadString("guild", " CaptureGuild"));
+			str = config.ReadString("name", "Test ChannelX4");
+			strcpy(Server_Info[0].chname, str.c_str());
+			str = config.ReadString("guild", "CaptureGuild");
+			strcpy(Server_Info[0].gname, str.c_str());
 		}
 		else if (Server_Info_Request->serverType == 3)
 		{
@@ -186,12 +191,16 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
 			Server_Info[0].channel = 3;
 			Server_Info[0].servernumber = 0;
 
-			strcpy(Server_Info[0].ip, config.ReadString("ip", "127.0.0.1"));
+			string str = config.ReadString("ip", "127.0.0.1");
+			strcpy(Server_Info[0].ip, str.c_str());
 
-			Server_Info[0].port = config.ReadInteger("port", 9303);
+			Server_Info[0].port = config.ReadInt("port", 9303);
 			Server_Info[0].serverload = 0;
-			strcpy(Server_Info[0].chname, config.ReadString("name", "Test ChannelX10"));
-			strcpy(Server_Info[0].gname, config.ReadString("guild", " CaptureGuild"));
+
+			str = config.ReadString("name", "Test ChannelX10");
+			strcpy(Server_Info[0].chname, str.c_str());
+			str = config.ReadString("guild", "CaptureGuild");
+			strcpy(Server_Info[0].gname, str.c_str());
 
 			config.SetSection("CHANNEL4");
 			Server_Info[1].size = 0x68;
@@ -201,12 +210,16 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
 			Server_Info[1].channel = 3;
 			Server_Info[1].servernumber = 1;
 
-			strcpy(Server_Info[1].ip, config.ReadString("ip", "127.0.0.1"));
+			str = config.ReadString("ip", "127.0.0.1");
+			strcpy(Server_Info[1].ip, str.c_str());
 
-			Server_Info[1].port = config.ReadInteger("port", 9303);
+			Server_Info[1].port = config.ReadInt("port", 9303);
 			Server_Info[1].serverload = 0;
-			strcpy(Server_Info[1].chname, config.ReadString("name", "Test ChannelX10 2"));
-			strcpy(Server_Info[1].gname, config.ReadString("guild", " CaptureGuild"));
+
+			str = config.ReadString("name", "Test ChannelX10 2");
+			strcpy(Server_Info[1].chname, str.c_str());
+			str = config.ReadString("guild", "CaptureGuild");
+			strcpy(Server_Info[1].gname, str.c_str());
 
 			Server_Info[1].checksum = cIOSocket.MakeDigest((unsigned char*)&Server_Info[1]);
 			nOfPackets = 2;
@@ -232,7 +245,7 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
 		TrainingDone_Response.type = TRAINING_DONE_RESPONSE;
 		TrainingDone_Response.unk1 = 11036;
 		{
-			int r = rand() % 3 + 1;
+			int r = Random::UInt(1, 3);
 			for (int i = 0; i < 9; i++) {
 				TrainingDone_Response.items[i] = t_items[i] + (r * 10);
 				TrainingDone_Response.zeros[i] = 0;

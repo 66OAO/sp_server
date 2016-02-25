@@ -1,7 +1,6 @@
 #ifndef __PACKETHANDLER_H__
 #define __PACKETHANDLER_H__
 
-#include "main.h"
 #include "IOSocket.h"
 #include "ServerEnum.h"
 #include "ClientPackets.h"

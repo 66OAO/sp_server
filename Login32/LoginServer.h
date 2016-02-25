@@ -3,7 +3,6 @@
 
 #define BUFFER_SIZE     1000
 
-#include "main.h"
 #include "PacketHandler.h"
 
 class cLoginServer {

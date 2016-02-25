@@ -40,7 +40,7 @@ public:
 		if (currPtr)
 			return currPtr->updateState();
 		else {
-			cout << "Unable to update " << s.c_str() << "state : UDPLIST" << endl;
+			cout << "Unable to update " << s << "state : UDPLIST" << endl;
 			return 0;
 		}
 	}

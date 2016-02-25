@@ -1,19 +1,18 @@
 #include "MySQL.h"
-#include "ini.h"
 
-extern CIni config;
+extern Ini config;
 
 MySQL::MySQL()
 {
 	config.SetSection("DB");
-	char * ip = config.ReadString("ip", "127.0.0.1");
-	uint32 port = config.ReadInteger("port", 3306);
-	char * user = config.ReadString("user", "root");
-	char * pw = config.ReadString("pw", "spgame");
-	char * db = config.ReadString("db", "spgame");
+	auto ip = config.ReadString("ip", "127.0.0.1");
+	u32 port = config.ReadInt("port", 3306);
+	auto user = config.ReadString("user", "root");
+	auto pw = config.ReadString("pw", "spgame");
+	auto db = config.ReadString("db", "spgame");
 
 	connection = mysql_init(0);
-	if (!mysql_real_connect(connection, ip, user, pw, db, port, 0, 0))
+	if (!mysql_real_connect(connection, ip.c_str(), user.c_str(), pw.c_str(), db.c_str(), port, 0, 0))
 		printf("Unable to connect to MySQL server\n");
 }
 

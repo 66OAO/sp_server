@@ -1,5 +1,4 @@
-#ifndef __MAIN_H__
-#define __MAIN_H__
+#pragma once
 
 #include <windows.h>
 #include <iostream>
@@ -10,4 +9,11 @@
 
 using namespace std;
 
-#endif
+
+#include <maths.h>
+#include <data/ini.h>
+
+#define NO_COMMON_STD
+#include <stlxtypes.h>
+
+using namespace stlx;

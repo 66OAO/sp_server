@@ -1,8 +1,7 @@
 #include "LoginServer.h"
 #include "console.h"
-#include "ini.h"
 
-extern CIni config;
+extern Ini config;
 
 cLoginServer::cLoginServer()
 {
@@ -29,7 +28,7 @@ bool cLoginServer::Start()
 		MakeMeFocused("WSAStartup success", 1);
 
 	server.sin_family = 2;
-	uint16 port = config.ReadInteger("port", 21000, "LOGIN");
+	u16 port = config.ReadInt("port", 21000, "LOGIN");
 	server.sin_port = htons(port);
 	server.sin_addr.s_addr = 0;
 
@@ -42,7 +41,7 @@ bool cLoginServer::Start()
 	}
 	else MakeMeFocused("Login Server: listen_socket success", 1);
 
-	if (bind(listen_socket, (struct sockaddr*)&server, serverlen) == SOCKET_ERROR)
+	if (::bind(listen_socket, (struct sockaddr*)&server, serverlen) == SOCKET_ERROR)
 	{
 		MakeMeFocused("Login Server: bind Error", 0);
 		return false;
@@ -86,7 +85,7 @@ void Comm(void *msg_sock)
 		}
 		else printf("recv %d bytes success\n", retbufsize);
 
-		int32 sz = *(int32*)buffer;
+		u32 sz = *(u32*)buffer;
 		if (sz != retbufsize)
 		{
 			MakeMeFocused("Channel Server: sz != retbufsize\n", 0);

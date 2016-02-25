@@ -1,7 +1,6 @@
 #ifndef __MYSQL_H__
 #define __MYSQL_H__
 
-#include "main.h"
 #include "ServerEnum.h"
 #include "ClientPackets.h"
 #include "ServerPackets.h"

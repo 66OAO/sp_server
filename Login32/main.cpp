@@ -1,7 +1,6 @@
 #include "LoginServer.h"
-#include "ini.h"
-CIni config("..\\config.ini", "CONFIG"); //For debug
-//CIni config(".//config.ini", "CONFIG"); //For Running
+Ini config("..\\config.ini", "CONFIG"); //For debug
+//Ini config(".//config.ini", "CONFIG"); //For Running
 HANDLE hConsoleOutput;
 
 int main()

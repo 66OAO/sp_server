@@ -1,19 +1,18 @@
 #include "MySQL.h"
-#include "ini.h"
 
-extern CIni config;
+extern Ini config;
 
 MySQL::MySQL()
 {
 	config.SetSection("DB");
-	char * ip = config.ReadString("ip", "127.0.0.1");
-	uint32 port = config.ReadInteger("port", 3306);
-	char * user = config.ReadString("user", "root");
-	char * pw = config.ReadString("pw", "");
-	char * db = config.ReadString("db", "spgame");
+	auto ip = config.ReadString("ip", "127.0.0.1");
+	u32 port = config.ReadInt("port", 3306);
+	auto user = config.ReadString("user", "root");
+	auto pw = config.ReadString("pw", "");
+	auto db = config.ReadString("db", "spgame");
 
 	connection = mysql_init(0);
-	if (!mysql_real_connect(connection, ip, user, pw, db, port, 0, 0))
+	if (!mysql_real_connect(connection, ip.c_str(), user.c_str(), pw.c_str(), db.c_str(), port, 0, 0))
 		printf("Unable to connect to MySQL server\n");
 }
 
@@ -52,11 +51,7 @@ void MySQL::GetUserInfo(char *name, MyCharInfo &info)
 	mysql_query(connection, buffer);
 	MYSQL_RES *res = mysql_use_result(connection);
 	MYSQL_ROW result = mysql_fetch_row(res);
-	if (!result)
-	{
-		printf("No Data\n");
-		return;
-	}
+	if (!res->row_count) return;
 	info.usr_id = atoi(result[0]);
 	info.gender = atoi(result[1]);
 	info.DefaultCharacter = atoi(result[2]);
@@ -163,11 +158,7 @@ int MySQL::DeleteItem(int id, int slotn)
 	mysql_query(connection, buffer);
 	MYSQL_RES *res = mysql_use_result(connection);
 	MYSQL_ROW result = mysql_fetch_row(res);
-	if (!result)
-	{
-		printf("No Data\n");
-		return 0;
-	}
+	if (!res->row_count) return;
 	int itm_type = atoi(result[0]);
 	mysql_free_result(res);
 	sprintf(buffer, "DELETE FROM items WHERE itm_usr_id = %d AND itm_slot = %d", id, slotn);
@@ -212,7 +203,6 @@ void MySQL::ChangeEquips(int id, EquipChangeRequest *ECR)
 	if (!ECR)return;
 	char buffer[400];
 	sprintf(buffer, "UPDATE equipments SET eqp_mag = %d, eqp_wpn = %d, eqp_arm = %d, eqp_pet = %d, eqp_foot = %d, eqp_body = %d, eqp_hand1 = %d, eqp_hand2 = %d, eqp_face = %d, eqp_hair = %d, eqp_head = %d WHERE usr_id = %d", ECR->mag, ECR->wpn, ECR->arm, ECR->pet, ECR->foot, ECR->body, ECR->hand1, ECR->hand2, ECR->face, ECR->hair, ECR->head, id);
-	//printf(buffer);
 	mysql_query(connection, buffer);
 }
 
@@ -223,11 +213,7 @@ void MySQL::GetUserData(UserInfoResponse* UIR)
 	mysql_query(connection, buffer);
 	MYSQL_RES *res = mysql_use_result(connection);
 	MYSQL_ROW result = mysql_fetch_row(res);
-	if (!result)
-	{
-		printf("No Data\n");
-		return;
-	}
+	if (!res->row_count) return;
 	int uid = atoi(result[0]);
 	UIR->gender = atoi(result[1]);
 	UIR->defaultcharacter = atoi(result[2]);
@@ -608,7 +594,7 @@ bool MySQL::IsNewDayLogin(int usr_id) {
 	now_time.tm_year += 1900;
 	now_time.tm_mon++;
 	int sql_last_login_time = now_time.tm_year *10000 + now_time.tm_mon *100 + now_time.tm_mday;
-	printf("Last login time: %d-%d-%d = %d", now_time.tm_year, now_time.tm_mon, now_time.tm_mday, sql_last_login_time);
+	printf("Last login time: %d-%d-%d = %d\n", now_time.tm_year, now_time.tm_mon, now_time.tm_mday, sql_last_login_time);
 	sprintf(buffer, "UPDATE users SET usr_last_login = %d WHERE usr_id = %d", sql_last_login_time, usr_id);
 	mysql_query(connection, buffer);
 	if (last_login_time.tm_year <= now_time.tm_year)

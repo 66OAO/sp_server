@@ -1,7 +1,6 @@
 #ifndef __CHANNELSERVER_H__
 #define __CHANNELSERVER_H__
 
-#include "main.h"
 #include "PacketHandler.h"
 
 class ChannelServer {
