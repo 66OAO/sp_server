@@ -419,6 +419,7 @@ void MySQL::UpgradeCard(MyCharInfo *Info, CardUpgradeResponse *CUR)
 	CUR->GF = atoi(result[1]);
 	CUR->Level = atoi(result[2]);
 	int old_skill = atoi(result[3]);
+	String query;
 	if (CUR->UpgradeType == 1)
 	{
 		int ItemSpirite = (CUR->Type % 100) / 10;
@@ -426,27 +427,27 @@ void MySQL::UpgradeCard(MyCharInfo *Info, CardUpgradeResponse *CUR)
 		if (ItemSpirite == 1)
 		{
 			Info->Water -= EleCost;
-			Query("UPDATE users SET usr_water = (usr_water-{}) WHERE usr_id = {}", EleCost, Info->usr_id);
+			query = format("UPDATE users SET usr_water = (usr_water-{}) WHERE usr_id = {}", EleCost, Info->usr_id);
 		}
 		else if (ItemSpirite == 2)
 		{
 			Info->Fire -= EleCost;
-			Query("UPDATE users SET usr_fire = (usr_fire-{}) WHERE usr_id = {}", EleCost, Info->usr_id);
+			query = format("UPDATE users SET usr_fire = (usr_fire-{}) WHERE usr_id = {}", EleCost, Info->usr_id);
 		}
 		else if (ItemSpirite == 3)
 		{
 			Info->Earth -= EleCost;
-			Query("UPDATE users SET usr_earth = (usr_earth-{}) WHERE usr_id = {}", EleCost, Info->usr_id);
+			query = format("UPDATE users SET usr_earth = (usr_earth-{}) WHERE usr_id = {}", EleCost, Info->usr_id);
 		}
 		else if (ItemSpirite == 4)
 		{
 			Info->Wind -= EleCost;
-			Query("UPDATE users SET usr_wind = (usr_wind-{}) WHERE usr_id = {}", EleCost, Info->usr_id);
+			query = format("UPDATE users SET usr_wind = (usr_wind-{}) WHERE usr_id = {}", EleCost, Info->usr_id);
 		}
 	}
 	else if (CUR->UpgradeType == 3)
 	{
-		Query("UPDATE items SET itm_level = (itm_level - 1) WHERE itm_usr_id = {} AND itm_slot = {}",
+		query = format("UPDATE items SET itm_level = (itm_level - 1) WHERE itm_usr_id = {} AND itm_slot = {}",
 			Info->usr_id, CUR->Slot);
 	}
 	CUR->WaterElements = Info->Water;
@@ -471,6 +472,7 @@ void MySQL::UpgradeCard(MyCharInfo *Info, CardUpgradeResponse *CUR)
 	}
 	CUR->Skill = Item.GenerateSkill(CUR->Level, CUR->Type, CUR->UpgradeType, old_skill);
 	mysql_free_result(res);
+	Query(query);
 	Query("UPDATE items SET itm_level = {}, itm_skill = {}"
 		" WHERE itm_usr_id = {} AND itm_slot = {}",
 		CUR->Level, CUR->Skill, Info->usr_id, CUR->Slot);
