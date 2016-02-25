@@ -121,6 +121,10 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
 		Login_Response.type = LOGIN_RESPONSE;
 		Login_Response.unk1 = 11036;
 		Login_Response.state = UpdateState();
+		/*if (AlreadyLogin())
+		{
+
+		}*/
 		if (!IsCorrectLogin())
 		{
 			Login_Response.Response = WrongPasswd;

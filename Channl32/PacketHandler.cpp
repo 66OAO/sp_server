@@ -210,6 +210,7 @@ void PacketHandler::Handle(unsigned char *buf)
 	case ROOM_QUIT_REQ:
 		cout << "ROOM_QUIT_REQ" << endl;
 		GenerateResponse(ROOM_EXIT_RESPONSE);
+		break;
 	case ROOM_EXIT_REQ:
 		cout << "ROOM_EXIT_REQ" << endl;
 		GenerateResponse(ROOM_EXIT_RESPONSE);
@@ -388,6 +389,7 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
 	case JOIN_PLAYERDATA_RESPONSE:
 		memset(&Join_Channel_PlayerData_Response, 0, sizeof(JoinChannelPlayerDataResponse));
 		GetUserItems();
+		VisitBonus VisitBonus;
 		Join_Channel_PlayerData_Response.size = 0x980; //0x980
 		Join_Channel_PlayerData_Response.type = JOIN_PLAYERDATA_RESPONSE;
 		Join_Channel_PlayerData_Response.unk1 = 11036; //11036
@@ -448,12 +450,14 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
 		Join_Channel_PlayerData_Response.unk39 = 7; //7
 		Join_Channel_PlayerData_Response.unk40 = 0x14; //0x14
 		Join_Channel_PlayerData_Response.unk41 = 0; //0
-		/*
-		Join_Channel_PlayerData_Response.VisitBonusCode = 9999;
-		Join_Channel_PlayerData_Response.VisitBonusElementType = 2;
-		Join_Channel_PlayerData_Response.VisitBonusElementNumber = 5;
-		Join_Channel_PlayerData_Response.VisitBonusElementMultiple = 1337;
-		*/
+		if(MySql.IsNewDayLogin(Info.usr_id))
+		{
+			Join_Channel_PlayerData_Response.VisitBonusCode = VisitBonus.GenerateVisitBonus(1, Info.usr_id);
+			Join_Channel_PlayerData_Response.VisitBonusElementType = VisitBonus.GenerateVisitBonus(2, Info.usr_id);
+			Join_Channel_PlayerData_Response.VisitBonusElementBase = VisitBonus.GenerateVisitBonus(3, Info.usr_id);
+			Join_Channel_PlayerData_Response.VisitBonusElementMultiple = VisitBonus.GenerateVisitBonus(4, Info.usr_id);
+			MySql.VisitBonus(Join_Channel_PlayerData_Response.VisitBonusCode, Join_Channel_PlayerData_Response.VisitBonusElementType, Join_Channel_PlayerData_Response.VisitBonusElementBase, Join_Channel_PlayerData_Response.VisitBonusElementMultiple, Info.usr_id);
+		}
 		Join_Channel_PlayerData_Response.unk42; //0
 		Join_Channel_PlayerData_Response.bunk[0] = 1; //1 0 1 1 1 1 0 0
 		Join_Channel_PlayerData_Response.bunk[1] = 0;
@@ -464,7 +468,7 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
 		Join_Channel_PlayerData_Response.bunk[6] = 0;
 		Join_Channel_PlayerData_Response.Rank = 101;
 		Join_Channel_PlayerData_Response.unk43 = 1; //1
-		Join_Channel_PlayerData_Response.maxroom = 50; //0x108
+		Join_Channel_PlayerData_Response.maxroom = MaxRoom; //0x108
 		memset((void*)&Join_Channel_PlayerData_Response.munk1, -1, 4 * 8); //-1
 		Join_Channel_PlayerData_Response.unk45 = 7; //7
 		Join_Channel_PlayerData_Response.unk46 = 0x120101; //0x120101
@@ -611,16 +615,25 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
 		buffer = (unsigned char*)&User_Info_Response;
 		break;
 	case ROOM_LIST_RESPONSE:
+		for (int i = 0; i < MaxRoom; i++)
+		{
+			if (RoomList.Rooms[i].n != -1) {
+				HandleList.ProdcastRoomUpdate(RoomList.Rooms[i].n);
+			}
+		}
+		nOfPackets = 0;
+		/*
 		memset(&Room_List_Response, 0, sizeof(Room_List_Response));
 		Room_List_Response.size = 0xC90;
 		Room_List_Response.type = ROOM_LIST_RESPONSE;
 		Room_List_Response.unk1 = 11036;
 		Room_List_Response.unk4 = 0x500000;
-		for (int i = 0; i < 50; i++)Room_List_Response.bunk[i] = true;
+		for (int i = 0; i < MaxRoom; i++)Room_List_Response.bunk[i] = true;
 		RoomList.GetRoomList(&Room_List_Response);
 		Room_List_Response.state = UpdateState();
 		Room_List_Response.checksum = cIOSocket.MakeDigest((uint8*)&Room_List_Response);
 		buffer = (unsigned char*)&Room_List_Response;
+		*/
 		break;
 	case CHAT_RESPONSE:
 		if (Chat_Request->chatType < 0 || Chat_Request->chatType > 7)break;
@@ -891,8 +904,39 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
 			RoomList.ProdcastKickResponse(Info.usr_room, PlayerKick_Request->slot);
 		nOfPackets = 0;
 		break;
+	case ROOM_QUIT_RESPONSE:
+	{
+		int mode = Info.usr_mode;
+		int Quest_Mode[15] = { 11,18,23,12,19,24,13,20,25,14,21,26,16,22,27 };
+		for (int i = 0; i < 15; i++) {
+			if (Quest_Mode[i] == mode) {
+			}
+		}
+		switch (mode) {
+		case TEAMPLAY_MODE:
+		{
+			int QuitTeam = 0;
+			for (int i = 0; i < RoomList.Rooms[Info.usr_room].p; i++)
+			{
+				if (QuitTeam == Info.usr_team) QuitTeam++;
+			}
+		}
+		break;
+		case DUEL_MODE:
+			break;
+		default:
+			break;
+		}
+	}
+	break;
 	case ROOM_EXIT_RESPONSE:
 		GetExitRoomResponse();
+		for (int i = 0; i < MaxRoom; i++)
+		{
+			if (RoomList.Rooms[i].n != -1) {
+				HandleList.ProdcastRoomUpdate(RoomList.Rooms[i].n);
+			}
+		}
 		nOfPackets = 0;
 		break;
 	case SHOP_BUY_ELEMENTCARD_RESPONSE:
