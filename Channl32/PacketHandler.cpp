@@ -102,15 +102,14 @@ void PacketHandler::Handle(unsigned char *buf)
 		cout << "IN_ROOM_REQ " << IP << " Team : " << In_Room_Request->team << endl;
 		Info.usr_char = In_Room_Request->Character;
 		Info.usr_team = In_Room_Request->team;
-		HandleList.ProdcastRoomUpdate(Info.usr_room);
 		if (In_Room_Request->GameStart == 2) // 1 = Player change character , 2 = Player change team , 3 = Player ready
 		{
 			Info.usr_ready = (BYTE)In_Room_Request->Ready;
 			//if(In_Room_Request->Ready > 10)
 			//    Info.usr_ready = 0;
 			GetBigBattleNpcMultiplier();
-			break;
 		}
+		HandleList.ProdcastRoomUpdate(Info.usr_room);
 		GenerateResponse(ROOM_PLAYERDATA_RESPONSE);
 		break;
 	case IN_GAME_REQ:

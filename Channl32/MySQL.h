@@ -9,7 +9,8 @@
 class MySQL
 {
 private:
-	MYSQL *connection;
+	MYSQL *connection = nullptr;
+	MYSQL_RES *res = nullptr;
 
 public:
 	MySQL();
@@ -44,8 +45,22 @@ public:
 		auto str = fmt::format(std::forward<Args>(args)...);
 		if(mysql_query(connection, str.c_str()))
 			throw std::runtime_error(mysql_error(connection));
-		#define mysql_query static_assert(0, "Use the method Query to execute queries!");
 	}
+
+	template <typename ...Args>
+	void QuerySelect(Args &&... args) {
+		auto str = fmt::format(std::forward<Args>(args)...);
+		if(mysql_query(connection, str.c_str()))
+			throw std::runtime_error(mysql_error(connection));
+
+		res = mysql_use_result(connection);
+
+		if(!res)
+			throw std::runtime_error(mysql_error(connection));
+	}
+
+	#define mysql_query		 static_assert(0, "Use the method Query to execute queries!");
+	#define mysql_use_result(x) nullptr; static_assert(0, "Use the method QuerySelect to execute select queries!");
 };
 
 struct LobbyUser
