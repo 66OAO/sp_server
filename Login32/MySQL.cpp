@@ -23,9 +23,8 @@ MySQL::~MySQL()
 
 int MySQL::Login(char* id, char* pw)
 {
-	Query("SELECT usr_id FROM users WHERE usr_name = '{}' AND usr_pw = '{}'",
+	QuerySelect("SELECT usr_id FROM users WHERE usr_name = '{}' AND usr_pw = '{}'",
 		id, pw);
-	MYSQL_RES *res = mysql_use_result(connection);
 	MYSQL_ROW result = mysql_fetch_row(res);
 	if (!result)return 0;
 	int x = atoi(result[0]);
@@ -35,11 +34,10 @@ int MySQL::Login(char* id, char* pw)
 
 void MySQL::GetUserInfo(int id, MyCharInfo &info)
 {
-	Query("SELECT usr_char, usr_points, usr_code, usr_level FROM users WHERE usr_id = {}", id);
+	QuerySelect("SELECT usr_char, usr_points, usr_code, usr_level FROM users WHERE usr_id = {}", id);
 
-	MYSQL_RES *res = mysql_use_result(connection);
 	MYSQL_ROW result = mysql_fetch_row(res);
-	if (!res->row_count) return;
+	if (!result) return;
 	info.DefaultCharacter = atoi(result[0]);
 	info.Points = _atoi64(result[1]);
 	info.Code = _atoi64(result[2]);

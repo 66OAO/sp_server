@@ -28,8 +28,7 @@ void MySQL::SetUserIP(char *name, char* ip)
 
 void MySQL::GetUserIP(int id, char *ip)
 {
-	Query("SELECT usr_ip FROM users WHERE usr_id = {}", id);
-	MYSQL_RES *res = mysql_use_result(connection);
+	QuerySelect("SELECT usr_ip FROM users WHERE usr_id = {}", id);
 	MYSQL_ROW result = mysql_fetch_row(res);
 	if (!result)
 	{
@@ -42,11 +41,10 @@ void MySQL::GetUserIP(int id, char *ip)
 
 void MySQL::GetUserInfo(char *name, MyCharInfo &info)
 {
-	Query("SELECT usr_id, usr_gender, usr_char, usr_points, usr_code,"
+	QuerySelect("SELECT usr_id, usr_gender, usr_char, usr_points, usr_code,"
 		" usr_level, usr_mission, usr_nslots, usr_water, usr_fire,"
 		" usr_earth, usr_wind, usr_coins FROM users WHERE usr_name = '{}'", name);
 
-	MYSQL_RES *res = mysql_use_result(connection);
 	MYSQL_ROW result = mysql_fetch_row(res);
 	if (!res->row_count) return;
 
@@ -70,10 +68,9 @@ void MySQL::GetUserInfo(char *name, MyCharInfo &info)
 
 void MySQL::GetUserItems(int id, bool *bMyCard, int *IDMyCard, int *TypeMyCard, int *GFMyCard, int *LevelMyCard, int *SkillMyCard)
 {
-	Query("SELECT itm_id, itm_slot, itm_type, itm_gf, itm_level,"
+	QuerySelect("SELECT itm_id, itm_slot, itm_type, itm_gf, itm_level,"
 		" itm_skill FROM items WHERE itm_usr_id = {}", id);
 
-	MYSQL_RES *res = mysql_use_result(connection);
 	MYSQL_ROW result;
 	while (result = mysql_fetch_row(res))
 	{
@@ -90,8 +87,7 @@ void MySQL::GetUserItems(int id, bool *bMyCard, int *IDMyCard, int *TypeMyCard, 
 
 int MySQL::GetValidSlot(int id, int maxslots)
 {
-	Query("SELECT itm_slot FROM items WHERE itm_usr_id = {}", id);
-	MYSQL_RES *res = mysql_use_result(connection);
+	QuerySelect("SELECT itm_slot FROM items WHERE itm_usr_id = {}", id);
 	MYSQL_ROW result;
 
 	char buffer[256];
@@ -147,8 +143,7 @@ void MySQL::UpdateItem(MyCharInfo *Info, int slot, int item_id, int gf)
 
 int MySQL::DeleteItem(int id, int slotn)
 {
-	Query("SELECT itm_type FROM items WHERE itm_usr_id = {} AND itm_slot = {}", id, slotn);
-	MYSQL_RES *res = mysql_use_result(connection);
+	QuerySelect("SELECT itm_type FROM items WHERE itm_usr_id = {} AND itm_slot = {}", id, slotn);
 	MYSQL_ROW result = mysql_fetch_row(res);
 	if (!res->row_count) return 0;
 	int itm_type = atoi(result[0]);
@@ -159,8 +154,7 @@ int MySQL::DeleteItem(int id, int slotn)
 
 void MySQL::GetShopItemCost(int item, int gf, int quantity, int &code, int &cash)
 {
-	Query("SELECT itm_gf, itm_code_cost, itm_cash_cost, itm_coins_cost FROM shop WHERE itm_type = {} AND itm_quantity = {}", item, quantity);
-	MYSQL_RES *res = mysql_use_result(connection);
+	QuerySelect("SELECT itm_gf, itm_code_cost, itm_cash_cost, itm_coins_cost FROM shop WHERE itm_type = {} AND itm_quantity = {}", item, quantity);
 	MYSQL_ROW result;
 	while (result = mysql_fetch_row(res))
 	{
@@ -198,10 +192,9 @@ void MySQL::ChangeEquips(int id, EquipChangeRequest *ECR)
 
 void MySQL::GetUserData(UserInfoResponse* UIR)
 {
-	Query("SELECT usr_id, usr_gender, usr_char, usr_points, usr_code, usr_coins,"
+	QuerySelect("SELECT usr_id, usr_gender, usr_char, usr_points, usr_code, usr_coins,"
 		" usr_level, usr_mission, usr_wins, usr_losses, usr_ko, usr_down"
 		" FROM users WHERE usr_name = '{}'", UIR->username);
-	MYSQL_RES *res = mysql_use_result(connection);
 	MYSQL_ROW result = mysql_fetch_row(res);
 	if (!res->row_count) return;
 	int uid = atoi(result[0]);
@@ -219,14 +212,13 @@ void MySQL::GetUserData(UserInfoResponse* UIR)
 
 	mysql_free_result(res);
 
-	Query("SELECT itm_type, itm_gf, itm_level, itm_skill FROM equipments INNER JOIN items"
+	QuerySelect("SELECT itm_type, itm_gf, itm_level, itm_skill FROM equipments INNER JOIN items"
 		" WHERE itm_usr_id = {} AND usr_id = {}"
 		" AND (itm_slot = eqp_mag OR itm_slot = eqp_wpn OR itm_slot = eqp_arm"
 		" OR itm_slot = eqp_pet OR itm_slot = eqp_foot OR itm_slot = eqp_body"
 		" OR itm_slot = eqp_hand1 OR itm_slot = eqp_hand2 OR itm_slot = eqp_face"
 		" OR itm_slot = eqp_hair OR itm_slot = eqp_head)", uid, uid);
 
-	res = mysql_use_result(connection);
 	ItemId Item_id;
 	while (result = mysql_fetch_row(res))
 	{
@@ -298,14 +290,13 @@ void MySQL::GetUserData(UserInfoResponse* UIR)
 
 void MySQL::GetEquipData(int id, RoomPlayerDataResponse *RPDR)
 {
-	Query("SELECT itm_type, itm_gf, itm_level, itm_skill FROM equipments INNER JOIN items"
+	QuerySelect("SELECT itm_type, itm_gf, itm_level, itm_skill FROM equipments INNER JOIN items"
 		" WHERE itm_usr_id = {} AND usr_id = {} AND (itm_slot = eqp_mag"
 		" OR itm_slot = eqp_wpn OR itm_slot = eqp_arm OR itm_slot = eqp_pet"
 		" OR itm_slot = eqp_foot OR itm_slot = eqp_body OR itm_slot = eqp_hand1"
 		" OR itm_slot = eqp_hand2 OR itm_slot = eqp_face OR itm_slot = eqp_hair OR itm_slot = eqp_head)",
 		id, id);
 
-	MYSQL_RES *res = mysql_use_result(connection);
 	MYSQL_ROW result;
 	ItemId Item_id;
 	while (result = mysql_fetch_row(res))
@@ -373,6 +364,7 @@ void MySQL::GetEquipData(int id, RoomPlayerDataResponse *RPDR)
 			}
 		}
 	}
+
 	mysql_free_result(res);
 }
 
@@ -387,10 +379,10 @@ void MySQL::GetMoneyAmmount(int id, int *cash, unsigned __int64 *code, char sign
 			Query("UPDATE users SET usr_code = (usr_code{}{}) WHERE usr_id = {}", sign, codecost, id);
 	}
 
-	Query("SELECT usr_cash, usr_code FROM users WHERE usr_id = {}", id);
-	MYSQL_RES *res = mysql_use_result(connection);
+	QuerySelect("SELECT usr_cash, usr_code FROM users WHERE usr_id = {}", id);
 	MYSQL_ROW result = mysql_fetch_row(res);
-	if (!res->row_count) return;
+	if (!result) return;
+
 	if (cash)*cash = atoi(result[0]);
 	if (code)*code = _atoi64(result[1]);
 	mysql_free_result(res);
@@ -398,13 +390,12 @@ void MySQL::GetMoneyAmmount(int id, int *cash, unsigned __int64 *code, char sign
 
 void MySQL::UpgradeCard(MyCharInfo *Info, CardUpgradeResponse *CUR)
 {
-	Query("SELECT itm_type, itm_gf, itm_level, itm_skill FROM items"
+	QuerySelect("SELECT itm_type, itm_gf, itm_level, itm_skill FROM items"
 		" WHERE itm_usr_id = {} AND itm_slot = {}", 
 		Info->usr_id, CUR->Slot);
 
-	MYSQL_RES *res = mysql_use_result(connection);
 	MYSQL_ROW result = mysql_fetch_row(res);
-	if (!res->row_count) 
+	if (!result) 
 		return;
 
 	ItemId Item;
@@ -472,11 +463,10 @@ void MySQL::UpgradeCard(MyCharInfo *Info, CardUpgradeResponse *CUR)
 
 void MySQL::GetScrolls(MyCharInfo *Info)
 {
-	Query("SELECT usr_scroll1,usr_scroll2,usr_scroll3 FROM users WHERE usr_id = {}", 
+	QuerySelect("SELECT usr_scroll1,usr_scroll2,usr_scroll3 FROM users WHERE usr_id = {}", 
 		Info->usr_id);
-	MYSQL_RES *res = mysql_use_result(connection);
 	MYSQL_ROW result = mysql_fetch_row(res);
-	if (!res->row_count)
+	if (!result)
 		return;
 
 	for (int i = 0; i < 3; i++)
@@ -498,9 +488,8 @@ void MySQL::IncreaseMission(int id, int n)
 
 void MySQL::SearchShop(CardSearchResponse *CSR, SearchType type)
 {
-	Query("SELECT * FROM cardshop WHERE shop_type = {}", type);
+	QuerySelect("SELECT * FROM cardshop WHERE shop_type = {}", type);
 
-	MYSQL_RES *res = mysql_use_result(connection);
 	CSR->total = res->row_count;
 	MYSQL_ROW result = 0;
 	int i = 0;
@@ -516,6 +505,7 @@ void MySQL::SearchShop(CardSearchResponse *CSR, SearchType type)
 		CSR->skill[i] = atoi(result[10]);
 		i++;
 	}
+
 	while (i < 5) {
 		CSR->rooms[i] = -1;
 		CSR->name[i][0] = 0;
@@ -528,6 +518,7 @@ void MySQL::SearchShop(CardSearchResponse *CSR, SearchType type)
 		CSR->skill[i] = -1;
 		i++;
 	}
+
 	mysql_free_result(res);
 }
 
@@ -546,13 +537,15 @@ void MySQL::AddCardSlot(int usr_id, int slotn)
 {
 	int addslot = 0;
 	int slot_type = 0;
-	Query("SELECT itm_type FROM items WHERE itm_usr_id = {} AND itm_slot = {}",
+	QuerySelect("SELECT itm_type FROM items WHERE itm_usr_id = {} AND itm_slot = {}",
 		usr_id, slotn);
 
-	MYSQL_RES *res = mysql_use_result(connection);
 	MYSQL_ROW result = mysql_fetch_row(res);
-	if (!res->row_count) return;
-	if (result[0]) slot_type = atoi(result[0]);
+	if (!result) 
+		return;
+
+	if (result[0]) 
+		slot_type = atoi(result[0]);
 	else return;
 	mysql_free_result(res);
 	if (slot_type == 2005) addslot = 12;
@@ -569,11 +562,10 @@ bool MySQL::IsNewDayLogin(int usr_id) {
 	tm now_time;
 	tm last_login_time;
 
-	Query("SELECT usr_last_login FROM users WHERE usr_id = {}", usr_id);
+	QuerySelect("SELECT usr_last_login FROM users WHERE usr_id = {}", usr_id);
 
-	MYSQL_RES *res = mysql_use_result(connection);
 	MYSQL_ROW result = mysql_fetch_row(res);
-	if (!res->row_count) return false;
+	if (!result) return false;
 	if (result[0])
 	{
 		last_login_time.tm_year = atoi(result[0]) / 10000;
