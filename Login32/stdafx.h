@@ -20,3 +20,8 @@ using namespace std;
 #define NO_COMMON_STD
 #include <stlxtypes.h>
 using namespace stlx;
+
+#include <format.h>
+using fmt::format;
+
+#include <console.h>

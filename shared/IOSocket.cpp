@@ -6,7 +6,8 @@ IOSocket::IOSocket()
 	hModule = LoadLibraryA("iosocketdll.dll");
 	if (!hModule)
 	{
-		MakeMeFocused("Failed to load iosocketdll.dll. Make sure you included iosocketdll.dll and logdll.dll.", 0);
+		Log::Error("Failed to load iosocketdll.dll."
+			" Make sure you included iosocketdll.dll and logdll.dll.");
 		return;
 	}
 
