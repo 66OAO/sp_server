@@ -159,19 +159,44 @@ void PacketHandler::GetInRoomUpgradeResponse(CardUpgradeResponse *CUR) {
 }
 
 void PacketHandler::GetRoomListResponse() {
-	memset(&Room_List_Response, 0, sizeof(Room_List_Response));
-	Room_List_Response.size = 0xC90;
-	Room_List_Response.type = ROOM_LIST_RESPONSE;
-	Room_List_Response.unk1 = 11036;
-	Room_List_Response.unk4 = 0x500000;
-	for (int i = 0; i < MaxRoom; i++)Room_List_Response.bunk[i] = true;
-	RoomList.GetRoomList(&Room_List_Response);
-	Room_List_Response.state = UpdateState();
-	Room_List_Response.checksum = cIOSocket.MakeDigest((u8*)&Room_List_Response);
-	buffer = (unsigned char*)&Room_List_Response;
-	for (int i = 4; i < *(int*)buffer; i++)
-		buffer[i] = ~((BYTE)(buffer[i] << 3) | (BYTE)(buffer[i] >> 5));
-	send(msg_socket, (char*)buffer, *(int*)buffer, 0);
+	for (int i = 0; i < 22; i++)Room_List_Response.bunk[i] = true;
+	int x = 0;
+	for (int i = 0; i < MAXROOM; i++) {
+		if (x == 0) {
+			memset(&Room_List_Response, 0, sizeof(Room_List_Response));
+			Room_List_Response.size = sizeof(Room_List_Response);
+			Room_List_Response.type = ROOM_LIST_RESPONSE;
+			Room_List_Response.unk1 = 11036;
+			Room_List_Response.unk4 = 0x500000;
+		}
+		if (RoomList.Rooms[i].n != -1) {
+			Room_List_Response.roomnumber[x] = RoomList.Rooms[i].n;
+			strcpy(Room_List_Response.title[x], RoomList.Rooms[i].title);
+			Room_List_Response.mode[x] = RoomList.Rooms[i].mode;
+			Room_List_Response.map[x] = RoomList.Rooms[i].map;
+			Room_List_Response.maxplayers[x] = RoomList.Rooms[i].maxp;
+			Room_List_Response.unks2[x] = 1;
+			Room_List_Response.unks4[x] = -1;
+			for (int j = 0; j < RoomList.Rooms[i].maxp - 1; j++) {
+				Room_List_Response.players[x][j] = RoomList.Rooms[i].Player[j] ? RoomList.Rooms[i].Player[j]->Info.usr_char : 0;
+			}
+			x++;
+		}
+		if (x == 22 || i == (MAXROOM - 1)) {
+			while (x < 22)
+			{
+				Room_List_Response.roomnumber[x] = -1;
+				x++;
+			}
+			x = 0;
+			Room_List_Response.state = UpdateState();
+			Room_List_Response.checksum = cIOSocket.MakeDigest((u8*)&Room_List_Response);
+			buffer = (unsigned char*)&Room_List_Response;
+			for (int i = 4; i < *(int*)buffer; i++)
+				buffer[i] = ~((BYTE)(buffer[i] << 3) | (BYTE)(buffer[i] >> 5));
+			send(msg_socket, (char*)buffer, *(int*)buffer, 0);
+		}
+	}
 }
 
 bool PacketHandler::GetRoomJoinResponse() {
