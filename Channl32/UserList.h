@@ -201,6 +201,12 @@ public:
 		int join = false;
 		for (int i = 0; i < MaxRoom; i++)
 			if (Rooms[i].n == n) {
+				if (Rooms[i].p == Rooms[i].maxp) {
+					break;
+				}
+				if (!(Rooms[i].mode >= 12 && Rooms[i].mode <= 27) && Rooms[i].mode != 1 && Rooms[i].started == true) {
+					break;
+				}
 				for (int j = 0; j < 8; j++)
 					if (Rooms[i].users[j] == 0) {
 						Rooms[i].level[j] = level;
@@ -244,16 +250,16 @@ public:
 				//LRR->unk3 = 0;
 				LRR->mode = Rooms[i].mode;
 				LRR->map = Rooms[i].map;
-				LRR->unk4 = 0x000;
+				LRR->unk4 = Rooms[i].p;
 				LRR->maxplayers = Rooms[i].maxp;
 				LRR->unk5 = 0x000;
 				LRR->unk6 = 0;
 				LRR->unk7 = -1;
+				LRR->unk9 = 100;
 				for (int j = 0; j < 8; j++)
 					if (Rooms[i].Player[j])LRR->characters[j] = Rooms[i].Player[j]->Info.usr_char;
 					else LRR->characters[j] = 0;
 					for (int i = 0; i < 13; i++)LRR->zeros[i] = 0;
-					LRR->unk9 = 0x100;
 			}
 	}
 	void GetRoomPlayerList(int n, RoomPlayerListResponse *RPLR) {
@@ -399,12 +405,12 @@ public:
 				{
 					int TEAM1 = 0, TEAM2 = 0;
 					for (int j = 0; j < Rooms[i].p; j++) {
-						if (Rooms[i].Player[j]->Info.usr_team == 10) TEAM1++;
-						else TEAM2++;
+						if (Rooms[i].Player[j] && Rooms[i].Player[j]->Info.usr_team == 10) TEAM1++;
+						else if(Rooms[i].Player[j]) TEAM2++;
 					}
 					if (TEAM1 == TEAM2) {
 						for (int j = 0; j < Rooms[i].p; j++) {
-							if (!Rooms[i].Player[j]->Info.usr_ready)
+							if (Rooms[i].Player[j] && !Rooms[i].Player[j]->Info.usr_ready)
 								return false;
 						}
 						return true;
@@ -416,8 +422,7 @@ public:
 				{
 					int TWO_READY = 0;
 					for (int j = 0; j < 2; j++) {
-						if (Rooms[i].Player[j])
-							if (Rooms[i].Player[j]->Info.usr_ready) TWO_READY++;
+						if (Rooms[i].Player[j] && Rooms[i].Player[j]->Info.usr_ready) TWO_READY++;
 					}
 					if (TWO_READY == 2)
 						return true;
@@ -438,14 +443,14 @@ public:
 				{
 					int TEAM1 = 0, TEAM2 = 0;
 					for (int j = 0; j < Rooms[i].p; j++) {
-						if (Rooms[i].Player[j]->Info.usr_team == 10) TEAM1++;
-						else TEAM2++;
+						if (Rooms[i].Player[j] && Rooms[i].Player[j]->Info.usr_team == 10) TEAM1++;
+						else if(Rooms[i].Player[j]) TEAM2++;
 					}
 					if (TEAM1 == TEAM2)
 					{
 						for (int j = 0; j < Rooms[i].p; j++)
 						{
-							if (!Rooms[i].Player[j]->Info.usr_ready)
+							if (Rooms[i].Player[j] && !Rooms[i].Player[j]->Info.usr_ready)
 								return false;
 						}
 						return true;
@@ -464,14 +469,14 @@ public:
 					int TEAM1 = 0, TEAM2 = 0;
 					for (int j = 0; j < Rooms[i].p; j++)
 					{
-						if (Rooms[i].Player[j]->Info.usr_team == 10) TEAM1++;
-						else TEAM2++;
+						if (Rooms[i].Player[j] && Rooms[i].Player[j]->Info.usr_team == 10) TEAM1++;
+						else if(Rooms[i].Player[j]) TEAM2++;
 					}
 					if (TEAM1 == TEAM2)
 					{
 						for (int j = 0; j < Rooms[i].p; j++)
 						{
-							if (!Rooms[i].Player[j]->Info.usr_ready)
+							if (Rooms[i].Player[j] && !Rooms[i].Player[j]->Info.usr_ready)
 								return false;
 						}
 						return true;
@@ -484,14 +489,14 @@ public:
 					int TEAM1 = 0, TEAM2 = 0;
 					for (int j = 0; j < Rooms[i].p; j++)
 					{
-						if (Rooms[i].Player[j]->Info.usr_team == 10) TEAM1++;
-						else TEAM2++;
+						if (Rooms[i].Player[j] && Rooms[i].Player[j]->Info.usr_team == 10) TEAM1++;
+						else if(Rooms[i].Player[j]) TEAM2++;
 					}
 					if (TEAM1 == TEAM2)
 					{
 						for (int j = 0; j < Rooms[i].p; j++)
 						{
-							if (!Rooms[i].Player[j]->Info.usr_ready)
+							if (Rooms[i].Player[j] && !Rooms[i].Player[j]->Info.usr_ready)
 								return false;
 						}
 						return true;
@@ -504,14 +509,14 @@ public:
 					int TEAM1 = 0, TEAM2 = 0;
 					for (int j = 0; j < Rooms[i].p; j++)
 					{
-						if (Rooms[i].Player[j]->Info.usr_team == 10) TEAM1++;
-						else TEAM2++;
+						if (Rooms[i].Player[j] && Rooms[i].Player[j]->Info.usr_team == 10) TEAM1++;
+						else if(Rooms[i].Player[j]) TEAM2++;
 					}
 					if (TEAM1 == TEAM2)
 					{
 						for (int j = 0; j < Rooms[i].p; j++)
 						{
-							if (!Rooms[i].Player[j]->Info.usr_ready)
+							if (Rooms[i].Player[j] && !Rooms[i].Player[j]->Info.usr_ready)
 								return false;
 						}
 						return true;
@@ -524,14 +529,14 @@ public:
 					int TEAM1 = 0, TEAM2 = 0;
 					for (int j = 0; j < Rooms[i].p; j++)
 					{
-						if (Rooms[i].Player[j]->Info.usr_team == 10) TEAM1++;
-						else TEAM2++;
+						if (Rooms[i].Player[j] && Rooms[i].Player[j]->Info.usr_team == 10) TEAM1++;
+						else if(Rooms[i].Player[j]) TEAM2++;
 					}
 					if (TEAM1 == TEAM2)
 					{
 						for (int j = 0; j < Rooms[i].p; j++)
 						{
-							if (!Rooms[i].Player[j]->Info.usr_ready)
+							if (Rooms[i].Player[j] && !Rooms[i].Player[j]->Info.usr_ready)
 								return false;
 						}
 						return true;
@@ -544,14 +549,14 @@ public:
 					int TEAM1 = 0, TEAM2 = 0;
 					for (int j = 0; j < Rooms[i].p; j++)
 					{
-						if (Rooms[i].Player[j]->Info.usr_team == 10) TEAM1++;
-						else TEAM2++;
+						if (Rooms[i].Player[j] && Rooms[i].Player[j]->Info.usr_team == 10) TEAM1++;
+						else if(Rooms[i].Player[j]) TEAM2++;
 					}
 					if (TEAM1 == TEAM2)
 					{
 						for (int j = 0; j < Rooms[i].p; j++)
 						{
-							if (!Rooms[i].Player[j]->Info.usr_ready)
+							if (Rooms[i].Player[j] && !Rooms[i].Player[j]->Info.usr_ready)
 								return false;
 						}
 						return true;
@@ -567,14 +572,14 @@ public:
 					int TEAM1 = 0, TEAM2 = 0;
 					for (int j = 0; j < Rooms[i].p; j++)
 					{
-						if (Rooms[i].Player[j]->Info.usr_team == 10) TEAM1++;
-						else TEAM2++;
+						if (Rooms[i].Player[j] && Rooms[i].Player[j]->Info.usr_team == 10) TEAM1++;
+						else if(Rooms[i].Player[j]) TEAM2++;
 					}
 					if (TEAM1 == TEAM2)
 					{
 						for (int j = 0; j < Rooms[i].p; j++)
 						{
-							if (!Rooms[i].Player[j]->Info.usr_ready)
+							if (Rooms[i].Player[j] && !Rooms[i].Player[j]->Info.usr_ready)
 								return false;
 						}
 						return true;
@@ -586,14 +591,14 @@ public:
 					int TEAM1 = 0, TEAM2 = 0;
 					for (int j = 0; j < Rooms[i].p; j++)
 					{
-						if (Rooms[i].Player[j]->Info.usr_team == 10) TEAM1++;
-						else TEAM2++;
+						if (Rooms[i].Player[j] && Rooms[i].Player[j]->Info.usr_team == 10) TEAM1++;
+						else if(Rooms[i].Player[j]) TEAM2++;
 					}
 					if (TEAM1 == TEAM2)
 					{
 						for (int j = 0; j < Rooms[i].p; j++)
 						{
-							if (!Rooms[i].Player[j]->Info.usr_ready)
+							if (Rooms[i].Player[j] && !Rooms[i].Player[j]->Info.usr_ready)
 								return false;
 						}
 						return true;
@@ -605,14 +610,14 @@ public:
 					int TEAM1 = 0, TEAM2 = 0;
 					for (int j = 0; j < Rooms[i].p; j++)
 					{
-						if (Rooms[i].Player[j]->Info.usr_team == 10) TEAM1++;
-						else TEAM2++;
+						if (Rooms[i].Player[j] && Rooms[i].Player[j]->Info.usr_team == 10) TEAM1++;
+						else if(Rooms[i].Player[j]) TEAM2++;
 					}
 					if (TEAM1 == TEAM2)
 					{
 						for (int j = 0; j < Rooms[i].p; j++)
 						{
-							if (!Rooms[i].Player[j]->Info.usr_ready)
+							if (Rooms[i].Player[j] && !Rooms[i].Player[j]->Info.usr_ready)
 								return false;
 						}
 						return true;
@@ -624,14 +629,14 @@ public:
 					int TEAM1 = 0, TEAM2 = 0;
 					for (int j = 0; j < Rooms[i].p; j++)
 					{
-						if (Rooms[i].Player[j]->Info.usr_team == 10) TEAM1++;
-						else TEAM2++;
+						if (Rooms[i].Player[j] && Rooms[i].Player[j]->Info.usr_team == 10) TEAM1++;
+						else if(Rooms[i].Player[j]) TEAM2++;
 					}
 					if (TEAM1 == TEAM2)
 					{
 						for (int j = 0; j < Rooms[i].p; j++)
 						{
-							if (!Rooms[i].Player[j]->Info.usr_ready)
+							if (Rooms[i].Player[j] && !Rooms[i].Player[j]->Info.usr_ready)
 								return false;
 						}
 						return true;
@@ -643,14 +648,14 @@ public:
 					int TEAM1 = 0, TEAM2 = 0;
 					for (int j = 0; j < Rooms[i].p; j++)
 					{
-						if (Rooms[i].Player[j]->Info.usr_team == 10) TEAM1++;
-						else TEAM2++;
+						if (Rooms[i].Player[j] && Rooms[i].Player[j]->Info.usr_team == 10) TEAM1++;
+						else if(Rooms[i].Player[j]) TEAM2++;
 					}
 					if (TEAM1 == TEAM2)
 					{
 						for (int j = 0; j < Rooms[i].p; j++)
 						{
-							if (!Rooms[i].Player[j]->Info.usr_ready)
+							if (Rooms[i].Player[j] && !Rooms[i].Player[j]->Info.usr_ready)
 								return false;
 						}
 						return true;
@@ -662,14 +667,14 @@ public:
 					int TEAM1 = 0, TEAM2 = 0;
 					for (int j = 0; j < Rooms[i].p; j++)
 					{
-						if (Rooms[i].Player[j]->Info.usr_team == 10) TEAM1++;
-						else TEAM2++;
+						if (Rooms[i].Player[j] && Rooms[i].Player[j]->Info.usr_team == 10) TEAM1++;
+						else if(Rooms[i].Player[j]) TEAM2++;
 					}
 					if (TEAM1 == TEAM2)
 					{
 						for (int j = 0; j < Rooms[i].p; j++)
 						{
-							if (!Rooms[i].Player[j]->Info.usr_ready)
+							if (Rooms[i].Player[j] && !Rooms[i].Player[j]->Info.usr_ready)
 								return false;
 						}
 						return true;
@@ -707,7 +712,7 @@ public:
 	}
 	int CheckRound(int roomnum, int deadslot) {
 		for (int i = 0; i < Rooms[roomnum].p; i++) {
-			if (Rooms[roomnum].Player[i]->Info.usr_team == Rooms[roomnum].Player[deadslot]->Info.usr_team) {
+			if (Rooms[roomnum].Player[i] && Rooms[roomnum].Player[deadslot] && Rooms[roomnum].Player[i]->Info.usr_team == Rooms[roomnum].Player[deadslot]->Info.usr_team) {
 				if (Rooms[roomnum].life[deadslot] < Rooms[roomnum].life[i])
 					return false;
 			}
@@ -759,7 +764,7 @@ public:
 		switch (mode) {
 		case TEAMPLAY_MODE:
 			for (int i = 0; i < Rooms[roomnum].p; i++) {
-				if (Rooms[roomnum].Player[i]->Info.usr_team == Rooms[roomnum].Player[deathslot]->Info.usr_team) {
+				if (Rooms[roomnum].Player[i] && Rooms[roomnum].Player[deathslot] && Rooms[roomnum].Player[i]->Info.usr_team == Rooms[roomnum].Player[deathslot]->Info.usr_team) {
 					if (Rooms[roomnum].life[i] >= 0) {
 						return true;
 					}
@@ -839,8 +844,10 @@ public:
 					Results_Response.type = RESULTS_RESPONSE;
 					Results_Response.unk1 = 11036;
 					for (int j = 0; j < Rooms[i].p; j++) {
-						SlotTeam = Rooms[i].Player[j]->Info.usr_team;
-						if (Rooms[i].Player[j])Results_Response.result[j] = CheckResult(Rooms[i].mode, KillerTeam, SlotTeam);
+						if (Rooms[i].Player[j]) {
+							SlotTeam = Rooms[i].Player[j]->Info.usr_team;
+							Results_Response.result[j] = CheckResult(Rooms[i].mode, KillerTeam, SlotTeam);
+						}
 					}
 					for (int j = 0; j < Rooms[i].p; j++)
 						if (Rooms[i].Player[j])
@@ -963,11 +970,13 @@ public:
 			if (Rooms[i].n == n) {
 				for (int j = 0; j < 8; j++)
 					if (Rooms[i].Player[j] == player) {
-						Rooms[i].users[j] = 0;
+						//Rooms[i].users[j] = 0;
 						player->Info.usr_ready = 0;
 						player->Info.usr_slot = -1;
 						player->Info.usr_char = player->Info.DefaultCharacter;
-						Rooms[i].Player[j] = 0;
+						//Rooms[i].Player[j] = 0;
+						memset(&Rooms[i].Player[j], 0, sizeof(Rooms[i].Player[j]));
+						memset(&Rooms[i].users[j], 0, sizeof(Rooms[i].users[j]));
 						Rooms[i].level[j] = -99;
 						Rooms[i].gender[j] = 0;
 						Rooms[i].p--;
@@ -1112,7 +1121,7 @@ public:
 			strcpy(LRR.title, CRR->roomname);
 			LRR.mode = CRR->mode; //0x1b
 			LRR.map = CRR->map; //0x1b
-			LRR.unk4 = 0x000; //0x100
+			LRR.unk4 = 1; //0x100
 			LRR.maxplayers = CRR->capacity; //8
 			LRR.unk5 = 0x000;
 			LRR.unk7 = -1; //-1
@@ -1121,7 +1130,7 @@ public:
 				LRR.characters[i] = 0;
 			for (int i = 1; i < 13; i++)
 				LRR.zeros[i] = 0;
-			LRR.unk9 = 0x100;
+			LRR.unk9 = 100;
 		}
 		else {
 			LRR.unk2 = 0;

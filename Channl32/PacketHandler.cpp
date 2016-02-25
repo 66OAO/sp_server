@@ -235,8 +235,20 @@ void PacketHandler::Handle(unsigned char *buf)
 PacketHandler::~PacketHandler()
 {
 	delete[] pack;
-	if (Info.usr_room)
-		RoomList.ExitPlayer(Info.usr_room, this);
+	if (Info.usr_room != -1) {
+		memset(&Room_Exit_Response, 0, sizeof(RoomExitResponse));
+		Room_Exit_Response.size = 0x28;
+		Room_Exit_Response.type = ROOM_EXIT_RESPONSE;
+		Room_Exit_Response.unk1 = 11036;
+		Room_Exit_Response.exitslot = Info.usr_slot;
+		strcpy(Room_Exit_Response.username, LobbyInfo.name.c_str());
+		Room_Exit_Response.state = UpdateState();
+		Room_Exit_Response.checksum = cIOSocket.MakeDigest((u8*)&Room_Exit_Response);
+		RoomList.ProdcastPlayerExitRoom(this, &Room_Exit_Response, Info.usr_room);
+		if (RoomList.ExitPlayer(Info.usr_room, this)) {
+			HandleList.ProdcastNewRoom(this, 0, false, Info.usr_room);
+		}
+	}
 	Lobby.Delete(LobbyInfo.name);
 	HandleList.ProdcastLobbyInfo(this, &LobbyInfo, false);
 	HandleList.Delete(this);
