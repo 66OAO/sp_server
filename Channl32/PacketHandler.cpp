@@ -108,8 +108,6 @@ void PacketHandler::Handle(unsigned char *buf)
 			Info.usr_ready = (BYTE)In_Room_Request->Ready;
 			GetBigMatchNpcMultiplier();
 		}
-		break;
-		}
 		GenerateResponse(ROOM_PLAYERDATA_RESPONSE);
 		break;
 	case IN_GAME_REQ:
