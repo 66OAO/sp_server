@@ -45,8 +45,6 @@
 #define SHOP_BUY_ELEMENTCARD_RESPONSE	17465
 #define ADD_CARD_SLOT_RESPONSE 17512
 
-#define MaxRoom 300
-
 struct LobbyUserInfoResponse {
 	int size; //0x3C
 	int type;
@@ -370,29 +368,29 @@ struct LobbyRoomResponse {
 };
 
 struct RoomListResponse {
-	int size; //0xC90
+	int size;
 	int type;
 	int unk1; //11036
 	int checksum;
 	int state;
-	int roomnumber[MaxRoom];
-	char title[MaxRoom][27];
+	int roomnumber[22];
+	char title[22][29];
 	short zero1;
-	int mode[MaxRoom];
-	int map[MaxRoom];
-	int unks2[MaxRoom]; //1
-	int maxplayers[MaxRoom];
+	int mode[22];
+	int map[22];
+	int unks2[22]; //1
+	int maxplayers[22];
 	int zeros[5];
 	short szero;
-	bool bPotion[MaxRoom];
-	bool bClosed[MaxRoom];
+	bool bPotion[22];
+	bool bClosed[22];
 	short szero1;
 	int unk3[11];
-	int unks4[MaxRoom]; //-1,-1
-	int players[MaxRoom][8]; //0x8C
+	int unks4[22]; //-1,-1
+	int players[22][8]; //0x8C
 	int unks6[291];
 	short zero2;
-	bool bunk[MaxRoom]; //1..
+	bool bunk[22]; //1..
 	int zeros1[5];
 	int unk4; // 0x500000
 };
@@ -472,7 +470,7 @@ struct ShopBuyResponse {
 	int unk1; //11036
 	int checksum;
 	int state;
-	int unk2; //1
+	int status; // 0 = no effect 1 = success dialog 2 = unknown error dialog
 	bool bMyCard[96];
 	int TypeMyCard[96];
 	int GFMyCard[96];
@@ -490,7 +488,7 @@ struct ShopBuyElementCardResponse {
 	int unk1; //11036
 	int checksum;
 	int state;
-	int unk2; //1
+	int status; // 0 = no effect 1 = success dialog 2 = unknown error dialog
 	unsigned __int64 Code;
 	int WaterElements;
 	int FireElements;

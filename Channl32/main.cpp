@@ -1,6 +1,4 @@
 #include "ChannelServer.h"
-#include <iostream>
-#include <fstream>
 #define SAVELOG 0
 Ini config("..\\config.ini", "CONFIG"); //For debug
 //Ini config(".//config.ini", "CONFIG"); //For Running
@@ -26,7 +24,7 @@ int main()
 
 	if (CS->Start(port))
 	{
-		printf("----- Channel Server Started -----\n");
+		Log::Out("----- Channel Server Started -----\n");
 	}
 	CS->CommLoop();
 	delete CS;

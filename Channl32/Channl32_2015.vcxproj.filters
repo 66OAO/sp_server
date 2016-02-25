@@ -31,5 +31,8 @@
     <ClInclude Include="UDPList.h" />
     <ClInclude Include="UDPServer.h" />
     <ClInclude Include="stdafx.h" />
+    <ClInclude Include="..\shared\console.h">
+      <Filter>shared</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
