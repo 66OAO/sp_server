@@ -234,7 +234,7 @@ void PacketHandler::Handle(unsigned char *buf)
 
 PacketHandler::~PacketHandler()
 {
-	delete pack;
+	delete[] pack;
 	if (Info.usr_room != -1) {
 		memset(&Room_Exit_Response, 0, sizeof(RoomExitResponse));
 		Room_Exit_Response.size = 0x28;
