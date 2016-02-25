@@ -25,8 +25,6 @@
 #define MISSION_IMPOSSIBLE_300 47
 #define COMMUNITY_MODE 1
 
-#define MaxRoom 300
-
 LobbyList::LobbyList()
 {
 	count = 0;
@@ -250,28 +248,6 @@ public:
 					for (int i = 0; i < 13; i++)LRR->zeros[i] = 0;
 					LRR->unk9 = 0x100;
 			}
-	}
-	void GetRoomList(RoomListResponse* RLR) {
-		int x = 0;
-		for (int i = 0; i < MaxRoom; i++)
-			if (Rooms[i].n != -1) {
-				RLR->roomnumber[x] = Rooms[i].n;
-				strcpy(RLR->title[x], Rooms[i].title);
-				RLR->mode[x] = Rooms[i].mode;
-				RLR->map[x] = Rooms[i].map;
-				RLR->maxplayers[x] = Rooms[i].maxp;
-				RLR->unks2[x] = 1;
-				RLR->unks4[x] = -1;
-				for (int j = 0; j < Rooms[i].maxp - 1; j++) {
-					RLR->players[x][j] = Rooms[i].Player[j] ? Rooms[i].Player[j]->Info.usr_char : 0;
-				}
-				x++;
-			}
-		while (x < MaxRoom)
-		{
-			RLR->roomnumber[x] = -1;
-			x++;
-		}
 	}
 	void GetRoomPlayerList(int n, RoomPlayerListResponse *RPLR) {
 		for (int i = 0; i < MaxRoom; i++)

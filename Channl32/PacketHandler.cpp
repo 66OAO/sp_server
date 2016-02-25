@@ -459,7 +459,7 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
 		Join_Channel_PlayerData_Response.bunk[6] = 0;
 		Join_Channel_PlayerData_Response.Rank = 101;
 		Join_Channel_PlayerData_Response.unk43 = 1; //1
-		Join_Channel_PlayerData_Response.maxroom = MAXROOM; //0x108
+		Join_Channel_PlayerData_Response.maxroom = MaxRoom; //0x108
 		memset((void*)&Join_Channel_PlayerData_Response.munk1, -1, 4 * 8); //-1
 		Join_Channel_PlayerData_Response.unk45 = 7; //7
 		Join_Channel_PlayerData_Response.unk46 = 0x120101; //0x120101
@@ -917,7 +917,7 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
 	break;
 	case ROOM_EXIT_RESPONSE:
 		GetExitRoomResponse();
-		for (int i = 0; i < MAXROOM; i++)
+		for (int i = 0; i < MaxRoom; i++)
 		{
 			if (RoomList.Rooms[i].n != -1) {
 				HandleList.ProdcastRoomUpdate(RoomList.Rooms[i].n);

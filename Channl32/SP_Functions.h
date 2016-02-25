@@ -161,7 +161,7 @@ void PacketHandler::GetInRoomUpgradeResponse(CardUpgradeResponse *CUR) {
 void PacketHandler::GetRoomListResponse() {
 	for (int i = 0; i < 22; i++)Room_List_Response.bunk[i] = true;
 	int x = 0;
-	for (int i = 0; i < MAXROOM; i++) {
+	for (int i = 0; i < MaxRoom; i++) {
 		if (x == 0) {
 			memset(&Room_List_Response, 0, sizeof(Room_List_Response));
 			Room_List_Response.size = sizeof(Room_List_Response);
@@ -182,7 +182,7 @@ void PacketHandler::GetRoomListResponse() {
 			}
 			x++;
 		}
-		if (x == 22 || i == (MAXROOM - 1)) {
+		if (x == 22 || i == (MaxRoom - 1)) {
 			while (x < 22)
 			{
 				Room_List_Response.roomnumber[x] = -1;
