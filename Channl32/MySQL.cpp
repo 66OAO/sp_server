@@ -1,19 +1,18 @@
 #include "MySQL.h"
-#include "ini.h"
 
-extern CIni config;
+extern Ini config;
 
 MySQL::MySQL()
 {
 	config.SetSection("DB");
-	char * ip = config.ReadString("ip", "127.0.0.1");
-	uint32 port = config.ReadInteger("port", 3306);
-	char * user = config.ReadString("user", "root");
-	char * pw = config.ReadString("pw", "");
-	char * db = config.ReadString("db", "spgame");
+	auto ip = config.ReadString("ip", "127.0.0.1");
+	u32 port = config.ReadInt("port", 3306);
+	auto user = config.ReadString("user", "root");
+	auto pw = config.ReadString("pw", "");
+	auto db = config.ReadString("db", "spgame");
 
 	connection = mysql_init(0);
-	if (!mysql_real_connect(connection, ip, user, pw, db, port, 0, 0))
+	if (!mysql_real_connect(connection, ip.c_str(), user.c_str(), pw.c_str(), db.c_str(), port, 0, 0))
 		printf("Unable to connect to MySQL server\n");
 }
 
@@ -608,7 +607,7 @@ bool MySQL::IsNewDayLogin(int usr_id) {
 	now_time.tm_year += 1900;
 	now_time.tm_mon++;
 	int sql_last_login_time = now_time.tm_year *10000 + now_time.tm_mon *100 + now_time.tm_mday;
-	printf("Last login time: %d-%d-%d = %d", now_time.tm_year, now_time.tm_mon, now_time.tm_mday, sql_last_login_time);
+	printf("Last login time: %d-%d-%d = %d\n", now_time.tm_year, now_time.tm_mon, now_time.tm_mday, sql_last_login_time);
 	sprintf(buffer, "UPDATE users SET usr_last_login = %d WHERE usr_id = %d", sql_last_login_time, usr_id);
 	mysql_query(connection, buffer);
 	if (last_login_time.tm_year <= now_time.tm_year)

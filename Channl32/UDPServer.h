@@ -1,11 +1,9 @@
 #ifndef __UDPSERVER_H__
 #define __UDPSERVER_H__
-#include "main.h"
 #include "PacketHandler.h"
 #include "UDPList.h"
-#include "ini.h"
 
-extern CIni config;
+extern Ini config;
 
 class UDPServer {
 private:
@@ -37,7 +35,7 @@ public:
 		}
 
 		server.sin_family = 2;
-		uint16 port = config.ReadInteger("port", 9303, "UDPSERVER");
+		u16 port = config.ReadInt("port", 9303, "UDPSERVER");
 		server.sin_port = htons(port);
 		server.sin_addr.s_addr = 0;
 
@@ -48,7 +46,7 @@ public:
 			return false;
 		}
 
-		if (bind(listen_socket, (struct sockaddr*)&server, serverlen) == SOCKET_ERROR) {
+		if (::bind(listen_socket, (struct sockaddr*)&server, serverlen) == SOCKET_ERROR) {
 			cout << "Channel Server: bind Error#" << WSAGetLastError() << endl;
 			return false;
 		}
@@ -73,7 +71,7 @@ public:
 				MySql.SetUserIP(name, IP);
 				HandleList.updateUdpClient(name, client);
 				*(int*)(buffer + 0x10) = HandleList.updateUdpState(name);
-				*(int*)(buffer + 0x0C) = cIOSocket.MakeDigest((uint8*)buffer);
+				*(int*)(buffer + 0x0C) = cIOSocket.MakeDigest((u8*)buffer);
 				for (int i = 4; i < *(int*)buffer; i++)
 					buffer[i] = ~((BYTE)(buffer[i] << 3) | (BYTE)(buffer[i] >> 5));
 				retbufsize = sendto(msg_socket, (char*)buffer, 0x34, 0, (struct sockaddr *)&client, clientlen);
@@ -87,7 +85,7 @@ public:
 					strcpy(name, (const char*)(buffer + 0x14));
 					//*(int*)(buffer+0x14) = 0;
 					*(int*)(Send1 + 0x10) = HandleList.updateUdpState(name);
-					*(int*)(Send1 + 0x0C) = cIOSocket.MakeDigest((uint8*)Send1);
+					*(int*)(Send1 + 0x0C) = cIOSocket.MakeDigest((u8*)Send1);
 					for (int i = 4; i < *(int*)Send1; i++)
 						Send1[i] = ~((BYTE)(Send1[i] << 3) | (BYTE)(Send1[i] >> 5));
 					retbufsize = sendto(msg_socket, (char*)Send1, 0x2C, 0, (struct sockaddr *)&client, clientlen);

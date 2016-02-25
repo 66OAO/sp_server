@@ -40,7 +40,7 @@ bool ChannelServer::Start(int port)
 	}
 	else MakeMeFocused("Channel Server: listen_socket success", 1);
 
-	if (bind(listen_socket, (struct sockaddr*)&server, serverlen) == SOCKET_ERROR)
+	if (::bind(listen_socket, (struct sockaddr*)&server, serverlen) == SOCKET_ERROR)
 	{
 		MakeMeFocused("Channel Server: bind Error", 0);
 		return false;
@@ -91,7 +91,7 @@ void Comm(void *args)
 			else cout << "recv " << retbufsize << "bytes success";
 
 
-			int32 sz = *(int32*)buffer;
+			i32 sz = *(i32*)buffer;
 			if (sz != retbufsize)
 			{
 				MakeMeFocused("Channel Server: sz != retbufsize\n", 0);
@@ -112,7 +112,7 @@ void Comm(void *args)
 				PackHandle.GenerateResponse(JOIN_PLAYERDATA_RESPONSE);
 
 				memcpy(buffer, (unsigned char*)&PackHandle.Join_Channel_PlayerData_Response, 0x980);
-				*(int*)(buffer + 0xc) = cIOSocket2.MakeDigest((uint8*)buffer);
+				*(int*)(buffer + 0xc) = cIOSocket2.MakeDigest((u8*)buffer);
 
 				for (int i = 4; i < (*(int*)buffer); i++)
 					buffer[i] = ~((BYTE)(buffer[i] << 3) | (BYTE)(buffer[i] >> 5));

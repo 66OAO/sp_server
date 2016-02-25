@@ -24,7 +24,7 @@ void PacketHandler::GetChatMessage(ChatResponse *Chat_Response) {
 	if (Chat_Response->chatType == 1)
 		if (strcmp(Chat_Response->recieverId, Info.usr_name) != 0)return;
 	Chat_Response->state = UpdateState();
-	Chat_Response->checksum = cIOSocket.MakeDigest((uint8*)Chat_Response);
+	Chat_Response->checksum = cIOSocket.MakeDigest((u8*)Chat_Response);
 	unsigned char msg[0x80];
 	memcpy(msg, Chat_Response, 0x7C);
 	//Encrypt(msg);
@@ -37,7 +37,7 @@ void PacketHandler::GetLobbyMessage(LobbyUserInfoResponse* LUIR) {
 	if (Info.usr_room != -1)return;
 
 	LUIR->state = UpdateState();
-	LUIR->checksum = cIOSocket.MakeDigest((uint8*)LUIR);
+	LUIR->checksum = cIOSocket.MakeDigest((u8*)LUIR);
 	unsigned char msg[0x40];
 	memcpy(msg, LUIR, 0x3C);
 	//Encrypt((unsigned char*)&msg);
@@ -49,7 +49,7 @@ void PacketHandler::GetLobbyMessage(LobbyUserInfoResponse* LUIR) {
 
 void PacketHandler::GetNewRoomMessage(LobbyRoomResponse* LRR) {
 	LRR->state = UpdateState();
-	LRR->checksum = cIOSocket.MakeDigest((uint8*)LRR);
+	LRR->checksum = cIOSocket.MakeDigest((u8*)LRR);
 	unsigned char msg[0xB4];
 	memcpy(msg, LRR, 0xB0);
 	for (int i = 4; i < *(int*)msg; i++)
@@ -60,7 +60,7 @@ void PacketHandler::GetNewRoomMessage(LobbyRoomResponse* LRR) {
 
 void PacketHandler::GetInRoomPlayerList(RoomPlayerDataResponse* RPDR) {
 	RPDR->state = UpdateState();
-	RPDR->checksum = cIOSocket.MakeDigest((uint8*)RPDR);
+	RPDR->checksum = cIOSocket.MakeDigest((u8*)RPDR);
 	unsigned char msg[0x120];
 	memcpy(msg, RPDR, 0x120);
 	for (int i = 4; i < *(int*)msg; i++)
@@ -78,7 +78,7 @@ void PacketHandler::GetExitRoomResponse() {
 	strcpy(Room_Exit_Response.username, LobbyInfo.name.c_str());
 	RoomList.ProdcastPlayerExitRoom(this, &Room_Exit_Response, Info.usr_room);
 	Room_Exit_Response.state = UpdateState();
-	Room_Exit_Response.checksum = cIOSocket.MakeDigest((uint8*)&Room_Exit_Response);
+	Room_Exit_Response.checksum = cIOSocket.MakeDigest((u8*)&Room_Exit_Response);
 	buffer = (unsigned char*)&Room_Exit_Response;
 	for (int i = 4; i < *(int*)buffer; i++)
 		buffer[i] = ~((BYTE)(buffer[i] << 3) | (BYTE)(buffer[i] >> 5));
@@ -99,7 +99,7 @@ void PacketHandler::GetExitRoomResponse() {
 
 void PacketHandler::GetPlayerExitRoomResponse(RoomExitResponse *RER) {
 	RER->state = UpdateState();
-	RER->checksum = cIOSocket.MakeDigest((uint8*)RER);
+	RER->checksum = cIOSocket.MakeDigest((u8*)RER);
 	unsigned char msg[0x2C];
 	memcpy(msg, RER, 0x2C);
 	for (int i = 4; i < *(int*)msg; i++)
@@ -149,7 +149,7 @@ void PacketHandler::GetInRoomData(RoomPlayerDataResponse* RPDR, bool started) {
 
 void PacketHandler::GetInRoomUpgradeResponse(CardUpgradeResponse *CUR) {
 	CUR->state = UpdateState();
-	CUR->checksum = cIOSocket.MakeDigest((uint8*)CUR);
+	CUR->checksum = cIOSocket.MakeDigest((u8*)CUR);
 	unsigned char msg[0x5C];
 	memcpy(msg, CUR, 0x5C);
 	for (int i = 4; i < *(int*)msg; i++)
@@ -167,7 +167,7 @@ void PacketHandler::GetRoomListResponse() {
 	for (int i = 0; i < MaxRoom; i++)Room_List_Response.bunk[i] = true;
 	RoomList.GetRoomList(&Room_List_Response);
 	Room_List_Response.state = UpdateState();
-	Room_List_Response.checksum = cIOSocket.MakeDigest((uint8*)&Room_List_Response);
+	Room_List_Response.checksum = cIOSocket.MakeDigest((u8*)&Room_List_Response);
 	buffer = (unsigned char*)&Room_List_Response;
 	for (int i = 4; i < *(int*)buffer; i++)
 		buffer[i] = ~((BYTE)(buffer[i] << 3) | (BYTE)(buffer[i] >> 5));
@@ -190,7 +190,7 @@ bool PacketHandler::GetRoomJoinResponse() {
 	Room_Join_Response.unk11 = -1;
 	Room_Join_Response.unk13 = 1;
 	Room_Join_Response.state = UpdateState();
-	Room_Join_Response.checksum = cIOSocket.MakeDigest((uint8*)&Room_Join_Response);
+	Room_Join_Response.checksum = cIOSocket.MakeDigest((u8*)&Room_Join_Response);
 	buffer = (unsigned char*)&Room_Join_Response;
 	if (join)Lobby.Delete(LobbyInfo.name);
 	if (join)HandleList.ProdcastLobbyInfo(this, &LobbyInfo, false);
@@ -227,7 +227,7 @@ void PacketHandler::GetRoomCreateResponse() {
 	Create_Room_Response.unk3 = -1; //0
 	Create_Room_Response.unk4 = 1; //0
 	Create_Room_Response.unk5 = 0; //0
-	Create_Room_Response.checksum = cIOSocket.MakeDigest((uint8*)&Create_Room_Response);
+	Create_Room_Response.checksum = cIOSocket.MakeDigest((u8*)&Create_Room_Response);
 	buffer = (unsigned char*)&Create_Room_Response;
 	RoomList.CreateRoom(this, &LobbyInfo.name, &Create_Room_Response, Info.gender, Info.Level);
 	HandleList.ProdcastNewRoom(this, &Create_Room_Response, true);
@@ -253,7 +253,7 @@ void PacketHandler::GetInRoomDeathResponse(PlayerKilledResponse *PKR) {
 	PKR->LostPoints = Points;
 	//}
 	PKR->state = UpdateState();
-	PKR->checksum = cIOSocket.MakeDigest((uint8*)PKR);
+	PKR->checksum = cIOSocket.MakeDigest((u8*)PKR);
 	unsigned char msg[0xB0];
 	memcpy(msg, PKR, 0xB0);
 	for (int i = 4; i < *(int*)msg; i++)
@@ -265,7 +265,7 @@ void PacketHandler::GetInRoomDeathResponse(PlayerKilledResponse *PKR) {
 		NewKing_Response.unk1 = 11036;
 		NewKing_Response.slot = Killer;
 		NewKing_Response.state = UpdateState();
-		NewKing_Response.checksum = cIOSocket.MakeDigest((uint8*)&NewKing_Response);
+		NewKing_Response.checksum = cIOSocket.MakeDigest((u8*)&NewKing_Response);
 		buffer = (unsigned char*)&NewKing_Response;
 		for (int i = 4; i < *(int*)buffer; i++)
 			buffer[i] = ~((BYTE)(buffer[i] << 3) | (BYTE)(buffer[i] >> 5));
@@ -280,7 +280,7 @@ void PacketHandler::GetInRoomDeathResponse(PlayerKilledResponse *PKR) {
 			RoundClear_Response.unk2 = 0;
 			RoundClear_Response.unk3 = 1;
 			RoundClear_Response.state = UpdateState();
-			RoundClear_Response.checksum = cIOSocket.MakeDigest((uint8*)&RoundClear_Response);
+			RoundClear_Response.checksum = cIOSocket.MakeDigest((u8*)&RoundClear_Response);
 			buffer = (unsigned char*)&RoundClear_Response;
 			for (int i = 4; i < *(int*)buffer; i++)
 				buffer[i] = ~((BYTE)(buffer[i] << 3) | (BYTE)(buffer[i] >> 5));
@@ -292,7 +292,7 @@ void PacketHandler::GetInRoomDeathResponse(PlayerKilledResponse *PKR) {
 void PacketHandler::Trader() {
 	RoomList.SendTradeResponse(&Trade_Struct, Info.usr_room);
 	Trade_Struct.state = UpdateState();
-	Trade_Struct.checksum = cIOSocket.MakeDigest((uint8*)&Trade_Struct);
+	Trade_Struct.checksum = cIOSocket.MakeDigest((u8*)&Trade_Struct);
 	buffer = (unsigned char*)&Trade_Struct;
 	for (int i = 4; i < *(int*)buffer; i++)
 		buffer[i] = ~((BYTE)(buffer[i] << 3) | (BYTE)(buffer[i] >> 5));
@@ -301,7 +301,7 @@ void PacketHandler::Trader() {
 
 void PacketHandler::GetTradeResponse(TradeStruct *TS) {
 	TS->state = UpdateState();
-	TS->checksum = cIOSocket.MakeDigest((uint8*)TS);
+	TS->checksum = cIOSocket.MakeDigest((u8*)TS);
 	unsigned char msg[0x9C];
 	memcpy(msg, TS, 0x9C);
 	for (int i = 4; i < *(int*)msg; i++)
@@ -317,7 +317,7 @@ void PacketHandler::GetRoomPlayerData() {
 	int x = RoomList.GetInRoomPlayerList(Info.usr_room, pack);
 	for (int i = 0; i < x; i++) {
 		*(int*)(pack + (i * 0x118) + 0x10) = UpdateState();
-		*(int*)(pack + (i * 0x118) + 0x0C) = cIOSocket.MakeDigest((uint8*)(pack + (i * 0x118)));
+		*(int*)(pack + (i * 0x118) + 0x0C) = cIOSocket.MakeDigest((u8*)(pack + (i * 0x118)));
 		Encrypt(pack + (i * 0x118));
 	}
 	send(msg_socket, (char*)pack, x * 0x118, 0);
@@ -327,7 +327,7 @@ void PacketHandler::GetRoomPlayerData() {
 		if(myList.size == 0x404)
 		{
 			myList.state = UpdateState();
-			myList.checksum = cIOSocket.MakeDigest((uint8*)&myList);
+			myList.checksum = cIOSocket.MakeDigest((u8*)&myList);
 			unsigned char *msg = (unsigned char*)&myList;
 			for (int i = 4; i < *(int*)msg; i++)
 				msg[i] = ~((BYTE)(msg[i] << 3) | (BYTE)(msg[i] >> 5));
@@ -345,7 +345,7 @@ void PacketHandler::GetMasterResponse(int mSlot) {
 	NMR.Slot = mSlot;
 	NMR.unk2 = 1;
 	NMR.state = UpdateState();
-	NMR.checksum = cIOSocket.MakeDigest((uint8*)&NMR);
+	NMR.checksum = cIOSocket.MakeDigest((u8*)&NMR);
 	unsigned char *msg = (unsigned char*)&NMR;
 	for (int i = 4; i < *(int*)msg; i++)
 		msg[i] = ~((BYTE)(msg[i] << 3) | (BYTE)(msg[i] >> 5));
@@ -355,7 +355,7 @@ void PacketHandler::GetMasterResponse(int mSlot) {
 void PacketHandler::GetNpcList(NpcList *npc) {
 	if (!Info.usr_ready)return;
 	npc->state = UpdateState();
-	npc->checksum = cIOSocket.MakeDigest((uint8*)npc);
+	npc->checksum = cIOSocket.MakeDigest((u8*)npc);
 	unsigned char msg[0x408];
 	memcpy(msg, npc, 0x408);
 	for (int i = 4; i < *(int*)msg; i++)
@@ -370,7 +370,7 @@ void PacketHandler::GetExpGainResponse(QuestGainResponse *QGR) {
 		else MySql.GetExp(Info.usr_id, QGR->exp.exp[Info.usr_slot] * QGR->exp.cpMul[Info.usr_slot]);
 	}
 	QGR->state = UpdateState();
-	QGR->checksum = cIOSocket.MakeDigest((uint8*)QGR);
+	QGR->checksum = cIOSocket.MakeDigest((u8*)QGR);
 	unsigned char msg[0xB4];
 	memcpy(msg, QGR, 0xB4);
 	for (int i = 4; i < *(int*)msg; i++)
@@ -380,7 +380,7 @@ void PacketHandler::GetExpGainResponse(QuestGainResponse *QGR) {
 
 void PacketHandler::GetReviveResponse(ReviveResponse *Revive_Response) {
 	Revive_Response->state = UpdateState();
-	Revive_Response->checksum = cIOSocket.MakeDigest((uint8*)Revive_Response);
+	Revive_Response->checksum = cIOSocket.MakeDigest((u8*)Revive_Response);
 	unsigned char msg[0x24];
 	memcpy(msg, Revive_Response, 0x24);
 	for (int i = 4; i < *(int*)msg; i++)
@@ -393,7 +393,7 @@ void PacketHandler::GetResultResponse(ResultsResponse* Results_Response) {
 	Results_Response->Points = Info.Points;
 	Results_Response->Code = Info.Code;
 	Results_Response->state = UpdateState();
-	Results_Response->checksum = cIOSocket.MakeDigest((uint8*)Results_Response);
+	Results_Response->checksum = cIOSocket.MakeDigest((u8*)Results_Response);
 	unsigned char msg[0x94];
 	memcpy(msg, Results_Response, 0x94);
 	for (int i = 4; i < *(int*)msg; i++)
@@ -413,7 +413,7 @@ void PacketHandler::GetBigBattleNpcMultiplier() {
 	for (int i = 3; i < 36; i++)//36
 		BBNM.x[i] = 1;
 	BBNM.state = UpdateState();
-	BBNM.checksum = cIOSocket.MakeDigest((uint8*)&BBNM);
+	BBNM.checksum = cIOSocket.MakeDigest((u8*)&BBNM);
 	unsigned char *msg = (unsigned char*)&BBNM;
 	for (int i = 4; i < *(int*)msg; i++)
 		msg[i] = ~((BYTE)(msg[i] << 3) | (BYTE)(msg[i] >> 5));
@@ -428,7 +428,7 @@ void PacketHandler::GetJoinResponse2() {
 	for (int i = 0; i < 4; i++)
 		RJR2.unks[i] = -1;
 	RJR2.state = UpdateState();
-	RJR2.checksum = cIOSocket.MakeDigest((uint8*)&RJR2);
+	RJR2.checksum = cIOSocket.MakeDigest((u8*)&RJR2);
 	unsigned char *msg = (unsigned char*)&RJR2;
 	for (int i = 4; i < *(int*)msg; i++)
 		msg[i] = ~((BYTE)(msg[i] << 3) | (BYTE)(msg[i] >> 5));
@@ -442,7 +442,7 @@ void PacketHandler::GetKickResponse(int slot) {
 	PKR.unk1 = 11036;
 	PKR.slot = slot;
 	PKR.state = UpdateState();
-	PKR.checksum = cIOSocket.MakeDigest((uint8*)&PKR);
+	PKR.checksum = cIOSocket.MakeDigest((u8*)&PKR);
 	unsigned char *msg = (unsigned char*)&PKR;
 	for (int i = 4; i < *(int*)msg; i++)
 		msg[i] = ~((BYTE)(msg[i] << 3) | (BYTE)(msg[i] >> 5));
@@ -462,7 +462,7 @@ void PacketHandler::GetKickResponse(int slot) {
 
 void PacketHandler::GetTitleChange(RoomTitleChangeResponse *RTCR) {
 	RTCR->state = UpdateState();
-	RTCR->checksum = cIOSocket.MakeDigest((uint8*)RTCR);
+	RTCR->checksum = cIOSocket.MakeDigest((u8*)RTCR);
 	unsigned char msg[0x38];
 	memcpy(msg, RTCR, 0x34);
 	for (int i = 4; i < *(int*)msg; i++)

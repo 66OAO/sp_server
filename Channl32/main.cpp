@@ -1,30 +1,31 @@
 #include "ChannelServer.h"
-#include "ini.h"
 #include <iostream>
 #include <fstream>
+
+#ifdef _DEBUG
 #define DEBUG 0
-CIni config("..\\config.ini", "CONFIG"); //For debug
-//CIni config(".//config.ini", "CONFIG"); //For Running
+#endif
+Ini config("..\\config.ini", "CONFIG"); //For debug
+//Ini config(".//config.ini", "CONFIG"); //For Running
 HANDLE hConsoleOutput;
 
 int main()
 {
 
 	streambuf* coutBuf = cout.rdbuf();
-	ofstream of("D:\\packets.txt");
+	ofstream of("packets.txt");
 	streambuf* fileBuf = of.rdbuf();
 	if (DEBUG)
 	{
 		cout.rdbuf(fileBuf);
 	}
-	srand(time(0));
 	//cout << hex << sizeof(QuestGainResponse) << endl;
 	hConsoleOutput = GetStdHandle(STD_OUTPUT_HANDLE);
 
 	ChannelServer *CS = new ChannelServer;
 
 	config.SetSection("CHANNELS");
-	int32 port = config.ReadInteger("port", 9303);
+	u32 port = config.ReadInt("port", 9303);
 
 	if (CS->Start(port))
 	{
