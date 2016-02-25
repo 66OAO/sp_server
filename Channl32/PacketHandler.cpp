@@ -100,26 +100,18 @@ void PacketHandler::Handle(unsigned char *buf)
 	case IN_ROOM_REQ:
 		In_Room_Request = (InRoomRequest*)buf;
 		cout << "IN_ROOM_REQ " << IP << " Team : " << In_Room_Request->team << endl;
+		Info.usr_char = In_Room_Request->Character;
 		Info.usr_team = In_Room_Request->team;
-		switch (In_Room_Request->GameStart)
+		HandleList.ProdcastRoomUpdate(Info.usr_room);
+		if (In_Room_Request->GameStart == 2) // 1 = Player change character , 2 = Player change team , 3 = Player ready
 		{
-		case 0://Player change character
-			Info.usr_char = In_Room_Request->Character;
-			HandleList.ProdcastRoomUpdate(Info.usr_room);
-			GenerateResponse(ROOM_PLAYERDATA_RESPONSE);
-		case 1://Player change team
-			Info.usr_team = In_Room_Request->team;
-			HandleList.ProdcastRoomUpdate(Info.usr_room);
-			GenerateResponse(ROOM_PLAYERDATA_RESPONSE);
-			break;
-		case 2://Player ready
 			Info.usr_ready = (BYTE)In_Room_Request->Ready;
 			//if(In_Room_Request->Ready > 10)
-			//	Info.usr_ready = 0;
+			//    Info.usr_ready = 0;
 			GetBigBattleNpcMultiplier();
-			GenerateResponse(ROOM_PLAYERDATA_RESPONSE);
 			break;
 		}
+		GenerateResponse(ROOM_PLAYERDATA_RESPONSE);
 		break;
 	case IN_GAME_REQ:
 		InGame_Request = (InGameRequest*)buf;
@@ -450,7 +442,7 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
 		Join_Channel_PlayerData_Response.unk39 = 7; //7
 		Join_Channel_PlayerData_Response.unk40 = 0x14; //0x14
 		Join_Channel_PlayerData_Response.unk41 = 0; //0
-		if(MySql.IsNewDayLogin(Info.usr_id))
+		if (MySql.IsNewDayLogin(Info.usr_id))
 		{
 			Join_Channel_PlayerData_Response.VisitBonusCode = VisitBonus.GenerateVisitBonus(1, Info.usr_id);
 			Join_Channel_PlayerData_Response.VisitBonusElementType = VisitBonus.GenerateVisitBonus(2, Info.usr_id);
@@ -468,7 +460,7 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
 		Join_Channel_PlayerData_Response.bunk[6] = 0;
 		Join_Channel_PlayerData_Response.Rank = 101;
 		Join_Channel_PlayerData_Response.unk43 = 1; //1
-		Join_Channel_PlayerData_Response.maxroom = MaxRoom; //0x108
+		Join_Channel_PlayerData_Response.maxroom = MAXROOM; //0x108
 		memset((void*)&Join_Channel_PlayerData_Response.munk1, -1, 4 * 8); //-1
 		Join_Channel_PlayerData_Response.unk45 = 7; //7
 		Join_Channel_PlayerData_Response.unk46 = 0x120101; //0x120101
@@ -489,7 +481,7 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
 		Shop_Buy_Response.size = 0x698; //0x698
 		Shop_Buy_Response.type = SHOP_BUY_RESPONSE;
 		Shop_Buy_Response.unk1 = 11036; //11036
-		Shop_Buy_Response.unk2 = 1; //1
+		Shop_Buy_Response.status = 1; // 0 = no effect 1 = success dialog 2 = unknown error dialog
 		if (Shop_Buy_Request->slot == -1)
 		{
 			switch (Shop_Buy_Request->item)
@@ -615,12 +607,7 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
 		buffer = (unsigned char*)&User_Info_Response;
 		break;
 	case ROOM_LIST_RESPONSE:
-		for (int i = 0; i < MaxRoom; i++)
-		{
-			if (RoomList.Rooms[i].n != -1) {
-				HandleList.ProdcastRoomUpdate(RoomList.Rooms[i].n);
-			}
-		}
+		GetRoomListResponse();
 		nOfPackets = 0;
 		/*
 		memset(&Room_List_Response, 0, sizeof(Room_List_Response));
@@ -931,7 +918,7 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
 	break;
 	case ROOM_EXIT_RESPONSE:
 		GetExitRoomResponse();
-		for (int i = 0; i < MaxRoom; i++)
+		for (int i = 0; i < MAXROOM; i++)
 		{
 			if (RoomList.Rooms[i].n != -1) {
 				HandleList.ProdcastRoomUpdate(RoomList.Rooms[i].n);
@@ -942,7 +929,7 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
 	case SHOP_BUY_ELEMENTCARD_RESPONSE:
 	{
 		CardType2 type;
-		int result = 0;
+		int result = 2;
 		switch (Shop_Buy_ElementCard_Request->cardType) {
 		case 0x1770:
 			type = water;
@@ -974,7 +961,7 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
 			code = Info.Code;
 		}
 		Shop_Buy_ElementCard_Response.size = 0x30;
-		Shop_Buy_ElementCard_Response.unk2 = result;
+		Shop_Buy_ElementCard_Response.status = result;
 		Shop_Buy_ElementCard_Response.Code = code;
 		Shop_Buy_ElementCard_Response.EarthElements = Info.Earth;
 		Shop_Buy_ElementCard_Response.FireElements = Info.Fire;
