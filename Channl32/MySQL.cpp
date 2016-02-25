@@ -153,11 +153,7 @@ int MySQL::DeleteItem(int id, int slotn)
 {
 	QuerySelect("SELECT itm_type FROM items WHERE itm_usr_id = {} AND itm_slot = {}", id, slotn);
 	MYSQL_ROW result = mysql_fetch_row(res);
-	if (!result)
-	{
-		printf("No Data\n");
-		return 0;
-	}
+	if (!res->row_count) return 0;
 	int itm_type = atoi(result[0]);
 	mysql_free_result(res);
 	Query("DELETE FROM items WHERE itm_usr_id = {} AND itm_slot = {}", id, slotn);
@@ -208,11 +204,7 @@ void MySQL::GetUserData(UserInfoResponse* UIR)
 		" usr_level, usr_mission, usr_wins, usr_losses, usr_ko, usr_down"
 		" FROM users WHERE usr_name = '{}'", UIR->username);
 	MYSQL_ROW result = mysql_fetch_row(res);
-	if (!result)
-	{
-		printf("No Data\n");
-		return;
-	}
+	if (!res->row_count) return;
 	int uid = atoi(result[0]);
 	UIR->gender = atoi(result[1]);
 	UIR->defaultcharacter = atoi(result[2]);
