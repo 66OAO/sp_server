@@ -20,7 +20,7 @@ PacketHandler::PacketHandler(SOCKET S, char *ip)
 	for (int i = 0; i < 16; i++)LocIP[i] = 0;
 	SetClientIP(ip);
 	HandleList.Insert(this);
-	pack = new unsigned char[9000];
+	pack.resize(9000);
 }
 
 void PacketHandler::Handle(unsigned char *buf)
@@ -234,7 +234,6 @@ void PacketHandler::Handle(unsigned char *buf)
 
 PacketHandler::~PacketHandler()
 {
-	delete[] pack;
 	if (Info.usr_room != -1) {
 		memset(&Room_Exit_Response, 0, sizeof(RoomExitResponse));
 		Room_Exit_Response.size = 0x28;
@@ -595,12 +594,12 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
 		break;
 	case LOBBY_USERINFO_RESPONSE:
 	{
-		int x = Lobby.GetList(pack);
+		int x = Lobby.GetList(pack.data());
 		for (int i = 0; i < x; i++)
 		{
-			*(int*)(pack + (i * 0x3C) + 0x10) = UpdateState();
-			*(int*)(pack + (i * 0x3C) + 0x0C) = cIOSocket.MakeDigest((u8*)(pack + (i * 0x3C)));
-			Encrypt(pack + (i * 0x3C));
+			*(int*)(pack.data() + (i * 0x3C) + 0x10) = UpdateState();
+			*(int*)(pack.data() + (i * 0x3C) + 0x0C) = cIOSocket.MakeDigest((u8*)(pack.data() + (i * 0x3C)));
+			Encrypt(pack.data() + (i * 0x3C));
 		}
 		nOfPackets = x * 0x3C;
 	}
@@ -1016,7 +1015,7 @@ int PacketHandler::ServerResponse(unsigned char* buf)
 	}
 	else if (nOfPackets > 1)
 	{
-		memcpy(buf, pack, nOfPackets);
+		memcpy(buf, pack.data(), nOfPackets);
 	}
 
 	return nOfPackets;
