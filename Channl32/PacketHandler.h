@@ -106,7 +106,7 @@ public:
 
 	int nOfPackets, SendList, State, udpState;
 	RoomPlayerDataResponse  Room_PlayerData_Response;
-	unsigned char *pack;
+	std::vector<u8> pack;
 	MyCharInfo Info;
 	LobbyUser LobbyInfo;
 

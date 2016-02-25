@@ -93,7 +93,7 @@ void PacketHandler::GetExitRoomResponse() {
 	Lobby.Insert(LobbyInfo);
 	HandleList.ProdcastLobbyInfo(this, &LobbyInfo, true);
 	GenerateResponse(LOBBY_USERINFO_RESPONSE);
-	send(msg_socket, (char*)pack, nOfPackets, 0);
+	send(msg_socket, (char*)pack.data(), nOfPackets, 0);
 	//HandleList.ProdcastRoomUpdate(Info.usr_room);
 	GetRoomListResponse();
 }
@@ -357,14 +357,13 @@ void PacketHandler::GetRoomPlayerData() {
 		GetMasterResponse(Info.rm_master);
 		Joined = false;
 	}
-	
-	int x = RoomList.GetInRoomPlayerList(Info.usr_room, pack);
+	int x = RoomList.GetInRoomPlayerList(Info.usr_room, pack.data());
 	for (int i = 0; i < x; i++) {
-		*(int*)(pack + (i * 0x118) + 0x10) = UpdateState();
-		*(int*)(pack + (i * 0x118) + 0x0C) = cIOSocket.MakeDigest((u8*)(pack + (i * 0x118)));
-		Encrypt(pack + (i * 0x118));
+		*(int*)(pack.data() + (i * 0x118) + 0x10) = UpdateState();
+		*(int*)(pack.data() + (i * 0x118) + 0x0C) = cIOSocket.MakeDigest((u8*)(pack.data() + (i * 0x118)));
+		Encrypt(pack.data() + (i * 0x118));
 	}
-	send(msg_socket, (char*)pack, x * 0x118, 0);
+	send(msg_socket, (char*)pack.data(), x * 0x118, 0);
 	/*NpcList myList;
 	RoomList.GetNpcList(&myList,Info.usr_room);
 	if(Info.usr_ready)
@@ -498,7 +497,7 @@ void PacketHandler::GetKickResponse(int slot) {
 		Lobby.Insert(LobbyInfo);
 		HandleList.ProdcastLobbyInfo(this, &LobbyInfo, true);
 		GenerateResponse(LOBBY_USERINFO_RESPONSE);
-		send(msg_socket, (char*)pack, nOfPackets, 0);
+		send(msg_socket, (char*)pack.data(), nOfPackets, 0);
 		HandleList.ProdcastRoomUpdate(Info.usr_room);
 		Info.usr_room = -1;
 	}
