@@ -234,9 +234,21 @@ void PacketHandler::Handle(unsigned char *buf)
 
 PacketHandler::~PacketHandler()
 {
-	delete[] pack;
-	if (Info.usr_room)
-		RoomList.ExitPlayer(Info.usr_room, this);
+	delete pack;
+	if (Info.usr_room != -1) {
+		memset(&Room_Exit_Response, 0, sizeof(RoomExitResponse));
+		Room_Exit_Response.size = 0x28;
+		Room_Exit_Response.type = ROOM_EXIT_RESPONSE;
+		Room_Exit_Response.unk1 = 11036;
+		Room_Exit_Response.exitslot = Info.usr_slot;
+		strcpy(Room_Exit_Response.username, LobbyInfo.name.c_str());
+		Room_Exit_Response.state = UpdateState();
+		Room_Exit_Response.checksum = cIOSocket.MakeDigest((u8*)&Room_Exit_Response);
+		RoomList.ProdcastPlayerExitRoom(this, &Room_Exit_Response, Info.usr_room);
+		if (RoomList.ExitPlayer(Info.usr_room, this)) {
+			HandleList.ProdcastNewRoom(this, 0, false, Info.usr_room);
+		}
+	}
 	Lobby.Delete(LobbyInfo.name);
 	HandleList.ProdcastLobbyInfo(this, &LobbyInfo, false);
 	HandleList.Delete(this);
@@ -459,7 +471,7 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
 		Join_Channel_PlayerData_Response.bunk[6] = 0;
 		Join_Channel_PlayerData_Response.Rank = 101;
 		Join_Channel_PlayerData_Response.unk43 = 1; //1
-		Join_Channel_PlayerData_Response.maxroom = MAXROOM; //0x108
+		Join_Channel_PlayerData_Response.maxroom = MaxRoom; //0x108
 		memset((void*)&Join_Channel_PlayerData_Response.munk1, -1, 4 * 8); //-1
 		Join_Channel_PlayerData_Response.unk45 = 7; //7
 		Join_Channel_PlayerData_Response.unk46 = 0x120101; //0x120101
@@ -917,7 +929,7 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
 	break;
 	case ROOM_EXIT_RESPONSE:
 		GetExitRoomResponse();
-		for (int i = 0; i < MAXROOM; i++)
+		for (int i = 0; i < MaxRoom; i++)
 		{
 			if (RoomList.Rooms[i].n != -1) {
 				HandleList.ProdcastRoomUpdate(RoomList.Rooms[i].n);
