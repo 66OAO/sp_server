@@ -14,7 +14,7 @@
 #define MAGIC_LUCKY3_MODE 10
 #define FIGHT_CLUB_MODE 15
 #define TOUR_NAMENT_MODE 16
-#define BIG_BATTLE_SURVIVAL_MODE 33
+#define BIG_MATCH_SURVIVAL_MODE 33
 #define BIG_MATCH_AUTO_TEAM_SURVIVAL_MODE 34
 #define BIG_MATCH_DEATH_MATCH_MODE 35
 #define SNOW_DODGE_MODE 28
@@ -105,6 +105,8 @@ struct LobbyRoom {
 	bool gender[8];
 	string *users[8];
 	PacketHandler *Player[8];
+	int blueteam;
+	int redteam;
 	//NpcList npc;
 };
 
@@ -121,6 +123,8 @@ public:
 			Rooms[i].progress = 0;
 			Rooms[i].mission = 0;
 			Rooms[i].started = false;
+			Rooms[i].blueteam = 0;
+			Rooms[i].redteam = 0;
 			for (int j = 0; j < 8; j++) {
 				Rooms[i].level[j] = -99;
 				Rooms[i].gender[j] = false;
@@ -161,7 +165,12 @@ public:
 					Rooms[i].level[j] = data->level[j];
 					Rooms[i].gender[j] = data->gender[j];
 					Rooms[i].users[j] = data->users[j];
-					if (Rooms[i].users[j])Rooms[i].p++;
+					if (Rooms[i].users[j])
+					{
+						if(Rooms[i].Player[j]->Info.usr_team == 10)	Rooms[i].blueteam++;
+						else if(Rooms[i].Player[j]->Info.usr_team == 20) Rooms[i].redteam++;
+						Rooms[i].p++;
+					}
 				}
 				break;
 			}
@@ -174,9 +183,6 @@ public:
 				Rooms[i].mode = CRR->mode;
 				Rooms[i].map = CRR->map;
 				Rooms[i].maxp = CRR->capacity;
-				//for(int j = 0; j < 8; j++)
-				//    if(Rooms[i].users[j] == 0)
-				//    {
 				Rooms[i].level[0] = level;
 				Rooms[i].gender[0] = gender;
 				Rooms[i].users[0] = s;
@@ -185,10 +191,9 @@ public:
 				Rooms[i].master = 0;
 				newPlayer->Info.rm_master = 0;
 				newPlayer->Info.usr_mode = Rooms[i].mode;
+				newPlayer->Info.usr_team = 10;
 				Rooms[i].p++;
 				Rooms[i].mission = newPlayer->Info.Mission;
-				//break;
-				//   }
 				break;
 			}
 	}
@@ -205,6 +210,8 @@ public:
 						newPlayer->Info.usr_slot = j;
 						newPlayer->Info.rm_master = Rooms[i].master;
 						newPlayer->Info.usr_mode = Rooms[i].mode;
+						if (Rooms[i].blueteam > Rooms[i].redteam) newPlayer->Info.usr_team = 20;
+						else newPlayer->Info.usr_team = 10;
 						Rooms[i].p++;
 						join = true;
 						break;
@@ -361,7 +368,7 @@ public:
 					}
 				}
 				switch (mode) {
-				case BIG_BATTLE_SURVIVAL_MODE:
+				case BIG_MATCH_SURVIVAL_MODE:
 					return true;
 					break;
 				case BIG_MATCH_AUTO_TEAM_SURVIVAL_MODE:
