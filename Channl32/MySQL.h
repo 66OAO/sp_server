@@ -37,6 +37,8 @@ public:
 	void BuyElementCard(MyCharInfo *Info, CardType2 type, int amount);
 	void UpdateItem(MyCharInfo*, int, int, int);
 	void AddCardSlot(int, int);
+	bool IsNewDayLogin(int);
+	void VisitBonus(int, int, int, int, int);
 };
 
 struct LobbyUser
