@@ -234,7 +234,7 @@ void PacketHandler::Handle(unsigned char *buf)
 
 PacketHandler::~PacketHandler()
 {
-	delete pack;
+	delete[] pack;
 	if (Info.usr_room)
 		RoomList.ExitPlayer(Info.usr_room, this);
 	Lobby.Delete(LobbyInfo.name);
