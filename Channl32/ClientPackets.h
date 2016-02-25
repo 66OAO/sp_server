@@ -32,8 +32,8 @@
 #define MISSION_COMPLETE_REQ  17494
 #define OPEN_USER_SHOP_REQ	  17265
 #define CARD_SEARCH_REQ		  17458
-#define BIGBATTLE_PLAYER_JOIN_REQ  17301
-#define BIGBATTLE_NPC_KO_REQ  17302
+#define BIGMATCH_PLAYER_JOIN_REQ  17301
+#define BIGMATCH_NPC_KO_REQ  17302
 #define PLAYER_KICK_REQ		  17184
 #define CHANGE_ROOMTITLE_REQ  17232
 #define UNKNOW_ROOM_JOIN_REQ  17410
@@ -389,7 +389,7 @@ struct CardSearchRequest {
 };
 
 
-struct BigBattlePlayerJoinRequest //Unknown Request
+struct BigMatchPlayerJoinRequest //Unknown Request
 {
 	int size; //0x04D8 1240byte
 	int type;
@@ -401,7 +401,7 @@ struct BigBattlePlayerJoinRequest //Unknown Request
 	NpcData slot[39];
 	char idc[208];
 };
-struct BigBattleNpcKoRequest
+struct BigMatchNpcKoRequest
 {
 	int size; //0x40
 	int type;

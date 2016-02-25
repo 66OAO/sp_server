@@ -158,7 +158,7 @@ int MySQL::DeleteItem(int id, int slotn)
 	mysql_query(connection, buffer);
 	MYSQL_RES *res = mysql_use_result(connection);
 	MYSQL_ROW result = mysql_fetch_row(res);
-	if (!res->row_count) return;
+	if (!res->row_count) return 0;
 	int itm_type = atoi(result[0]);
 	mysql_free_result(res);
 	sprintf(buffer, "DELETE FROM items WHERE itm_usr_id = %d AND itm_slot = %d", id, slotn);

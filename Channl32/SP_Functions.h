@@ -401,11 +401,11 @@ void PacketHandler::GetResultResponse(ResultsResponse* Results_Response) {
 	send(msg_socket, (char*)msg, *(int*)msg, 0);
 }
 
-void PacketHandler::GetBigBattleNpcMultiplier() {
+void PacketHandler::GetBigMatchNpcMultiplier() {
 	if (Info.usr_mode != 0x21)return;
-	BigBattleNpcMultiplier BBNM;
+	BigMatchNpcMultiplier BBNM;
 	BBNM.size = 0x38;
-	BBNM.type = BIGBATTLE_NPC_X_RESPONSE;
+	BBNM.type = BIGMATCH_NPC_X_RESPONSE;
 	BBNM.unk1 = 11036;
 	BBNM.x[0] = 2;
 	BBNM.x[1] = 5;

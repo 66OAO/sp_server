@@ -41,8 +41,8 @@ private:
 	MissionCompleteRequest *MissionComplete_Request;
 	OpenUserShopRequest *OpenUserShop;
 	CardSearchRequest *CardSearch_Request;
-	BigBattlePlayerJoinRequest *BigBattlePlayerJoin_Request;
-	BigBattleNpcKoRequest *BigBattleNpcKo_Request;
+	BigMatchPlayerJoinRequest *BigMatchPlayerJoin_Request;
+	BigMatchNpcKoRequest *BigMatchNpcKo_Request;
 	NpcKillRequest *NpcKill_Request;
 	PlayerKickRequest *PlayerKick_Request;
 	RoomTitleChangeRequest *RoomTitleChange_Request;
@@ -72,8 +72,8 @@ private:
 	MissionCompleteResponse MissionComplete;
 	MissionAfterResponse MissionAfter_Response;
 	CardSearchResponse CardSearch_Response;
-	BigBattlePlayerJoinResponse BigBattlePlayerJoin_Response;
-	BigBattleNpcKoResponse BigBattleNpcKo_Response;
+	BigMatchPlayerJoinResponse BigMatchPlayerJoin_Response;
+	BigMatchNpcKoResponse BigMatchNpcKo_Response;
 	QuestGainResponse QuestGain_Response;
 	NpcListResponse NpcList_Response;
 	ShopBuyElementCardResponse Shop_Buy_ElementCard_Response;
@@ -143,7 +143,7 @@ public:
 	void GetExpGainResponse(QuestGainResponse*);
 	void GetReviveResponse(ReviveResponse*);
 	void GetResultResponse(ResultsResponse*);
-	void GetBigBattleNpcMultiplier();
+	void GetBigMatchNpcMultiplier();
 	void GetJoinResponse2();
 	void GetKickResponse(int);
 	void GetTitleChange(RoomTitleChangeResponse*);

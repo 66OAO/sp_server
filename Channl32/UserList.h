@@ -14,9 +14,9 @@
 #define MAGIC_LUCKY3_MODE 10
 #define FIGHT_CLUB_MODE 15
 #define TOUR_NAMENT_MODE 16
-#define BIG_BATTLE_SURVIVAL_MODE 33
-#define BIG_MATCH_AUTO_TEAM_SURVIVAL_MODE 34
-#define BIG_MATCH_DEATH_MATCH_MODE 35
+#define BIGMATCH_SURVIVAL_MODE 33
+#define BIGMATCH_AUTO_TEAM_SURVIVAL_MODE 34
+#define BIGMATCH_DEATH_MATCH_MODE 35
 #define SNOW_DODGE_MODE 28
 #define RADNG_MODE 30
 #define SOCCER_MODE 8
@@ -385,13 +385,13 @@ public:
 					}
 				}
 				switch (mode) {
-				case BIG_BATTLE_SURVIVAL_MODE:
+				case BIGMATCH_SURVIVAL_MODE:
 					return true;
 					break;
-				case BIG_MATCH_AUTO_TEAM_SURVIVAL_MODE:
+				case BIGMATCH_AUTO_TEAM_SURVIVAL_MODE:
 					return true;
 					break;
-				case BIG_MATCH_DEATH_MATCH_MODE:
+				case BIGMATCH_DEATH_MATCH_MODE:
 					return true;
 					break;
 				case CRYSTAL_CAPTURE_MODE:
