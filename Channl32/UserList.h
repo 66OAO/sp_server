@@ -8,7 +8,7 @@
 #define CRYSTAL_CAPTURE_MODE 40
 #define DUEL_MODE 5
 #define LUCKY3_MODE 6
-#define ASSAULY_MODE 7
+#define ASSAULT_MODE 7
 #define GAIN_SYMBOL_MODE 31
 #define KING_SLAYER_MODE 9
 #define MAGIC_LUCKY3_MODE 10
@@ -26,7 +26,8 @@
 #define COMMUNITY_MODE 1
 
 #define MaxRoom 300
-
+const int Red = 20;
+const int Blue = 10;
 LobbyList::LobbyList()
 {
 	count = 0;
@@ -107,6 +108,8 @@ struct LobbyRoom {
 	bool gender[8];
 	string *users[8];
 	PacketHandler *Player[8];
+	int blueteam;// 10
+	int redteam;// 20
 	//NpcList npc;
 };
 
@@ -123,6 +126,8 @@ public:
 			Rooms[i].progress = 0;
 			Rooms[i].mission = 0;
 			Rooms[i].started = false;
+			Rooms[i].blueteam = 0; //Blud 10
+			Rooms[i].redteam = 0; //Red 20
 			for (int j = 0; j < 8; j++) {
 				Rooms[i].level[j] = -99;
 				Rooms[i].gender[j] = false;
@@ -163,7 +168,12 @@ public:
 					Rooms[i].level[j] = data->level[j];
 					Rooms[i].gender[j] = data->gender[j];
 					Rooms[i].users[j] = data->users[j];
-					if (Rooms[i].users[j])Rooms[i].p++;
+					if (Rooms[i].users[j])
+					{
+						Rooms[i].p++;
+						if(Rooms[i].Player[j]->Info.usr_team == 20)	Rooms[i].redteam++;
+						else Rooms[i].blueteam++;
+					}
 				}
 				break;
 			}
@@ -176,9 +186,6 @@ public:
 				Rooms[i].mode = CRR->mode;
 				Rooms[i].map = CRR->map;
 				Rooms[i].maxp = CRR->capacity;
-				//for(int j = 0; j < 8; j++)
-				//    if(Rooms[i].users[j] == 0)
-				//    {
 				Rooms[i].level[0] = level;
 				Rooms[i].gender[0] = gender;
 				Rooms[i].users[0] = s;
@@ -187,10 +194,10 @@ public:
 				Rooms[i].master = 0;
 				newPlayer->Info.rm_master = 0;
 				newPlayer->Info.usr_mode = Rooms[i].mode;
+				newPlayer->Info.usr_team = Blue;
+				Rooms[i].blueteam++;
 				Rooms[i].p++;
 				Rooms[i].mission = newPlayer->Info.Mission;
-				//break;
-				//   }
 				break;
 			}
 	}
@@ -207,6 +214,16 @@ public:
 						newPlayer->Info.usr_slot = j;
 						newPlayer->Info.rm_master = Rooms[i].master;
 						newPlayer->Info.usr_mode = Rooms[i].mode;
+						if(Rooms[i].blueteam > Rooms[i].redteam)
+						{
+						newPlayer->Info.usr_team = Red;
+						Rooms[i].redteam++;
+						}
+						else
+						{
+							newPlayer->Info.usr_team = Blue;
+							Rooms[i].blueteam++;
+						}
 						Rooms[i].p++;
 						join = true;
 						break;
@@ -374,9 +391,9 @@ public:
 		for (int i = 0; i < MaxRoom; i++)
 			if (Rooms[i].n == n) {
 				int mode = Rooms[i].mode;
-				int Quest_Mode_Ready[15] = { 11,18,23,12,19,24,13,20,25,14,21,26,16,22,27 };
+				int Quest_Mode[15] = { 11,18,23,12,19,24,13,20,25,14,21,26,16,22,27 };
 				for (int j = 0; j < 15; j++) {
-					if (Quest_Mode_Ready[j] == Rooms[i].mode) {
+					if (Quest_Mode[j] == Rooms[i].mode) {
 						if (Rooms[i].started) return true;
 						for (int k = 0; k < Rooms[i].p; k++) {
 							if (!Rooms[i].Player[k]->Info.usr_ready) return false;
@@ -386,11 +403,7 @@ public:
 				}
 				switch (mode) {
 				case BIGMATCH_SURVIVAL_MODE:
-					return true;
-					break;
 				case BIGMATCH_AUTO_TEAM_SURVIVAL_MODE:
-					return true;
-					break;
 				case BIGMATCH_DEATH_MATCH_MODE:
 					return true;
 					break;
@@ -398,12 +411,7 @@ public:
 				{
 					if (Rooms[i].started)
 						return true;
-					int TEAM1 = 0, TEAM2 = 0;
-					for (int j = 0; j < Rooms[i].p; j++) {
-						if (Rooms[i].Player[j]->Info.usr_team == 10) TEAM1++;
-						else TEAM2++;
-					}
-					if (TEAM1 == 0 || TEAM2 == 0)
+					if (Rooms[i].blueteam == 0 || Rooms[i].redteam == 0)
 						return false;
 					for (int j = 0; j < Rooms[i].p; j++) {
 						if (!Rooms[i].Player[j]->Info.usr_ready)
@@ -496,7 +504,7 @@ public:
 					else return false;
 				}
 				break;
-				case ASSAULY_MODE:
+				case ASSAULT_MODE:
 				{
 					int TEAM1 = 0, TEAM2 = 0;
 					for (int j = 0; j < Rooms[i].p; j++)
