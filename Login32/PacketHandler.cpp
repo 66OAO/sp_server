@@ -15,25 +15,23 @@ PacketHandler::PacketHandler(unsigned char* buf)
 	{
 	case LOGIN_REQ:
 		Login_Info = (LoginInfo*)buf;
-		printf("Client Trying to Login with\nID: %s\nPW: %s\n", Login_Info->username, Login_Info->password);
+		Log::Info("Client login attempt: {} // {}", Login_Info->username, Login_Info->password);
 		GenerateResponse(LOGIN_RESPONSE);
 		break;
 	case SERVERINFO_REQ:
 	case AFTER_SERVERINFO_REQ:
 		Server_Info_Request = (ServerInfoRequest*)buf;
-		printf("Client Requesting Server Info\n");
+		Log::Info("Client Requesting Server Info");
 		GenerateResponse(SERVERINFO_RESPONSE);
 		break;
 	case CHANGE_DEFAULT_CHARACTER_REQ:
 		Default_Character_Change_Request = (DefaultCharacterChangeRequest*)buf;
-		printf("Client Requesting To Change Character\n");
+		Log::Info("Client Requesting To Change Character");
 		GenerateResponse(CHANGE_DEFAULT_CHARACTER_RESPONSE);
 		break;
 	case TRAINING_DONE_REQ:
-		printf("TRAINING_DONE_REQ\n");
+		Log::Info("TRAINING_DONE_REQ");
 		GenerateResponse(TRAINING_DONE_RESPONSE);
-		break;
-	default:
 		break;
 	}
 }

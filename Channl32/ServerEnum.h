@@ -2,6 +2,7 @@
 #define __SERVERENUM_H__
 
 #define MISSION_MODE	0x2E
+#define MAXROOM			200
 
 enum Character {
 	None = 0,

@@ -26,5 +26,8 @@
     <ClInclude Include="PacketHandler.h" />
     <ClInclude Include="ServerEnum.h" />
     <ClInclude Include="stdafx.h" />
+    <ClInclude Include="..\shared\console.h">
+      <Filter>shared</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

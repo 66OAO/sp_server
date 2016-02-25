@@ -21,11 +21,9 @@ bool cLoginServer::Start()
 {
 	if (WSAStartup(514, &wsaData))
 	{
-		MakeMeFocused("WSAStartup Error", 0);
+		Log::Error("WSAStartup Error");
 		return false;
 	}
-	else
-		MakeMeFocused("WSAStartup success", 1);
 
 	server.sin_family = 2;
 	u16 port = config.ReadInt("port", 21000, "LOGIN");
@@ -36,26 +34,24 @@ bool cLoginServer::Start()
 
 	if (listen_socket == INVALID_SOCKET)
 	{
-		MakeMeFocused("Login Server: listen_socket Error", 0);
+		Log::Error("listen_socket Error");
 		return false;
 	}
-	else MakeMeFocused("Login Server: listen_socket success", 1);
 
 	if (::bind(listen_socket, (struct sockaddr*)&server, serverlen) == SOCKET_ERROR)
 	{
-		MakeMeFocused("Login Server: bind Error", 0);
+		Log::Error("bind Error");
 		return false;
 	}
 	else
-		printf("Login Server: listening on port %u\n", port);
+		Log::Out("listening on port {}", port);
 
 
 	if (listen(listen_socket, SOMAXCONN) == SOCKET_ERROR)
 	{
-		MakeMeFocused("Login Server: listen Error", 0);
+		Log::Error("listen Error");
 		return false;
 	}
-	else MakeMeFocused("Login Server: listen success", 1);
 
 	return true;
 }
@@ -72,34 +68,35 @@ void Comm(void *msg_sock)
 
 		if (!retbufsize)
 		{
-			MakeMeFocused("Login Server: Connection closed by client", 0);
+			Log::Info("Connection closed by client");
 			closesocket(msg_socket);
 			break;
 		}
 
 		if (retbufsize == SOCKET_ERROR)
 		{
-			MakeMeFocused("Login Server: Client socket closed", 0);
+			Log::Info("Client socket closed");
 			closesocket(msg_socket);
 			break;
 		}
-		else printf("recv %d bytes success\n", retbufsize);
+		else Log::Out("recv {} bytes", retbufsize);
 
 		u32 sz = *(u32*)buffer;
 		if (sz != retbufsize)
 		{
-			MakeMeFocused("Channel Server: sz != retbufsize\n", 0);
-			printf("%u != %u", sz, retbufsize);
+			Log::Warning("sz != retbufsize ({} != {})", sz, retbufsize);
 		}
 
 		//outBuffer();
-		PacketHandler PackHandle(buffer);
-		if (PackHandle.nOfPackets)
-		{
-			MakeMeFocused("Login Server: Sending Response", 1);
-			retbufsize = send(msg_socket, (char*)buffer, PackHandle.ServerResponse(buffer)*buffer[0], 0);
+		try {
+			PacketHandler PackHandle(buffer);
+			if(PackHandle.nOfPackets) {
+				Log::Info("Sending Response");
+				retbufsize = send(msg_socket, (char*)buffer, PackHandle.ServerResponse(buffer)*buffer[0], 0);
+			} else Log::Warning("Server has no response");
+		} catch (const std::exception & e) {
+			Log::Error("Error handling client packet: {}", e.what());
 		}
-		else MakeMeFocused("Login Server: Server have no response", 0);
 
 	}
 	_endthread();
@@ -114,10 +111,11 @@ bool cLoginServer::CommLoop()
 	{
 		if ((msg_socket = accept(listen_socket, (struct sockaddr*)&client, &clientlen)) == INVALID_SOCKET)
 		{
-			MakeMeFocused("Login Server: Accept Error", 0);
+			Log::Error("Accept Error");
 			return false;
 		}
-		else printf("Login Server: Accept Client with IP:%s\n", inet_ntoa(client.sin_addr));
+		else
+			Log::Out("Accept Client: {}", inet_ntoa(client.sin_addr));
 		_beginthread(Comm, 0, (void *)msg_socket);
 	}
 

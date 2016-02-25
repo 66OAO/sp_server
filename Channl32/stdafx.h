@@ -6,6 +6,8 @@
 #include <time.h>
 #include <process.h>
 #include <stdio.h>
+#include <iostream>
+#include <fstream>
 
 using namespace std;
 
@@ -17,3 +19,8 @@ using namespace std;
 #include <stlxtypes.h>
 
 using namespace stlx;
+
+#include <format.h>
+using fmt::format;
+
+#include <console.h>

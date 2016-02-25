@@ -114,6 +114,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\shared\console.h" />
     <ClInclude Include="..\shared\IOSocket.h" />
     <ClInclude Include="Admin_Functions.h" />
     <ClInclude Include="ChannelServer.h" />
