@@ -12,8 +12,12 @@ MySQL::MySQL()
 	auto db = config.ReadString("db", "spgame");
 
 	connection = mysql_init(0);
-	if (!mysql_real_connect(connection, ip.c_str(), user.c_str(), pw.c_str(), db.c_str(), port, 0, 0))
+	if(mysql_real_connect(connection, ip.c_str(), user.c_str(), pw.c_str(), db.c_str(), port, 0, 0)) {
+		my_bool reconnect = 1;
+		mysql_options(connection, MYSQL_OPT_RECONNECT, &reconnect);
+	} else {
 		Log::Error("Unable to connect to MySQL server");
+	}
 }
 
 MySQL::~MySQL()
