@@ -199,7 +199,8 @@ void PacketHandler::GetRoomListResponse() {
 	}
 }
 
-bool PacketHandler::GetRoomJoinResponse() {
+bool PacketHandler::GetRoomJoinResponse()
+{
 	memset(&Room_Join_Response, 0, sizeof(Room_Join_Response));
 	Room_Join_Response.size = 0x7C;
 	Room_Join_Response.type = ROOM_JOIN_RESPONSE;
@@ -209,11 +210,16 @@ bool PacketHandler::GetRoomJoinResponse() {
 	bool join = RoomList.JoinRoom(this, &LobbyInfo.name, Room_Join_Request->roomnumber, Info.gender, Info.Level);
 	if (join)RoomList.GetRoomData(&Room_Join_Response);
 	Room_Join_Response.unk2 = !join;
-	Room_Join_Response.unk05 = 1; //1
+
+	Room_Join_Response.unk05 = (Room_Join_Response.mode >= 12 && Room_Join_Response.mode <= 27) ? 1 : 0; //1 scroll
+																										 //Room_Join_Response.unk06 = 1; unknow
+																										 //Room_Join_Response.unk07 = 1; dont set ..
+																										 //Room_Join_Response.unk10 = 1; // auto team
 	Room_Join_Response.Slot = Info.usr_slot; //1
-	Room_Join_Response.unk09 = 1; //0xA
-	Room_Join_Response.unk11 = -1;
-	Room_Join_Response.unk13 = 1;
+	Room_Join_Response.unk09 = 111; //0xA
+	Room_Join_Response.unk11 = -1; // limit
+	Room_Join_Response.unk12 = 1;
+	//Room_Join_Response.unk13 = 1;
 	Room_Join_Response.state = UpdateState();
 	Room_Join_Response.checksum = cIOSocket.MakeDigest((u8*)&Room_Join_Response);
 	buffer = (unsigned char*)&Room_Join_Response;
@@ -228,6 +234,7 @@ bool PacketHandler::GetRoomJoinResponse() {
 	return join;
 }
 
+
 void PacketHandler::GetRoomCreateResponse() {
 	memset(&Create_Room_Response.size, 0, sizeof(CreateRoomResponse));
 	Create_Room_Response.size = 0x6C;
@@ -235,6 +242,16 @@ void PacketHandler::GetRoomCreateResponse() {
 	Create_Room_Response.unk1 = 11036;
 	Create_Room_Response.state = UpdateState();
 	Create_Room_Response.unk01 = 2; //CreateRoom, 0 = no room to create
+	int roomCurrent = 0;
+	for (int i = 0; i < MaxRoom; i++)
+	{
+		if (RoomList.Rooms[i].n != -1) {
+			roomCurrent++;
+		}
+	}
+	if (roomCurrent == MaxRoom) {
+		Create_Room_Response.unk01 = 0;
+	}
 	Create_Room_Response.roomnumber = Create_Room_Request->roomnumber;
 	Info.usr_room = Create_Room_Request->roomnumber;
 	strcpy(Create_Room_Response.roomname, Create_Room_Request->roomname);
@@ -242,16 +259,16 @@ void PacketHandler::GetRoomCreateResponse() {
 	Create_Room_Response.map = Create_Room_Request->map; //0x1b
 	strcpy(Create_Room_Response.password, Create_Room_Request->password);
 	Create_Room_Response.capacity = Create_Room_Request->capacity;
-	Create_Room_Response.allowscrolls = 1; //1
+	Create_Room_Response.allowscrolls = Create_Room_Request->allowscrolls; //1
 	Create_Room_Response.autoteam = 1; //1
 	Create_Room_Response.unk2 = 12;
 	Create_Room_Response.character = Info.DefaultCharacter + 120; //0x0A
 	Create_Room_Response.unk03 = 0x74F59300; //0x74F59300
 	Create_Room_Response.maxcardlevel = -1;
-	Create_Room_Response.allowcritsheild = -1;
-	Create_Room_Response.unk3 = -1; //0
-	Create_Room_Response.unk4 = 1; //0
-	Create_Room_Response.unk5 = 0; //0
+	Create_Room_Response.allowcritsheild = Create_Room_Request->allowcritsheild;
+	Create_Room_Response.unk3 = Create_Room_Request->unk3; //0
+	Create_Room_Response.unk4 = Create_Room_Request->unk4; //0
+	Create_Room_Response.unk5 = Create_Room_Request->unk5; //0
 	Create_Room_Response.checksum = cIOSocket.MakeDigest((u8*)&Create_Room_Response);
 	buffer = (unsigned char*)&Create_Room_Response;
 	RoomList.CreateRoom(this, &LobbyInfo.name, &Create_Room_Response, Info.gender, Info.Level);
