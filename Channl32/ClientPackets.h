@@ -39,6 +39,7 @@
 #define UNKNOW_ROOM_JOIN_REQ  17410
 #define SHOP_BUY_ELEMENTCARD_REQ  17464
 #define ADD_CARD_SLOT_REQ 17511
+#define GOLD_CHARGE_CARD_USE_REQ 17283
 struct JoinChannelRequest {
 	int size;
 	int type;
@@ -459,5 +460,18 @@ struct AddCardSlotRequest
 	int checksum;
 	int state;
 	int slotn;
+};
+
+struct GoldChargeCardUseRequest
+{
+	int size; //0x24
+	int type;
+	int unk1; //11036
+	int checksum;
+	int state;
+	int equipslot;
+	int equiptype;
+	int gfslot;
+	int unk2;
 };
 #endif

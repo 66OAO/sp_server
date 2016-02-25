@@ -39,6 +39,7 @@ public:
 	void AddCardSlot(int, int);
 	bool IsNewDayLogin(int);
 	void VisitBonus(int, int, int, int, int);
+	void GoldForceCardUse(int, int, int, int);
 
 	template <typename ...Args>
 	void Query(Args &&... args) {

@@ -44,6 +44,7 @@
 #define TRADE_SUCCESS_RESPONSE	17217
 #define SHOP_BUY_ELEMENTCARD_RESPONSE	17465
 #define ADD_CARD_SLOT_RESPONSE 17512
+#define GOLD_CHARGE_CARD_USE_RESPONSE 17284
 
 struct LobbyUserInfoResponse {
 	int size; //0x3C
@@ -856,4 +857,13 @@ struct AddCardSlotResponse
 	int addcheck;
 };
 
+struct GoldChargeCardUseResponse
+{
+	int size; //0x18
+	int type;
+	int unk1; //11036
+	int checksum;
+	int state;
+	int chargecheck;
+};
 #endif

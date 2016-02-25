@@ -47,6 +47,7 @@ private:
 	PlayerKickRequest *PlayerKick_Request;
 	RoomTitleChangeRequest *RoomTitleChange_Request;
 	AddCardSlotRequest *AddCardSlot_Request;
+	GoldChargeCardUseRequest *GoldChargeCardUse_Request;
 
 	// Server Packet Structures
 	JoinChannelResponse Join_Channel_Response;
@@ -78,6 +79,7 @@ private:
 	NpcListResponse NpcList_Response;
 	ShopBuyElementCardResponse Shop_Buy_ElementCard_Response;
 	AddCardSlotResponse AddCardSlot_Response;
+	GoldChargeCardUseResponse GoldChargeCardUse_Response;
 
 public:
 	JoinChannelPlayerDataResponse Join_Channel_PlayerData_Response;
