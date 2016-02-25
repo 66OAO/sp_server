@@ -1,6 +1,4 @@
 #include "ChannelServer.h"
-#include <iostream>
-#include <fstream>
 
 #ifdef _DEBUG
 #define DEBUG 0
@@ -29,7 +27,7 @@ int main()
 
 	if (CS->Start(port))
 	{
-		printf("----- Channel Server Started -----\n");
+		Log::Out("----- Channel Server Started -----\n");
 	}
 	CS->CommLoop();
 	delete CS;

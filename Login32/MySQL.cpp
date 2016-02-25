@@ -13,7 +13,7 @@ MySQL::MySQL()
 
 	connection = mysql_init(0);
 	if (!mysql_real_connect(connection, ip.c_str(), user.c_str(), pw.c_str(), db.c_str(), port, 0, 0))
-		printf("Unable to connect to MySQL server\n");
+		Log::Error("Unable to connect to MySQL server");
 }
 
 MySQL::~MySQL()
@@ -23,9 +23,8 @@ MySQL::~MySQL()
 
 int MySQL::Login(char* id, char* pw)
 {
-	char buffer[200];
-	sprintf(buffer, "SELECT usr_id FROM users WHERE usr_name = \'%s\' AND usr_pw = \'%s\'", id, pw);
-	mysql_query(connection, buffer);
+	Query("SELECT usr_id FROM users WHERE usr_name = '{}' AND usr_pw = '{}'",
+		id, pw);
 	MYSQL_RES *res = mysql_use_result(connection);
 	MYSQL_ROW result = mysql_fetch_row(res);
 	if (!result)return 0;
@@ -36,10 +35,8 @@ int MySQL::Login(char* id, char* pw)
 
 void MySQL::GetUserInfo(int id, MyCharInfo &info)
 {
-	char buffer[200];
-	sprintf(buffer, "SELECT usr_char, usr_points, usr_code, usr_level FROM users WHERE usr_id = %d", id);
-	if (mysql_query(connection, buffer))
-		printf(mysql_error(connection));
+	Query("SELECT usr_char, usr_points, usr_code, usr_level FROM users WHERE usr_id = {}", id);
+
 	MYSQL_RES *res = mysql_use_result(connection);
 	MYSQL_ROW result = mysql_fetch_row(res);
 	if (!res->row_count) return;
@@ -58,16 +55,11 @@ void MySQL::GetUserInfo(int id, MyCharInfo &info)
 	Level level;
 	int l = level.getLevel(info.Points);
 	if (info.Level != l) {
-		sprintf(buffer, "UPDATE users SET usr_level = %d WHERE usr_id = %d", l, id);
-		if (mysql_query(connection, buffer))
-			printf(mysql_error(connection));
+		Query("UPDATE users SET usr_level = {} WHERE usr_id = {}", l, id);
 		info.Level = l;
 	}
 }
 
-void MySQL::SetDefaultCharacter(int id, Character DefaultCharacter)
-{
-	char buffer[200];
-	sprintf(buffer, "UPDATE users SET usr_char = %d WHERE usr_id = %d", DefaultCharacter, id);
-	mysql_query(connection, buffer);
+void MySQL::SetDefaultCharacter(int id, Character DefaultCharacter) {
+	Query("UPDATE users SET usr_char = {} WHERE usr_id = {}", DefaultCharacter, id);
 }
