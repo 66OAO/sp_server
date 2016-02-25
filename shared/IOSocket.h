@@ -1,20 +1,18 @@
 #ifndef __IOSOCKET_H__
 #define __IOSOCKET_H__
 
-#include <typedefs.h>
 #include <Windows.h>
 
-typedef int (__fastcall *fCall)(uint8 *);
-class IOSocket
-{
+typedef int(__fastcall *fCall)(u8 *);
+class IOSocket {
 private:
-    HMODULE hModule;
+	HMODULE hModule;
 
 public:
-    IOSocket();
-    ~IOSocket();
+	IOSocket();
+	~IOSocket();
 
-    fCall MakeDigest;
+	fCall MakeDigest;
 };
 
 

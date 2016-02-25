@@ -1,19 +1,18 @@
 #include "MySQL.h"
-#include "ini.h"
 
-extern CIni config;
+extern Ini config;
 
 MySQL::MySQL()
 {
 	config.SetSection("DB");
-	char * ip = config.ReadString("ip", "127.0.0.1");
-	uint32 port = config.ReadInteger("port", 3306);
-	char * user = config.ReadString("user", "root");
-	char * pw = config.ReadString("pw", "spgame");
-	char * db = config.ReadString("db", "spgame");
+	auto ip = config.ReadString("ip", "127.0.0.1");
+	u32 port = config.ReadInt("port", 3306);
+	auto user = config.ReadString("user", "root");
+	auto pw = config.ReadString("pw", "");
+	auto db = config.ReadString("db", "spgame");
 
 	connection = mysql_init(0);
-	if (!mysql_real_connect(connection, ip, user, pw, db, port, 0, 0))
+	if (!mysql_real_connect(connection, ip.c_str(), user.c_str(), pw.c_str(), db.c_str(), port, 0, 0))
 		printf("Unable to connect to MySQL server\n");
 }
 
@@ -145,6 +144,14 @@ void MySQL::InsertNewItem(MyCharInfo *Info, int item, int gf, int level, int ski
 	if (validslot == -1)return;
 	char buffer[200];
 	sprintf(buffer, "INSERT INTO items VALUES (0,%d,%d,%d,%d,%d,%d)", validslot, Info->usr_id, item, gf, level, skill);
+	mysql_query(connection, buffer);
+}
+
+void MySQL::UpdateItem(MyCharInfo *Info, int slot, int item_id, int gf)
+{
+	if (slot < -1 || slot > 96)return;
+	char buffer[200];
+	sprintf(buffer, "UPDATE items SET itm_gf = (itm_gf+%d) WHERE itm_usr_id = %d AND itm_slot = %d", gf, Info->usr_id, slot);
 	mysql_query(connection, buffer);
 }
 
@@ -401,11 +408,7 @@ void MySQL::GetMoneyAmmount(int id, int *cash, unsigned __int64 *code, char sign
 	mysql_query(connection, buffer);
 	MYSQL_RES *res = mysql_use_result(connection);
 	MYSQL_ROW result = mysql_fetch_row(res);
-	if (!result)
-	{
-		printf("No Data\n");
-		return;
-	}
+	if (!res->row_count) return;
 	if (cash)*cash = atoi(result[0]);
 	if (code)*code = _atoi64(result[1]);
 	mysql_free_result(res);
@@ -414,24 +417,20 @@ void MySQL::GetMoneyAmmount(int id, int *cash, unsigned __int64 *code, char sign
 void MySQL::UpgradeCard(MyCharInfo *Info, CardUpgradeResponse *CUR)
 {
 	char buffer[300];
-	sprintf(buffer, "SELECT itm_type, itm_gf, itm_level, itm_skill FROM items WHERE itm_usr_id = %d AND itm_slot = %d", Info->usr_id, CUR->Slot);
+	sprintf(buffer, "SELECT itm_type, itm_gf, itm_level , itm_skill FROM items WHERE itm_usr_id = %d AND itm_slot = %d", Info->usr_id, CUR->Slot);
 	mysql_query(connection, buffer);
 	MYSQL_RES *res = mysql_use_result(connection);
 	MYSQL_ROW result = mysql_fetch_row(res);
+	if (!res->row_count) return;
 	ItemId Item;
-	if (!result)
-	{
-		printf("No Data\n");
-		return;
-	}
 	CUR->Type = atoi(result[0]);
 	CUR->GF = atoi(result[1]);
 	CUR->Level = atoi(result[2]);
 	int old_skill = atoi(result[3]);
-	int EleCost = Item.GetUpgradeCost(CUR->Type, CUR->Level, CUR->UpgradeType);
-	int ItemSpirite = (CUR->Type % 100) / 10;
-	if ((CUR->UpgradeType != 5) && (CUR->UpgradeType != 6))
+	if (CUR->UpgradeType == 1)
 	{
+		int ItemSpirite = (CUR->Type % 100) / 10;
+		int EleCost = Item.GetUpgradeCost(CUR->Type, CUR->Level, CUR->UpgradeType);
 		if (ItemSpirite == 1)
 		{
 			Info->Water -= EleCost;
@@ -452,23 +451,28 @@ void MySQL::UpgradeCard(MyCharInfo *Info, CardUpgradeResponse *CUR)
 			Info->Wind -= EleCost;
 			sprintf(buffer, "UPDATE users SET usr_wind = (usr_wind-%d) WHERE usr_id = %d", EleCost, Info->usr_id);
 		}
+		else sprintf(buffer, "");
+		mysql_query(connection, buffer);
+	}
+	else if (CUR->UpgradeType == 3)
+	{
+		sprintf(buffer, "UPDATE items SET itm_level = (itm_level - 1) WHERE itm_usr_id = %d AND itm_slot = %d", Info->usr_id, CUR->Slot);
+		mysql_query(connection, buffer);
 	}
 	CUR->WaterElements = Info->Water;
 	CUR->FireElements = Info->Fire;
 	CUR->EarthElements = Info->Earth;
 	CUR->WindElements = Info->Wind;
-	if (CUR->UpgradeType == 1)
+	if (CUR->UpgradeType == 1 || CUR->UpgradeType == 3)
 	{
-		if (CUR->Level < 8) {
-			if (Item.UpgradeItem(CUR->GF, CUR->Level))
-			{
-				CUR->Level += 1;
-			}
-			else
-			{
-				CUR->UpgradeType = 2;
-				CUR->unk2 = 5;
-			}
+		if (Item.UpgradeItem(CUR->GF, CUR->Level))
+		{
+			CUR->Level += 1;
+		}
+		else
+		{
+			CUR->UpgradeType = 2;
+			CUR->unk2 = 5;
 		}
 	}
 	else
@@ -477,11 +481,10 @@ void MySQL::UpgradeCard(MyCharInfo *Info, CardUpgradeResponse *CUR)
 	}
 	CUR->Skill = Item.GenerateSkill(CUR->Level, CUR->Type, CUR->UpgradeType, old_skill);
 	mysql_free_result(res);
-	mysql_query(connection, buffer);
 	sprintf(buffer, "UPDATE items SET itm_level = %d, itm_skill = %d WHERE itm_usr_id = %d AND itm_slot = %d", CUR->Level, CUR->Skill, Info->usr_id, CUR->Slot);
-	//cout << buffer << endl;
 	mysql_query(connection, buffer);
 }
+
 
 void MySQL::GetScrolls(MyCharInfo *Info)
 {
@@ -490,10 +493,7 @@ void MySQL::GetScrolls(MyCharInfo *Info)
 	mysql_query(connection, buffer);
 	MYSQL_RES *res = mysql_use_result(connection);
 	MYSQL_ROW result = mysql_fetch_row(res);
-	if (!result) {
-		printf("No Data\n");
-		return;
-	}
+	if (!res->row_count) return;
 	for (int i = 0; i < 3; i++)
 		Info->scrolls[i] = atoi(result[i]);
 	mysql_free_result(res);
@@ -555,5 +555,72 @@ void MySQL::GetExp(int usr_id, int usr_exp, const char *Elements, int Ammount)
 	if (Elements)
 		sprintf(buffer, "UPDATE users SET usr_points = (usr_points+%d),usr_code = (usr_code+%d),usr_%s = (usr_%s+%d)  WHERE usr_id = %d", usr_exp, usr_exp, Elements, Elements, Ammount, usr_id);
 	else sprintf(buffer, "UPDATE users SET usr_points = (usr_points+%d),usr_code = (usr_code+%d)  WHERE usr_id = %d", usr_exp, usr_exp, usr_id);
+	mysql_query(connection, buffer);
+}
+
+void MySQL::AddCardSlot(int usr_id, int slotn)
+{
+	int addslot = 0;
+	int slot_type = 0;
+	char buffer[200];
+	sprintf(buffer, "SELECT itm_type FROM items WHERE itm_usr_id = %d AND itm_slot = %d", usr_id, slotn);
+	mysql_query(connection, buffer);
+	MYSQL_RES *res = mysql_use_result(connection);
+	MYSQL_ROW result = mysql_fetch_row(res);
+	if (!res->row_count) return;
+	if (result[0]) slot_type = atoi(result[0]);
+	else return;
+	mysql_free_result(res);
+	if (slot_type == 2005) addslot = 12;
+	else if (slot_type == 2004) addslot = 6;
+	else addslot = 0;
+	DeleteItem(usr_id, slotn);
+	sprintf(buffer, "UPDATE users SET usr_nslots = (usr_nslots + %d) WHERE usr_id = %d", addslot, usr_id);
+	mysql_query(connection, buffer);
+}
+
+bool MySQL::IsNewDayLogin(int usr_id) {
+	time_t tick;
+	struct tm now_time;
+	struct tm last_login_time;
+	char buffer[200];
+	sprintf(buffer, "SELECT usr_last_login FROM users WHERE usr_id = %d", usr_id);
+	mysql_query(connection, buffer);
+	MYSQL_RES *res = mysql_use_result(connection);
+	MYSQL_ROW result = mysql_fetch_row(res);
+	if (!res->row_count) return false;
+	if (result[0])
+	{
+		last_login_time.tm_year = atoi(result[0]) / 10000;
+		last_login_time.tm_mon = (atoi(result[0]) / 100) % 100; 
+		last_login_time.tm_mday = atoi(result[0]) % 100;
+	}
+	else
+	{
+		last_login_time.tm_year = 0;
+		last_login_time.tm_mon = 0;
+		last_login_time.tm_yday = 0;
+	}
+	mysql_free_result(res);
+	tick = time(NULL);
+	now_time = *localtime(&tick);
+	now_time.tm_year += 1900;
+	now_time.tm_mon++;
+	int sql_last_login_time = now_time.tm_year *10000 + now_time.tm_mon *100 + now_time.tm_mday;
+	printf("Last login time: %d-%d-%d = %d\n", now_time.tm_year, now_time.tm_mon, now_time.tm_mday, sql_last_login_time);
+	sprintf(buffer, "UPDATE users SET usr_last_login = %d WHERE usr_id = %d", sql_last_login_time, usr_id);
+	mysql_query(connection, buffer);
+	if (last_login_time.tm_year <= now_time.tm_year)
+		if (last_login_time.tm_mon <= now_time.tm_mon)
+			if (last_login_time.tm_mday < now_time.tm_mday)
+		return true;
+	return false;
+}
+
+void MySQL::VisitBonus(int code, int type, int base, int multiple, int usr_id)
+{
+	char buffer[300];
+	int Ele_Cal = base * multiple;
+	sprintf(buffer, "UPDATE users SET usr_code = (usr_code+%d),usr_%s = (usr_%s+%d) WHERE usr_id = %d", code, ElementTypes[type], ElementTypes[type], Ele_Cal, usr_id);
 	mysql_query(connection, buffer);
 }

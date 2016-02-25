@@ -139,6 +139,7 @@ CREATE TABLE `users` (
   `usr_scroll2` int(11) DEFAULT '0',
   `usr_scroll3` int(11) DEFAULT '0',
   `usr_mission` smallint(3) DEFAULT '1',
+  `usr_last_login` int(8) DEFAULT '0',
   PRIMARY KEY (`usr_id`),
   UNIQUE KEY `usr_id` (`usr_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -147,11 +148,3 @@ CREATE TABLE `users` (
 -- Records of users
 -- ----------------------------
 
--- ----------------------------
--- Event structure for `Auto Card`
--- ----------------------------
-DROP EVENT IF EXISTS `Auto Card`;
-DELIMITER ;;
-CREATE DEFINER=`root`@`%` EVENT `Auto Card` ON SCHEDULE EVERY 10 SECOND STARTS '2016-02-17 20:11:21' ON COMPLETION NOT PRESERVE ENABLE DO UPDATE users SET usr_wind = 100000
-;;
-DELIMITER ;

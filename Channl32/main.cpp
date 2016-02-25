@@ -1,27 +1,47 @@
 #include "ChannelServer.h"
-#include "ini.h"
-CIni config("..\\config.ini", "CONFIG"); //For debug
-//CIni config(".//config.ini", "CONFIG"); //For Running
+#include <iostream>
+#include <fstream>
+
+#ifdef _DEBUG
+#define DEBUG 0
+#endif
+Ini config("..\\config.ini", "CONFIG"); //For debug
+//Ini config(".//config.ini", "CONFIG"); //For Running
 HANDLE hConsoleOutput;
 
 int main()
 {
-    srand(time(0));
-    //cout << hex << sizeof(QuestGainResponse) << endl;
-    hConsoleOutput = GetStdHandle(STD_OUTPUT_HANDLE);
 
-    ChannelServer *CS = new ChannelServer;
+	streambuf* coutBuf = cout.rdbuf();
+	ofstream of("packets.txt");
+	streambuf* fileBuf = of.rdbuf();
+	if (DEBUG)
+	{
+		cout.rdbuf(fileBuf);
+	}
+	//cout << hex << sizeof(QuestGainResponse) << endl;
+	hConsoleOutput = GetStdHandle(STD_OUTPUT_HANDLE);
+
+	ChannelServer *CS = new ChannelServer;
 
 	config.SetSection("CHANNELS");
-    int32 port = config.ReadInteger("port", 9303);
+	u32 port = config.ReadInt("port", 9303);
 
-    if (CS->Start(port))
-        cout << "----- Channel Server Started -----" << endl;
+	if (CS->Start(port))
+	{
+		printf("----- Channel Server Started -----\n");
+	}
+	CS->CommLoop();
+	delete CS;
 
-    CS->CommLoop();
-    delete CS;
-
-    cout << "Server Closing" << endl;
-    cin.get();
-    return 0;
+	cout << endl;
+	if (DEBUG)
+	{
+		of.flush();
+		of.close();
+		cout.rdbuf(coutBuf);
+	}
+	cout << "Server Closing" << endl;
+	cin.get();
+	return 0;
 }

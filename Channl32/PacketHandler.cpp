@@ -101,23 +101,25 @@ void PacketHandler::Handle(unsigned char *buf)
 		In_Room_Request = (InRoomRequest*)buf;
 		cout << "IN_ROOM_REQ " << IP << " Team : " << In_Room_Request->team << endl;
 		Info.usr_team = In_Room_Request->team;
-		if (In_Room_Request->GameStart == 1)//Player change team
+		switch (In_Room_Request->GameStart)
 		{
+		case 0://Player change character
 			Info.usr_char = In_Room_Request->Character;
-			Info.usr_team = In_Room_Request->team;
-			cout << "ROOM PROD: " << Info.usr_room << endl;
 			HandleList.ProdcastRoomUpdate(Info.usr_room);
 			GenerateResponse(ROOM_PLAYERDATA_RESPONSE);
-		}
-		else if (In_Room_Request->GameStart == 2)//Player ready
-		{
+		case 1://Player change team
+			Info.usr_team = In_Room_Request->team;
+			HandleList.ProdcastRoomUpdate(Info.usr_room);
+			GenerateResponse(ROOM_PLAYERDATA_RESPONSE);
+			break;
+		case 2://Player ready
 			Info.usr_ready = (BYTE)In_Room_Request->Ready;
 			//if(In_Room_Request->Ready > 10)
 			//	Info.usr_ready = 0;
 			GetBigBattleNpcMultiplier();
 			GenerateResponse(ROOM_PLAYERDATA_RESPONSE);
+			break;
 		}
-		//GenerateResponse(NPC_LIST_RESPONSE);
 		break;
 	case IN_GAME_REQ:
 		InGame_Request = (InGameRequest*)buf;
@@ -187,7 +189,8 @@ void PacketHandler::Handle(unsigned char *buf)
 		*/
 	case BIGBATTLE_PLAYER_JOIN_REQ:
 		BigBattlePlayerJoin_Request = (BigBattlePlayerJoinRequest*)buf;
-		cout << "BIGBATTLE_PLAYER_JOIN" << endl;
+		cout << "BIGBATTLE_PLAYER_JOIN_REQ" << endl;
+		GenerateResponse(BIGBATTLE_PLAYER_JOIN_RESPONSE);
 		break;
 	case BIGBATTLE_NPC_KO_REQ:
 		BigBattleNpcKo_Request = (BigBattleNpcKoRequest*)buf;
@@ -205,8 +208,11 @@ void PacketHandler::Handle(unsigned char *buf)
 		GenerateResponse(REVIVE_RESPONSE);
 		break;
 	case ROOM_QUIT_REQ:
+		cout << "ROOM_QUIT_REQ" << endl;
+		GenerateResponse(ROOM_EXIT_RESPONSE);
+		break;
 	case ROOM_EXIT_REQ:
-		cout << "ROOM_EXIT/QUIT_REQ" << endl;
+		cout << "ROOM_EXIT_REQ" << endl;
 		GenerateResponse(ROOM_EXIT_RESPONSE);
 		break;
 	case CHAT_REQ:
@@ -223,6 +229,11 @@ void PacketHandler::Handle(unsigned char *buf)
 		Shop_Buy_ElementCard_Request = (ShopBuyElementCardRequest*)buf;
 		cout << "SHOP_BUY_ELEMENTCARD_REQ" << endl;
 		GenerateResponse(SHOP_BUY_ELEMENTCARD_RESPONSE);
+		break;
+	case ADD_CARD_SLOT_REQ:
+		AddCardSlot_Request = (AddCardSlotRequest*)buf;
+		cout << "ADD_CARD_SLOT_REQ" << endl;
+		GenerateResponse(ADD_CARD_SLOT_RESPONSE);
 		break;
 	default:
 		cout << "-- UNKNOW_REQ --" << endl;
@@ -284,7 +295,7 @@ void PacketHandler::Encrypt(unsigned char *buf)
 
 void PacketHandler::Decrypt(unsigned char *buf)
 {
-	uint32 sz = *(int*)buf;
+	u32 sz = *(int*)buf;
 	if (sz >= 9000)
 		sz = 9000 - 1;
 
@@ -295,7 +306,7 @@ void PacketHandler::Decrypt(unsigned char *buf)
 	time(&rawtime);
 	timeinfo = localtime(&rawtime);
 	cout << "---- Decrypted Data  ----" << endl;
-	printf("Time: %s \n", asctime(timeinfo));
+	cout << "Time:" << asctime(timeinfo) << endl;
 	for (int i = 0; i < sz; i++)
 	{
 		if (i && i % 16 == 0)cout << endl;
@@ -362,7 +373,7 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
 		Join_Channel_Response.unk10 = 0; //0
 		Join_Channel_Response.unk11 = 0; //0
 		Join_Channel_Response.unk12 = 0; //0x78020F00
-		Join_Channel_Response.checksum = cIOSocket.MakeDigest((uint8*)&Join_Channel_Response);
+		Join_Channel_Response.checksum = cIOSocket.MakeDigest((u8*)&Join_Channel_Response);
 		buffer = (unsigned char*)&Join_Channel_Response;
 		break;
 	case JOIN_MISSIONLEVEL_RESPONSE:
@@ -372,12 +383,13 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
 		Join_Channel_MissionLevel_Response.state = UpdateState();
 		Join_Channel_MissionLevel_Response.MissionLevel = Info.Mission + 1; //bug
 		Join_Channel_MissionLevel_Response.unk2 = 0; //0
-		Join_Channel_MissionLevel_Response.checksum = cIOSocket.MakeDigest((uint8*)&Join_Channel_MissionLevel_Response);
+		Join_Channel_MissionLevel_Response.checksum = cIOSocket.MakeDigest((u8*)&Join_Channel_MissionLevel_Response);
 		buffer = (unsigned char*)&Join_Channel_MissionLevel_Response;
 		break;
 	case JOIN_PLAYERDATA_RESPONSE:
 		memset(&Join_Channel_PlayerData_Response, 0, sizeof(JoinChannelPlayerDataResponse));
 		GetUserItems();
+		VisitBonus VisitBonus;
 		Join_Channel_PlayerData_Response.size = 0x980; //0x980
 		Join_Channel_PlayerData_Response.type = JOIN_PLAYERDATA_RESPONSE;
 		Join_Channel_PlayerData_Response.unk1 = 11036; //11036
@@ -438,12 +450,14 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
 		Join_Channel_PlayerData_Response.unk39 = 7; //7
 		Join_Channel_PlayerData_Response.unk40 = 0x14; //0x14
 		Join_Channel_PlayerData_Response.unk41 = 0; //0
-		/*
-		Join_Channel_PlayerData_Response.VisitBonusCode = 9999;
-		Join_Channel_PlayerData_Response.VisitBonusElementType = 2;
-		Join_Channel_PlayerData_Response.VisitBonusElementNumber = 5;
-		Join_Channel_PlayerData_Response.VisitBonusElementMultiple = 1337;
-		*/
+		if(MySql.IsNewDayLogin(Info.usr_id))
+		{
+			Join_Channel_PlayerData_Response.VisitBonusCode = VisitBonus.GenerateVisitBonus(1, Info.usr_id);
+			Join_Channel_PlayerData_Response.VisitBonusElementType = VisitBonus.GenerateVisitBonus(2, Info.usr_id);
+			Join_Channel_PlayerData_Response.VisitBonusElementBase = VisitBonus.GenerateVisitBonus(3, Info.usr_id);
+			Join_Channel_PlayerData_Response.VisitBonusElementMultiple = VisitBonus.GenerateVisitBonus(4, Info.usr_id);
+			MySql.VisitBonus(Join_Channel_PlayerData_Response.VisitBonusCode, Join_Channel_PlayerData_Response.VisitBonusElementType, Join_Channel_PlayerData_Response.VisitBonusElementBase, Join_Channel_PlayerData_Response.VisitBonusElementMultiple, Info.usr_id);
+		}
 		Join_Channel_PlayerData_Response.unk42; //0
 		Join_Channel_PlayerData_Response.bunk[0] = 1; //1 0 1 1 1 1 0 0
 		Join_Channel_PlayerData_Response.bunk[1] = 0;
@@ -454,11 +468,11 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
 		Join_Channel_PlayerData_Response.bunk[6] = 0;
 		Join_Channel_PlayerData_Response.Rank = 101;
 		Join_Channel_PlayerData_Response.unk43 = 1; //1
-		Join_Channel_PlayerData_Response.unk44 = 22; //0x108
+		Join_Channel_PlayerData_Response.maxroom = MaxRoom; //0x108
 		memset((void*)&Join_Channel_PlayerData_Response.munk1, -1, 4 * 8); //-1
 		Join_Channel_PlayerData_Response.unk45 = 7; //7
 		Join_Channel_PlayerData_Response.unk46 = 0x120101; //0x120101
-		Join_Channel_PlayerData_Response.checksum = cIOSocket.MakeDigest((uint8*)&Join_Channel_PlayerData_Response);
+		Join_Channel_PlayerData_Response.checksum = cIOSocket.MakeDigest((u8*)&Join_Channel_PlayerData_Response);
 		buffer = (unsigned char*)&Join_Channel_PlayerData_Response;
 		break;
 	case SHOP_JOIN_RESPONSE:
@@ -467,7 +481,7 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
 		Shop_Join_Response.unk1 = 11036;
 		MySql.GetMoneyAmmount(Info.usr_id, &Shop_Join_Response.cash, 0);
 		Shop_Join_Response.state = UpdateState();
-		Shop_Join_Response.checksum = cIOSocket.MakeDigest((uint8*)&Shop_Join_Response);
+		Shop_Join_Response.checksum = cIOSocket.MakeDigest((u8*)&Shop_Join_Response);
 		buffer = (unsigned char*)&Shop_Join_Response;
 		break;
 	case SHOP_BUY_RESPONSE:
@@ -476,8 +490,64 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
 		Shop_Buy_Response.type = SHOP_BUY_RESPONSE;
 		Shop_Buy_Response.unk1 = 11036; //11036
 		Shop_Buy_Response.unk2 = 1; //1
-		MySql.InsertNewItem(&Info, Shop_Buy_Request->item, Shop_Buy_Request->gf, Shop_Buy_Request->level, 0);
-		printf("-- Buy Item --");
+		if (Shop_Buy_Request->slot == -1)
+		{
+			switch (Shop_Buy_Request->item)
+			{
+			case 2500:
+				MySql.InsertNewItem(&Info, 2015, 6000, 25, 0);
+				MySql.InsertNewItem(&Info, 2018, 6000, 1, 0);
+				MySql.InsertNewItem(&Info, 2019, 6000, 1, 0);
+				MySql.InsertNewItem(&Info, 2020, 6000, 1, 0);
+				break;
+			case 2501:
+				MySql.InsertNewItem(&Info, 2015, 6000, 15, 0);
+				MySql.InsertNewItem(&Info, 2015, 6000, 1, 0);
+				MySql.InsertNewItem(&Info, 2016, 6000, 1, 0);
+				break;
+			case 2502:
+				MySql.InsertNewItem(&Info, 2016, 6000, 25, 0);
+				MySql.InsertNewItem(&Info, 2018, 6000, 1, 0);
+				MySql.InsertNewItem(&Info, 2019, 6000, 1, 0);
+				MySql.InsertNewItem(&Info, 2020, 6000, 1, 0);
+				break;
+			case 2503:
+				MySql.InsertNewItem(&Info, 2016, 6000, 15, 0);
+				MySql.InsertNewItem(&Info, 2015, 6000, 1, 0);
+				MySql.InsertNewItem(&Info, 2016, 6000, 1, 0);
+				break;
+			case 2504:
+				MySql.InsertNewItem(&Info, 2009, 6000, 25, 0);
+				MySql.InsertNewItem(&Info, 2014, 6000, 2, 0);
+				break;
+			case 2505:
+				MySql.InsertNewItem(&Info, 2009, 6000, 15, 0);
+				MySql.InsertNewItem(&Info, 2013, 6000, 2, 0);
+				break;
+			case 2506:
+				MySql.InsertNewItem(&Info, 2004, 6000, 1, 0);
+				MySql.InsertNewItem(&Info, 2005, 6000, 1, 0);
+				MySql.InsertNewItem(&Info, 2005, 6000, 1, 0);
+				MySql.InsertNewItem(&Info, 2018, 6000, 1, 0);
+				MySql.InsertNewItem(&Info, 2019, 6000, 1, 0);
+				MySql.InsertNewItem(&Info, 2020, 6000, 1, 0);
+				break;
+			case 2507:
+				MySql.InsertNewItem(&Info, 2004, 6000, 1, 0);
+				MySql.InsertNewItem(&Info, 2005, 6000, 1, 0);
+				MySql.InsertNewItem(&Info, 2015, 6000, 1, 0);
+				MySql.InsertNewItem(&Info, 2016, 6000, 1, 0);
+				break;
+			default:
+				MySql.InsertNewItem(&Info, Shop_Buy_Request->item, Shop_Buy_Request->gf, Shop_Buy_Request->level, 0);
+				break;
+			}
+
+		}
+		else if (-1 < Shop_Buy_Request->slot < 96)
+		{
+			MySql.UpdateItem(&Info, Shop_Buy_Request->slot, Shop_Buy_Request->item, Shop_Buy_Request->gf);
+		}
 		MySql.GetUserItems(Info.usr_id, Shop_Buy_Response.bMyCard, 0, Shop_Buy_Response.TypeMyCard, Shop_Buy_Response.GFMyCard, Shop_Buy_Response.LevelMyCard, Shop_Buy_Response.SkillMyCard);
 		Shop_Buy_Response.Slots = Info.nSlots;
 		{
@@ -487,7 +557,7 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
 			Shop_Buy_Response.Code = Info.Code;
 		}
 		Shop_Buy_Response.state = UpdateState();
-		Shop_Buy_Response.checksum = cIOSocket.MakeDigest((uint8*)&Shop_Buy_Response);
+		Shop_Buy_Response.checksum = cIOSocket.MakeDigest((u8*)&Shop_Buy_Response);
 		buffer = (unsigned char*)&Shop_Buy_Response;
 		break;
 	case SHOP_SELL_RESPONSE:
@@ -501,7 +571,7 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
 		Shop_Sell_Response.Code = Info.Code + 2;
 		Shop_Sell_Response.unk4 = 0;
 		Shop_Sell_Response.state = UpdateState();
-		Shop_Sell_Response.checksum = cIOSocket.MakeDigest((uint8*)&Shop_Sell_Response);
+		Shop_Sell_Response.checksum = cIOSocket.MakeDigest((u8*)&Shop_Sell_Response);
 		buffer = (unsigned char*)&Shop_Sell_Response;
 		break;
 	case CARD_UPGRADE_RESPONSE:
@@ -510,14 +580,14 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
 		Card_Upgrade_Response.type = CARD_UPGRADE_RESPONSE;
 		Card_Upgrade_Response.unk1 = 11036;
 		Card_Upgrade_Response.Slot = Card_Upgrade_Request->Slot;
-		Card_Upgrade_Response.UpgradeType = Card_Upgrade_Request->UpgradeType; //1 = Lvl, 2 = Skill
+		Card_Upgrade_Response.UpgradeType = Card_Upgrade_Request->UpgradeType;// 1 = Lvl, 2 = Skill, 3 Level Fusion, 4 Skill Fusion, 5 Skill 1 Fusion, 6 Skill 2 Fusion, 7 Skill 1 - 1 Fusion, 8 Skill 2 - 1 Fusion, 9 Skill 2 - 2 Fusion
 		Card_Upgrade_Response.unk2 = Card_Upgrade_Request->UpgradeType; //1 lvl, 5 skill
 		Card_Upgrade_Response.UpgradeType2 = Card_Upgrade_Request->UpgradeType;
 		MySql.UpgradeCard(&Info, &Card_Upgrade_Response);
 		Card_Upgrade_Response.Code = Info.Code;
 		if (Info.usr_room != -1)RoomList.ProdcastInRoomUpgrade(this, &Card_Upgrade_Response, Info.usr_room);
 		Card_Upgrade_Response.state = UpdateState();
-		Card_Upgrade_Response.checksum = cIOSocket.MakeDigest((uint8*)&Card_Upgrade_Response);
+		Card_Upgrade_Response.checksum = cIOSocket.MakeDigest((u8*)&Card_Upgrade_Response);
 		buffer = (unsigned char*)&Card_Upgrade_Response;
 		break;
 	case LOBBY_USERINFO_RESPONSE:
@@ -526,7 +596,7 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
 		for (int i = 0; i < x; i++)
 		{
 			*(int*)(pack + (i * 0x3C) + 0x10) = UpdateState();
-			*(int*)(pack + (i * 0x3C) + 0x0C) = cIOSocket.MakeDigest((uint8*)(pack + (i * 0x3C)));
+			*(int*)(pack + (i * 0x3C) + 0x0C) = cIOSocket.MakeDigest((u8*)(pack + (i * 0x3C)));
 			Encrypt(pack + (i * 0x3C));
 		}
 		nOfPackets = x * 0x3C;
@@ -541,20 +611,29 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
 		strcpy(User_Info_Response.username, User_Info_Request->username);
 		MySql.GetUserData(&User_Info_Response);
 		User_Info_Response.state = UpdateState();
-		User_Info_Response.checksum = cIOSocket.MakeDigest((uint8*)&User_Info_Response);
+		User_Info_Response.checksum = cIOSocket.MakeDigest((u8*)&User_Info_Response);
 		buffer = (unsigned char*)&User_Info_Response;
 		break;
 	case ROOM_LIST_RESPONSE:
+		for (int i = 0; i < MaxRoom; i++)
+		{
+			if (RoomList.Rooms[i].n != -1) {
+				HandleList.ProdcastRoomUpdate(RoomList.Rooms[i].n);
+			}
+		}
+		nOfPackets = 0;
+		/*
 		memset(&Room_List_Response, 0, sizeof(Room_List_Response));
 		Room_List_Response.size = 0xC90;
 		Room_List_Response.type = ROOM_LIST_RESPONSE;
 		Room_List_Response.unk1 = 11036;
 		Room_List_Response.unk4 = 0x500000;
-		for (int i = 0; i < 22; i++)Room_List_Response.bunk[i] = true;
+		for (int i = 0; i < MaxRoom; i++)Room_List_Response.bunk[i] = true;
 		RoomList.GetRoomList(&Room_List_Response);
 		Room_List_Response.state = UpdateState();
-		Room_List_Response.checksum = cIOSocket.MakeDigest((uint8*)&Room_List_Response);
+		Room_List_Response.checksum = cIOSocket.MakeDigest((u8*)&Room_List_Response);
 		buffer = (unsigned char*)&Room_List_Response;
+		*/
 		break;
 	case CHAT_RESPONSE:
 		if (Chat_Request->chatType < 0 || Chat_Request->chatType > 7)break;
@@ -578,7 +657,7 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
 		Room_PlayerList_Response.unk1 = 11036;
 		RoomList.GetRoomPlayerList(Room_PlayerList_Request->roomnumber, &Room_PlayerList_Response);
 		Room_PlayerList_Response.state = UpdateState();
-		Room_PlayerList_Response.checksum = cIOSocket.MakeDigest((uint8*)&Room_PlayerList_Response);
+		Room_PlayerList_Response.checksum = cIOSocket.MakeDigest((u8*)&Room_PlayerList_Response);
 		buffer = (unsigned char*)&Room_PlayerList_Response;
 		break;
 	case ROOM_JOIN_RESPONSE:
@@ -600,7 +679,7 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
 		After_Room_JoinResponse.unk2 = -1;
 		After_Room_JoinResponse.unk3 = -1;
 		After_Room_JoinResponse.unk4 = -1;
-		After_Room_JoinResponse.checksum = cIOSocket.MakeDigest((uint8*)&After_Room_JoinResponse);
+		After_Room_JoinResponse.checksum = cIOSocket.MakeDigest((u8*)&After_Room_JoinResponse);
 		buffer = (unsigned char*)&After_Room_JoinResponse;
 		*/
 		break;
@@ -637,7 +716,7 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
 		BuyScroll_Response.Code = Info.Code;
 		BuyScroll_Response.zero1 = BuyScroll_Response.zero2 = 0;
 		BuyScroll_Response.state = UpdateState();
-		BuyScroll_Response.checksum = cIOSocket.MakeDigest((uint8*)&BuyScroll_Response);
+		BuyScroll_Response.checksum = cIOSocket.MakeDigest((u8*)&BuyScroll_Response);
 		buffer = (unsigned char*)&BuyScroll_Response;
 		break;
 	case PICK_SCROLL_RESPONSE:
@@ -649,7 +728,7 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
 		PickScroll_Response.slot = PickScroll_Request->slot;
 		MySql.UpdateScrolls(Info.usr_id, PickScroll_Response.slot, PickScroll_Response.scroll);
 		PickScroll_Response.state = UpdateState();
-		PickScroll_Response.checksum = cIOSocket.MakeDigest((uint8*)&PickScroll_Response);
+		PickScroll_Response.checksum = cIOSocket.MakeDigest((u8*)&PickScroll_Response);
 		buffer = (unsigned char*)&PickScroll_Response;
 		break;
 	case SPAWN_RESPONSE:
@@ -662,7 +741,7 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
 		Spawn_Response.slots[Info.usr_slot] = false;
 		Spawn_Response.zero = 0;
 		Spawn_Response.state = UpdateState();
-		Spawn_Response.checksum = cIOSocket.MakeDigest((uint8*)&Spawn_Response);
+		Spawn_Response.checksum = cIOSocket.MakeDigest((u8*)&Spawn_Response);
 		buffer = (unsigned char*)&Spawn_Response;
 		break;
 	case IN_GAME_RESPONSE:
@@ -671,12 +750,12 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
 		NewKing_Response.unk1 = 11036;
 		NewKing_Response.slot = 0; //King
 		NewKing_Response.state = UpdateState();
-		NewKing_Response.checksum = cIOSocket.MakeDigest((uint8*)&NewKing_Response);
+		NewKing_Response.checksum = cIOSocket.MakeDigest((u8*)&NewKing_Response);
 		buffer = (unsigned char*)&NewKing_Response;
 		break;
 	case OPEN_USER_SHOP_REQ:
 		OpenUserShop->state = UpdateState();
-		OpenUserShop->checksum = cIOSocket.MakeDigest((uint8*)OpenUserShop);
+		OpenUserShop->checksum = cIOSocket.MakeDigest((u8*)OpenUserShop);
 		buffer = (unsigned char*)OpenUserShop;
 		break;
 	case CARD_SEARCH_RESPONSE:
@@ -685,7 +764,7 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
 		CardSearch_Response.unk1 = 11036;
 		MySql.SearchShop(&CardSearch_Response, CardSearch_Request->searchtype);
 		CardSearch_Response.state = UpdateState();
-		CardSearch_Response.checksum = cIOSocket.MakeDigest((uint8*)&CardSearch_Response);
+		CardSearch_Response.checksum = cIOSocket.MakeDigest((u8*)&CardSearch_Response);
 		buffer = (unsigned char*)&CardSearch_Response;
 		break;
 	case MISSION_COMPLETE_RESPONSE:
@@ -720,7 +799,7 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
 		for (int i = 0; i < 8; i++)MissionComplete.ones3[i] = 1;
 		MissionComplete.unk5 = 268487332;
 		MissionComplete.state = UpdateState();
-		MissionComplete.checksum = cIOSocket.MakeDigest((uint8*)&MissionComplete);
+		MissionComplete.checksum = cIOSocket.MakeDigest((u8*)&MissionComplete);
 		buffer = (unsigned char*)&MissionComplete;
 		break;
 	case MISSION_AFTER_RESPONSE:
@@ -732,7 +811,7 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
 		MissionAfter_Response.unk2 = 3;
 		MissionAfter_Response.unk3 = Info.Mission;
 		MissionAfter_Response.state = UpdateState();
-		MissionAfter_Response.checksum = cIOSocket.MakeDigest((uint8*)&MissionAfter_Response);
+		MissionAfter_Response.checksum = cIOSocket.MakeDigest((u8*)&MissionAfter_Response);
 		buffer = (unsigned char*)&MissionAfter_Response;
 		break;
 	case NPC_LIST_RESPONSE:
@@ -743,7 +822,7 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
 		for (int i = 0; i < 33; i++)
 			NpcList_Response.levels[i] = Npc_List->npc[i].level;
 		NpcList_Response.state = UpdateState();
-		NpcList_Response.checksum = cIOSocket.MakeDigest((uint8*)&NpcList_Response);
+		NpcList_Response.checksum = cIOSocket.MakeDigest((u8*)&NpcList_Response);
 		buffer = (unsigned char*)&NpcList_Response;
 		break;
 	case NPC_KILL_RESPONSE:
@@ -758,9 +837,9 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
 		// Exp Calculation
 		ExpCalc.Calculate(NpcKill_Request->npcType, &QuestGain_Response.exp, NpcKill_Request->damages);
 		for (int i = 0; i < 16; i++)QuestGain_Response.unks[i] = -1;
-		QuestGain_Response.eleType = (rand() % 4) + 1;
-		QuestGain_Response.eleBase = (rand() % 5) + 1;
-		QuestGain_Response.eleMul = (rand() % 100) + 1;
+		QuestGain_Response.eleType = Random::UInt(1, 4);
+		QuestGain_Response.eleBase = Random::UInt(1, 5);
+		QuestGain_Response.eleMul = Random::UInt(1, 100);
 		RoomList.ProdcastExpGain(&QuestGain_Response, Info.usr_room);
 		nOfPackets = 0;
 		break;
@@ -772,20 +851,31 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
 		Decrypt(respawn);
 
 		*(int*)(respawn+0x10) = UpdateState();
-		*(int*)(respawn+0xC)= cIOSocket.MakeDigest((uint8*)&respawn);
+		*(int*)(respawn+0xC)= cIOSocket.MakeDigest((u8*)&respawn);
 		Encrypt(respawn);
 		memcpy(pack,respawn,sizeof(respawn));
 		buffer = pack;
 		nOfPackets = sizeof(respawn);
 		}
 		break;*/
+	case BIGBATTLE_PLAYER_JOIN_RESPONSE:
+		cout << "BIGBATTLE_PLAYER_JOIN_RESPONSE\n" << endl;
+		BigBattlePlayerJoin_Response.size = 0x38;
+		BigBattlePlayerJoin_Response.type = BIGBATTLE_PLAYER_JOIN_RESPONSE;
+		BigBattlePlayerJoin_Response.unk1 = 11036;
+		for (int i = 0; i < 32; i++)
+			BigBattlePlayerJoin_Response.slot[i] = BigBattlePlayerJoin_Request->slot[i];
+		BigBattlePlayerJoin_Response.state = UpdateState();
+		BigBattlePlayerJoin_Response.checksum = cIOSocket.MakeDigest((u8*)&BigBattlePlayerJoin_Response);
+		buffer = (unsigned char*)&BigBattlePlayerJoin_Response;
+		break;
 	case BIGBATTLE_NPC_KO_RESPONSE:
 		BigBattleNpcKo_Response.size = 0xA4;
 		BigBattleNpcKo_Response.type = BIGBATTLE_NPC_KO_RESPONSE;
 		BigBattleNpcKo_Response.unk1 = 11036;
 		BigBattleNpcKo_Response.deadslot = BigBattleNpcKo_Request->deadslot;//The Dead Slot
 		BigBattleNpcKo_Response.zero = 0;
-		BigBattleNpcKo_Response.luckmul = rand() % 100;//Lucky Point Multiplier
+		BigBattleNpcKo_Response.luckmul = Random::UInt(100);//Lucky Point Multiplier
 		BigBattleNpcKo_Response.multiplier = 10;//1
 		BigBattleNpcKo_Response.unk3 = 1;//1
 		BigBattleNpcKo_Response.unk4 = 1;//1
@@ -801,7 +891,7 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
 		BigBattleNpcKo_Response.zero1 = 0;
 		BigBattleNpcKo_Response.unk5 = -1;
 		BigBattleNpcKo_Response.state = UpdateState();
-		BigBattleNpcKo_Response.checksum = cIOSocket.MakeDigest((uint8*)&BigBattleNpcKo_Response);
+		BigBattleNpcKo_Response.checksum = cIOSocket.MakeDigest((u8*)&BigBattleNpcKo_Response);
 		buffer = (unsigned char*)&BigBattleNpcKo_Response;
 		break;
 	case REVIVE_RESPONSE:
@@ -814,11 +904,43 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
 			RoomList.ProdcastKickResponse(Info.usr_room, PlayerKick_Request->slot);
 		nOfPackets = 0;
 		break;
+	case ROOM_QUIT_RESPONSE:
+	{
+		int mode = Info.usr_mode;
+		int Quest_Mode[15] = { 11,18,23,12,19,24,13,20,25,14,21,26,16,22,27 };
+		for (int i = 0; i < 15; i++) {
+			if (Quest_Mode[i] == mode) {
+			}
+		}
+		switch (mode) {
+		case TEAMPLAY_MODE:
+		{
+			int QuitTeam = 0;
+			for (int i = 0; i < RoomList.Rooms[Info.usr_room].p; i++)
+			{
+				if (QuitTeam == Info.usr_team) QuitTeam++;
+			}
+		}
+		break;
+		case DUEL_MODE:
+			break;
+		default:
+			break;
+		}
+	}
+	break;
 	case ROOM_EXIT_RESPONSE:
 		GetExitRoomResponse();
+		for (int i = 0; i < MaxRoom; i++)
+		{
+			if (RoomList.Rooms[i].n != -1) {
+				HandleList.ProdcastRoomUpdate(RoomList.Rooms[i].n);
+			}
+		}
 		nOfPackets = 0;
 		break;
 	case SHOP_BUY_ELEMENTCARD_RESPONSE:
+	{
 		CardType2 type;
 		int result = 0;
 		switch (Shop_Buy_ElementCard_Request->cardType) {
@@ -861,10 +983,23 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
 		Shop_Buy_ElementCard_Response.type = SHOP_BUY_ELEMENTCARD_RESPONSE;
 		Shop_Buy_ElementCard_Response.unk1 = 11036;
 		Shop_Buy_ElementCard_Response.state = UpdateState();
-		Shop_Buy_ElementCard_Response.checksum = cIOSocket.MakeDigest((uint8*)&Shop_Buy_ElementCard_Response);
+		Shop_Buy_ElementCard_Response.checksum = cIOSocket.MakeDigest((u8*)&Shop_Buy_ElementCard_Response);
 		buffer = (unsigned char*)&Shop_Buy_ElementCard_Response;
-
+	}
+	break;
+	case ADD_CARD_SLOT_RESPONSE:
+	{
+		memset(&AddCardSlot_Response, 0, sizeof(AddCardSlotResponse));
+		MySql.AddCardSlot(Info.usr_id, AddCardSlot_Request->slotn);
+		AddCardSlot_Response.size = 0x18;
+		AddCardSlot_Response.type = ADD_CARD_SLOT_RESPONSE;
+		AddCardSlot_Response.unk1 = 11036;
+		AddCardSlot_Response.addcheck = 2;
+		AddCardSlot_Response.state = UpdateState();
+		AddCardSlot_Response.checksum = cIOSocket.MakeDigest((u8*)&AddCardSlot_Response);
+		buffer = (unsigned char*)&AddCardSlot_Response;
 		break;
+	}
 	}
 }
 

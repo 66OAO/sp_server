@@ -1,22 +1,21 @@
 #include "LoginServer.h"
-#include "ini.h"
-CIni config("..\\config.ini", "CONFIG"); //For debug
-//CIni config(".//config.ini", "CONFIG"); //For Running
+Ini config("..\\config.ini", "CONFIG"); //For debug
+//Ini config(".//config.ini", "CONFIG"); //For Running
 HANDLE hConsoleOutput;
 
 int main()
 {
-    hConsoleOutput = GetStdHandle(STD_OUTPUT_HANDLE);
+	hConsoleOutput = GetStdHandle(STD_OUTPUT_HANDLE);
 	//printf("%x\n",sizeof(TrainingDoneResponse));
-    cLoginServer *LoginServer = new cLoginServer;
+	cLoginServer *LoginServer = new cLoginServer;
 
-    if (LoginServer->Start())
-        printf("----- Server Started -----\n");
+	if (LoginServer->Start())
+		printf("----- Server Started -----\n");
 
-    LoginServer->CommLoop();
-    delete LoginServer;
+	LoginServer->CommLoop();
+	delete LoginServer;
 
-    printf("Server Closing\n");
+	printf("Server Closing\n");
 
-    return 0;
+	return 0;
 }

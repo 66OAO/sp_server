@@ -30,5 +30,7 @@
 *.app
 /builds
 /bin
-/*.tss
+*.tss
 bin/config.ini
+*.pdb
+*.lnk

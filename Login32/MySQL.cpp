@@ -1,20 +1,19 @@
 #include "MySQL.h"
-#include "ini.h"
 
-extern CIni config;
+extern Ini config;
 
 MySQL::MySQL()
 {
 	config.SetSection("DB");
-	char * ip = config.ReadString("ip", "127.0.0.1");
-	uint32 port = config.ReadInteger("port", 3306);
-	char * user = config.ReadString("user", "root");
-	char * pw = config.ReadString("pw", "spgame");
-	char * db = config.ReadString("db", "spgame");
+	auto ip = config.ReadString("ip", "127.0.0.1");
+	u32 port = config.ReadInt("port", 3306);
+	auto user = config.ReadString("user", "root");
+	auto pw = config.ReadString("pw", "spgame");
+	auto db = config.ReadString("db", "spgame");
 
 	connection = mysql_init(0);
-	if(!mysql_real_connect(connection, ip, user, pw, db, port, 0, 0))
-        printf("Unable to connect to MySQL server\n");
+	if (!mysql_real_connect(connection, ip.c_str(), user.c_str(), pw.c_str(), db.c_str(), port, 0, 0))
+		printf("Unable to connect to MySQL server\n");
 }
 
 MySQL::~MySQL()
@@ -24,55 +23,51 @@ MySQL::~MySQL()
 
 int MySQL::Login(char* id, char* pw)
 {
-    char buffer[200];
-    sprintf(buffer,"SELECT usr_id FROM users WHERE usr_name = \'%s\' AND usr_pw = \'%s\'",id,pw);
-    mysql_query(connection,buffer);
-    MYSQL_RES *res = mysql_use_result(connection);
-    MYSQL_ROW result = mysql_fetch_row(res);
-    if(!result)return 0;
-    int x = atoi(result[0]);
-    mysql_free_result(res);
-    return x;
+	char buffer[200];
+	sprintf(buffer, "SELECT usr_id FROM users WHERE usr_name = \'%s\' AND usr_pw = \'%s\'", id, pw);
+	mysql_query(connection, buffer);
+	MYSQL_RES *res = mysql_use_result(connection);
+	MYSQL_ROW result = mysql_fetch_row(res);
+	if (!result)return 0;
+	int x = atoi(result[0]);
+	mysql_free_result(res);
+	return x;
 }
 
 void MySQL::GetUserInfo(int id, MyCharInfo &info)
 {
-    char buffer[200];
-    sprintf(buffer,"SELECT usr_char, usr_points, usr_code, usr_level FROM users WHERE usr_id = %d",id);
-    if(mysql_query(connection,buffer))
-        printf(mysql_error(connection));
-    MYSQL_RES *res = mysql_use_result(connection);
-    MYSQL_ROW result = mysql_fetch_row(res);
-    if(!result)
-    {
-        printf("No Data\n");
-        return;
-    }
-    info.DefaultCharacter = atoi(result[0]);
-    info.Points = _atoi64(result[1]);
-    info.Code = _atoi64(result[2]);
-    info.Level = _atoi64(result[3]);
-	if(info.Level > 0 && info.Level <= 12)
+	char buffer[200];
+	sprintf(buffer, "SELECT usr_char, usr_points, usr_code, usr_level FROM users WHERE usr_id = %d", id);
+	if (mysql_query(connection, buffer))
+		printf(mysql_error(connection));
+	MYSQL_RES *res = mysql_use_result(connection);
+	MYSQL_ROW result = mysql_fetch_row(res);
+	if (!res->row_count) return;
+	info.DefaultCharacter = atoi(result[0]);
+	info.Points = _atoi64(result[1]);
+	info.Code = _atoi64(result[2]);
+	info.Level = _atoi64(result[3]);
+	if (info.Level > 0 && info.Level <= 12)
 		info.UserType = 10;
-	else if(info.Level > 12 && info.Level <= 16)
+	else if (info.Level > 12 && info.Level <= 16)
 		info.UserType = 20;
-	else if(info.Level > 16)
+	else if (info.Level > 16)
 		info.UserType = 30;
 	else info.UserType = 0;
-    mysql_free_result(res);
+	mysql_free_result(res);
 	Level level;
 	int l = level.getLevel(info.Points);
-	if(info.Level != l){
-			sprintf(buffer,"UPDATE users SET usr_level = %d WHERE usr_id = %d",l,id);
-		if(mysql_query(connection,buffer))
+	if (info.Level != l) {
+		sprintf(buffer, "UPDATE users SET usr_level = %d WHERE usr_id = %d", l, id);
+		if (mysql_query(connection, buffer))
 			printf(mysql_error(connection));
 		info.Level = l;
 	}
 }
 
-void MySQL::SetDefaultCharacter(int id,Character DefaultCharacter)
+void MySQL::SetDefaultCharacter(int id, Character DefaultCharacter)
 {
-    char buffer[200];
-    sprintf(buffer,"UPDATE users SET usr_char = %d WHERE usr_id = %d",DefaultCharacter,id);
-    mysql_query(connection,buffer);
+	char buffer[200];
+	sprintf(buffer, "UPDATE users SET usr_char = %d WHERE usr_id = %d", DefaultCharacter, id);
+	mysql_query(connection, buffer);
 }

@@ -12,6 +12,7 @@
 #define REVIVE_RESPONSE 17204
 #define LOBBY_USERINFO_RESPONSE 17155
 #define ROOM_EXIT_RESPONSE 17177
+#define ROOM_QUIT_RESPONSE 17178
 #define CHAT_RESPONSE 17202
 #define USER_INFO_RESPONSE 17168
 #define ROOM_LIST_RESPONSE  17537
@@ -37,13 +38,16 @@
 #define BIGBATTLE_NPC_X_RESPONSE	17424
 #define CARD_SEARCH_RESPONSE	17459
 #define BIGBATTLE_NPC_KO_RESPONSE  17303
+#define BIGBATTLE_PLAYER_JOIN_RESPONSE  17304 //guess
 #define PLAYER_KICK_RESPONSE	17185
 #define CHANGE_ROOMTITLE_RESPONSE	17257
 #define TRADE_SUCCESS_RESPONSE	17217
 #define SHOP_BUY_ELEMENTCARD_RESPONSE	17465
+#define ADD_CARD_SLOT_RESPONSE 17512
 
-struct LobbyUserInfoResponse
-{
+#define MaxRoom 300
+
+struct LobbyUserInfoResponse {
 	int size; //0x3C
 	int type;
 	int unk1; //11036
@@ -64,8 +68,7 @@ struct LobbyUserInfoResponse
 	int missionlevel;
 };
 
-struct JoinChannelResponse
-{
+struct JoinChannelResponse {
 	int size; //0x40
 	int type;
 	int unk1; //11036
@@ -84,8 +87,7 @@ struct JoinChannelResponse
 	int unk12; //0x78020F00
 };
 
-struct JoinChannelMissionLevelResponse
-{
+struct JoinChannelMissionLevelResponse {
 	int size; //0x1C
 	int type;
 	int unk1; //11036
@@ -95,8 +97,7 @@ struct JoinChannelMissionLevelResponse
 	int unk2; //0
 };
 
-struct JoinChannelPlayerDataResponse
-{
+struct JoinChannelPlayerDataResponse {
 	int size; //0x980
 	int type;
 	int unk1; //11036
@@ -172,13 +173,13 @@ struct JoinChannelPlayerDataResponse
 	int unk41; //0
 	int VisitBonusCode;
 	int VisitBonusElementType;
-	int VisitBonusElementNumber;
+	int VisitBonusElementBase;
 	int VisitBonusElementMultiple;
 	int unk42; //0
 	bool bunk[7]; //1 0 1 1 1 1 0 0
 	int Rank;
 	int unk43; //1
-	int unk44; //0x108
+	int maxroom; //0x108
 	int munk1, munk2, munk3, munk4, munk5, munk6, munk7, munk8; //-1
 	int unk45; //7
 	int zero5[2];
@@ -186,8 +187,7 @@ struct JoinChannelPlayerDataResponse
 };
 
 
-struct CreateRoomResponse
-{
+struct CreateRoomResponse {
 	int size;
 	int type;
 	int unk1; //11036
@@ -212,8 +212,7 @@ struct CreateRoomResponse
 	char unk5; //0
 };
 
-struct RoomPlayerDataResponse
-{
+struct RoomPlayerDataResponse {
 	int size; //0x118
 	int type;
 	int unk1; //11036
@@ -280,8 +279,7 @@ struct RoomPlayerDataResponse
 	int unk26; //-1
 };
 
-struct ChatResponse
-{
+struct ChatResponse {
 	int size; //0x7C
 	int type;
 	int unk1; //11036
@@ -299,8 +297,7 @@ struct ChatResponse
 	int unk7; //0x74D2FF16
 };
 
-struct UserInfoResponse
-{
+struct UserInfoResponse {
 	int size; //0xF0
 	int type;
 	int unk1; //11036
@@ -351,8 +348,7 @@ struct UserInfoResponse
 	int zeros[7];
 };
 
-struct LobbyRoomResponse
-{
+struct LobbyRoomResponse {
 	int size; //0xB0
 	int type;
 	int unk1; //11036
@@ -373,37 +369,35 @@ struct LobbyRoomResponse
 	int unk9; //0x100
 };
 
-struct RoomListResponse
-{
+struct RoomListResponse {
 	int size; //0xC90
 	int type;
 	int unk1; //11036
 	int checksum;
 	int state;
-	int roomnumber[22];
-	char title[22][29];
+	int roomnumber[MaxRoom];
+	char title[MaxRoom][27];
 	short zero1;
-	int mode[22];
-	int map[22];
-	int unks2[22]; //1
-	int maxplayers[22];
+	int mode[MaxRoom];
+	int map[MaxRoom];
+	int unks2[MaxRoom]; //1
+	int maxplayers[MaxRoom];
 	int zeros[5];
 	short szero;
-	bool bPotion[22];
-	bool bClosed[22];
+	bool bPotion[MaxRoom];
+	bool bClosed[MaxRoom];
 	short szero1;
 	int unk3[11];
-	int unks4[22]; //-1,-1
-	int players[22][8]; //0x8C
+	int unks4[MaxRoom]; //-1,-1
+	int players[MaxRoom][8]; //0x8C
 	int unks6[291];
 	short zero2;
-	bool bunk[22]; //1..
+	bool bunk[MaxRoom]; //1..
 	int zeros1[5];
 	int unk4; // 0x500000
 };
 
-struct RoomPlayerListResponse
-{
+struct RoomPlayerListResponse {
 	int size; //0xCC
 	int type;
 	int unk1; //11036
@@ -417,8 +411,7 @@ struct RoomPlayerListResponse
 	int master;
 };
 
-struct RoomJoinResponse
-{
+struct RoomJoinResponse {
 	int size; //0x7C
 	int type;
 	int unk1; //11036
@@ -445,8 +438,7 @@ struct RoomJoinResponse
 	int unk13; //0x77DF0001
 };
 
-struct RoomJoinResponse2
-{
+struct RoomJoinResponse2 {
 	int size; //0x24
 	int type;
 	int unk1; //11036
@@ -455,19 +447,17 @@ struct RoomJoinResponse2
 	int unks[4];
 };
 
-struct RoomExitResponse
-{
+struct RoomExitResponse {
 	int size; //0x28
 	int type;
 	int unk1; //11036
 	int checksum;
 	int state;
-	int unk2; //0
+	int exitslot; //0
 	char username[16];
 };
 
-struct ShopJoinResponse
-{
+struct ShopJoinResponse {
 	int size; //0x18
 	int type;
 	int unk1; //11036
@@ -476,8 +466,7 @@ struct ShopJoinResponse
 	int cash;
 };
 
-struct ShopBuyResponse
-{
+struct ShopBuyResponse {
 	int size; //0x698
 	int type;
 	int unk1; //11036
@@ -495,8 +484,7 @@ struct ShopBuyResponse
 	unsigned __int64 unk4;
 };
 
-struct ShopBuyElementCardResponse
-{
+struct ShopBuyElementCardResponse {
 	int size; //0x30
 	int type;
 	int unk1; //11036
@@ -510,8 +498,7 @@ struct ShopBuyElementCardResponse
 	int WindElements;
 };
 
-struct ShopSellResponse
-{
+struct ShopSellResponse {
 	int size; //0x30
 	int type;
 	int unk1; //11036
@@ -524,8 +511,7 @@ struct ShopSellResponse
 	unsigned __int64 unk4;
 };
 
-struct CardUpgradeResponse
-{
+struct CardUpgradeResponse {
 	int size; //0x58
 	int type;
 	int unk1; //11036
@@ -549,8 +535,7 @@ struct CardUpgradeResponse
 	int WindElements;
 };
 
-struct AfterRoomJoinResponse
-{
+struct AfterRoomJoinResponse {
 	int size; //0x24
 	int type;
 	int unk1; //11036
@@ -561,8 +546,7 @@ struct AfterRoomJoinResponse
 	int unk4; //-1
 };
 
-struct NewKingResponse
-{
+struct NewKingResponse {
 	int size; //0x18
 	int type;
 	int unk1; //11036
@@ -571,8 +555,7 @@ struct NewKingResponse
 	int slot;
 };
 
-struct PlayerKilledResponse
-{
+struct PlayerKilledResponse {
 	int size; //0xAC
 	int type;
 	int unk1; //11036
@@ -598,8 +581,7 @@ struct PlayerKilledResponse
 	int canRespawn; //0
 };
 
-struct NewMasterResponse
-{
+struct NewMasterResponse {
 	int size; //0x1C
 	int type;
 	int unk1; //11036
@@ -609,8 +591,7 @@ struct NewMasterResponse
 	int unk2;
 };
 
-struct ReviveResponse
-{
+struct ReviveResponse {
 	int size; //0x20
 	int type;
 	int unk1; //11036
@@ -621,8 +602,7 @@ struct ReviveResponse
 	int locationy;
 };
 
-struct RoundClearResponse
-{
+struct RoundClearResponse {
 	int size; //0x38
 	int type;
 	int unk1; //11036
@@ -635,8 +615,7 @@ struct RoundClearResponse
 	int unk3; //1
 };
 
-struct BuyScrollResponse
-{
+struct BuyScrollResponse {
 	int size; //0x30
 	int type;
 	int unk1; //11036
@@ -650,8 +629,7 @@ struct BuyScrollResponse
 	unsigned __int64 Code;
 };
 
-struct PickScrollResponse
-{
+struct PickScrollResponse {
 	int size; //0x20
 	int type;
 	int unk1; //11036
@@ -662,8 +640,7 @@ struct PickScrollResponse
 	int slot;
 };
 
-struct ResultsResponse
-{
+struct ResultsResponse {
 	int size; //0x90
 	int type;
 	int unk1; //11036
@@ -679,8 +656,7 @@ struct ResultsResponse
 	unsigned __int64 Code;
 };
 
-struct SpawnResponse
-{
+struct SpawnResponse {
 	int size; //0x38
 	int type;
 	int unk1; //11036
@@ -690,8 +666,7 @@ struct SpawnResponse
 	int zero;
 };
 
-struct MissionCompleteResponse
-{
+struct MissionCompleteResponse {
 	int size; //0x1A0
 	int type;
 	int unk1; //11036
@@ -721,8 +696,7 @@ struct MissionCompleteResponse
 	int unk5; //268487332
 };
 
-struct MissionAfterResponse
-{
+struct MissionAfterResponse {
 	int size; //0x1C
 	int type;
 	int unk1; //11036
@@ -732,8 +706,7 @@ struct MissionAfterResponse
 	int unk3; //2
 };
 
-struct BigBattleNpcMultiplier
-{
+struct BigBattleNpcMultiplier {
 	int size; //0x38
 	int type;
 	int unk1; //11036
@@ -742,8 +715,7 @@ struct BigBattleNpcMultiplier
 	BYTE x[36];
 };
 
-struct CardSearchResponse
-{
+struct CardSearchResponse {
 	int size; //0x108
 	int type;
 	int unk1; //11036
@@ -763,8 +735,7 @@ struct CardSearchResponse
 	int skill[5];
 };
 
-struct BigBattleNpcKoResponse
-{
+struct BigBattleNpcKoResponse {
 	int size; //0xA4
 	int type;
 	int unk1; //11036
@@ -789,8 +760,7 @@ struct BigBattleNpcKoResponse
 	int unk5; //-1
 };
 
-struct QuestGainResponse
-{
+struct QuestGainResponse {
 	int size; //0xB0
 	int type;
 	int unk1; //11036
@@ -807,8 +777,7 @@ struct QuestGainResponse
 	int eleMul;
 };
 
-struct NpcListResponse
-{
+struct NpcListResponse {
 	int size; //0x38
 	int type;
 	int unk1; //11036
@@ -817,8 +786,7 @@ struct NpcListResponse
 	BYTE levels[36];
 };
 
-struct PlayerKickResponse
-{
+struct PlayerKickResponse {
 	int size; //0x18
 	int type;
 	int unk1; //11036
@@ -827,8 +795,7 @@ struct PlayerKickResponse
 	int slot;
 };
 
-struct RoomTitleChangeResponse
-{
+struct RoomTitleChangeResponse {
 	int size; //0x34
 	int type;
 	int unk1; //11036
@@ -837,8 +804,7 @@ struct RoomTitleChangeResponse
 	char title[32];
 };
 
-struct TradeSuccessResponse
-{
+struct TradeSuccessResponse {
 	int size; //0x6A0
 	int type;
 	int unk1; //11036
@@ -855,6 +821,41 @@ struct TradeSuccessResponse
 	int FireElements;
 	int EarthElements;
 	int WindElements;
+};
+
+struct BigBattlePlayerJoinResponse //Unknown Response
+{
+
+	int size; //0x04D8 1240byte
+	int type;
+	int unk1; //11036
+	int checksum;
+	int state;
+	int unk2;
+	int unk3;
+	NpcData slot[39];
+	//NpcData npc[33];
+	char idc[208];
+};
+
+struct ShopBuyEleResponse
+{
+	int size; //0x1C
+	int type;
+	int unk1; //11036
+	int checksum;
+	int state;
+	int unk2;
+};
+
+struct AddCardSlotResponse
+{
+	int size; //0x18
+	int type;
+	int unk1; //11036
+	int checksum;
+	int state;
+	int addcheck;
 };
 
 #endif

@@ -13,29 +13,18 @@
     <ClCompile Include="PacketHandler.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MySQL.cpp" />
-    <ClCompile Include="..\shared\ini.cpp">
-      <Filter>shared</Filter>
-    </ClCompile>
+    <ClCompile Include="stdafx.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\shared\IOSocket.h">
       <Filter>shared</Filter>
     </ClInclude>
-    <ClInclude Include="..\shared\console.h">
-      <Filter>shared</Filter>
-    </ClInclude>
-    <ClInclude Include="..\shared\typedefs.h">
-      <Filter>shared</Filter>
-    </ClInclude>
     <ClInclude Include="ClientPackets.h" />
     <ClInclude Include="ServerPackets.h" />
     <ClInclude Include="LoginServer.h" />
-    <ClInclude Include="main.h" />
     <ClInclude Include="MySQL.h" />
     <ClInclude Include="PacketHandler.h" />
     <ClInclude Include="ServerEnum.h" />
-    <ClInclude Include="..\shared\ini.h">
-      <Filter>shared</Filter>
-    </ClInclude>
+    <ClInclude Include="stdafx.h" />
   </ItemGroup>
 </Project>
