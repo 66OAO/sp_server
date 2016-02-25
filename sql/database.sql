@@ -118,7 +118,7 @@ CREATE TABLE `users` (
   `usr_id` smallint(6) NOT NULL AUTO_INCREMENT,
   `usr_name` char(16) NOT NULL,
   `usr_pw` char(16) NOT NULL,
-  `usr_gender` bit(1) DEFAULT '0',
+  `usr_gender` bit(1) DEFAULT b'0',
   `usr_ip` char(16) DEFAULT NULL,
   `usr_char` int(3) DEFAULT '10',
   `usr_points` int(11) DEFAULT '30000',

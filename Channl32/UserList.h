@@ -377,10 +377,10 @@ public:
 				case BIG_MATCH_SURVIVAL_MODE:
 					return true;
 					break;
-				case BIGMATCH_AUTO_TEAM_SURVIVAL_MODE:
+				case BIG_MATCH_AUTO_TEAM_SURVIVAL_MODE:
 					return true;
 					break;
-				case BIGMATCH_DEATH_MATCH_MODE:
+				case BIG_MATCH_DEATH_MATCH_MODE:
 					return true;
 					break;
 				case CRYSTAL_CAPTURE_MODE:
