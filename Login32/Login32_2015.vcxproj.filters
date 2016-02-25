@@ -14,7 +14,6 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MySQL.cpp" />
     <ClCompile Include="stdafx.cpp" />
-    <ClCompile Include="InternalServer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\shared\IOSocket.h">
@@ -30,6 +29,5 @@
     <ClInclude Include="..\shared\console.h">
       <Filter>shared</Filter>
     </ClInclude>
-    <ClInclude Include="InternalServer.h" />
   </ItemGroup>
 </Project>
