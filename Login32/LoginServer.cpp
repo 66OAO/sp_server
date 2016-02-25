@@ -44,12 +44,12 @@ bool cLoginServer::Start()
 		return false;
 	}
 	else
-		Log::Out("listening on port {}", port);
+		Log::Out("Game Login Server Listening on port {}", port);
 
 
 	if (listen(listen_socket, SOMAXCONN) == SOCKET_ERROR)
 	{
-		Log::Error("listen Error");
+		Log::Error("Listen Error");
 		return false;
 	}
 

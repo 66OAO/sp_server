@@ -46,13 +46,14 @@
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)builds\$(ProjectName)_$(Configuration)\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectName)_d</TargetName>
-    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\dep\mysql-connector-c-6.1.6-win32\include;..\shared;..\dep\stlx\include;$(IncludePath)</IncludePath>
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\dep\mysql-connector-c-6.1.6-win32\include;..\shared;..\dep\stlx\include;..\dep\tbb\include;$(IncludePath)</IncludePath>
     <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\dep\mysql-connector-c-6.1.6-win32\include;..\shared;..\dep\stlx\include;$(IncludePath)</IncludePath>
-    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\dep\mysql-connector-c-6.1.6-win32\lib;..\dep\stlx\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\dep\mysql-connector-c-6.1.6-win32\lib;..\dep\stlx\lib;..\dep\tbb\lib;$(LibraryPath)</LibraryPath>
     <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\dep\mysql-connector-c-6.1.6-win32\lib;..\dep\stlx\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ReferencePath>$(ReferencePath)</ReferencePath>
+    <CustomBuildAfterTargets>BuildCompile</CustomBuildAfterTargets>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ReferencePath>$(ReferencePath)</ReferencePath>
@@ -79,6 +80,14 @@
       <SubSystem>Console</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+    <CustomBuildStep>
+      <Command>robocopy "$(SolutionDir)lib" "$(SolutionDir)bin\$(ProjectName)_$(Configuration)" /NFL /NDL /NJH /NJS /nc /ns /np  || exit /B 0</Command>
+      <Outputs>output</Outputs>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -101,6 +110,9 @@
       <TargetMachine>MachineX86</TargetMachine>
       <AdditionalDependencies>ws2_32.lib;libmysql.lib;stlx.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>robocopy "$(SolutionDir)lib" "$(SolutionDir)bin\$(ProjectName)_$(Configuration)" /NFL /NDL /NJH /NJS /nc /ns /np  || exit /B 0</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\shared\IOSocket.cpp" />

@@ -928,12 +928,6 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
 	break;
 	case ROOM_EXIT_RESPONSE:
 		GetExitRoomResponse();
-		for (int i = 0; i < MaxRoom; i++)
-		{
-			if (RoomList.Rooms[i].n != -1) {
-				HandleList.ProdcastRoomUpdate(RoomList.Rooms[i].n);
-			}
-		}
 		nOfPackets = 0;
 		break;
 	case SHOP_BUY_ELEMENTCARD_RESPONSE:
