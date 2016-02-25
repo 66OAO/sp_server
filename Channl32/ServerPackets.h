@@ -12,6 +12,7 @@
 #define REVIVE_RESPONSE 17204
 #define LOBBY_USERINFO_RESPONSE 17155
 #define ROOM_EXIT_RESPONSE 17177
+#define ROOM_QUIT_RESPONSE 17178
 #define CHAT_RESPONSE 17202
 #define USER_INFO_RESPONSE 17168
 #define ROOM_LIST_RESPONSE  17537
@@ -43,6 +44,8 @@
 #define TRADE_SUCCESS_RESPONSE	17217
 #define SHOP_BUY_ELEMENTCARD_RESPONSE	17465
 #define ADD_CARD_SLOT_RESPONSE 17512
+
+#define MaxRoom 300
 
 struct LobbyUserInfoResponse {
 	int size; //0x3C
@@ -170,7 +173,7 @@ struct JoinChannelPlayerDataResponse {
 	int unk41; //0
 	int VisitBonusCode;
 	int VisitBonusElementType;
-	int VisitBonusElementNumber;
+	int VisitBonusElementBase;
 	int VisitBonusElementMultiple;
 	int unk42; //0
 	bool bunk[7]; //1 0 1 1 1 1 0 0
@@ -372,24 +375,24 @@ struct RoomListResponse {
 	int unk1; //11036
 	int checksum;
 	int state;
-	int roomnumber[50];
-	char title[50][29];
+	int roomnumber[MaxRoom];
+	char title[MaxRoom][27];
 	short zero1;
-	int mode[50];
-	int map[50];
-	int unks2[50]; //1
-	int maxplayers[50];
+	int mode[MaxRoom];
+	int map[MaxRoom];
+	int unks2[MaxRoom]; //1
+	int maxplayers[MaxRoom];
 	int zeros[5];
 	short szero;
-	bool bPotion[50];
-	bool bClosed[50];
+	bool bPotion[MaxRoom];
+	bool bClosed[MaxRoom];
 	short szero1;
 	int unk3[11];
-	int unks4[50]; //-1,-1
-	int players[50][8]; //0x8C
+	int unks4[MaxRoom]; //-1,-1
+	int players[MaxRoom][8]; //0x8C
 	int unks6[291];
 	short zero2;
-	bool bunk[50]; //1..
+	bool bunk[MaxRoom]; //1..
 	int zeros1[5];
 	int unk4; // 0x500000
 };

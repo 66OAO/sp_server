@@ -545,11 +545,47 @@ public:
 		}
 		break;
 		}
-
-
-
 	}
 };
+
+class VisitBonus {
+public:
+	int GenerateVisitBonus(char type, int usr_id) {
+		srand(unsigned(time(0)));
+		switch (type)
+		{
+		case 1: //Code
+		{
+			int Visit_Bonus_Code = rand() % 89999 + 10000;
+			return Visit_Bonus_Code;
+		}
+		break;
+		case 2: //Element type
+		{
+			int Visit_Bonus_type = rand() % 3 + 1;
+			return Visit_Bonus_type;
+		}
+		break;
+		case 3: //Basic Number
+		{
+			int Visit_Bonus_Base = rand() % 4 + 1;
+			return Visit_Bonus_Base;
+		}
+		break;
+		case 4: //Multiple Number
+		{
+			int Visit_Bonus_Multiple = rand() % 399 + 100;
+			return Visit_Bonus_Multiple;
+		}
+		break;
+		default:
+			return 0;
+			break;
+
+		}
+	}
+};
+
 
 struct ExpGain {
 	int cpMul[8];

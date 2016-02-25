@@ -409,11 +409,7 @@ void MySQL::GetMoneyAmmount(int id, int *cash, unsigned __int64 *code, char sign
 	mysql_query(connection, buffer);
 	MYSQL_RES *res = mysql_use_result(connection);
 	MYSQL_ROW result = mysql_fetch_row(res);
-	if (!result)
-	{
-		printf("No Data\n");
-		return;
-	}
+	if (!res->row_count) return;
 	if (cash)*cash = atoi(result[0]);
 	if (code)*code = _atoi64(result[1]);
 	mysql_free_result(res);
@@ -426,6 +422,7 @@ void MySQL::UpgradeCard(MyCharInfo *Info, CardUpgradeResponse *CUR)
 	mysql_query(connection, buffer);
 	MYSQL_RES *res = mysql_use_result(connection);
 	MYSQL_ROW result = mysql_fetch_row(res);
+	if (!res->row_count) return;
 	ItemId Item;
 	CUR->Type = atoi(result[0]);
 	CUR->GF = atoi(result[1]);
@@ -497,10 +494,7 @@ void MySQL::GetScrolls(MyCharInfo *Info)
 	mysql_query(connection, buffer);
 	MYSQL_RES *res = mysql_use_result(connection);
 	MYSQL_ROW result = mysql_fetch_row(res);
-	if (!result) {
-		printf("No Data\n");
-		return;
-	}
+	if (!res->row_count) return;
 	for (int i = 0; i < 3; i++)
 		Info->scrolls[i] = atoi(result[i]);
 	mysql_free_result(res);
@@ -573,8 +567,8 @@ void MySQL::AddCardSlot(int usr_id, int slotn)
 	sprintf(buffer, "SELECT itm_type FROM items WHERE itm_usr_id = %d AND itm_slot = %d", usr_id, slotn);
 	mysql_query(connection, buffer);
 	MYSQL_RES *res = mysql_use_result(connection);
-	if (!res->row_count) return;
 	MYSQL_ROW result = mysql_fetch_row(res);
+	if (!res->row_count) return;
 	if (result[0]) slot_type = atoi(result[0]);
 	else return;
 	mysql_free_result(res);
@@ -583,5 +577,51 @@ void MySQL::AddCardSlot(int usr_id, int slotn)
 	else addslot = 0;
 	DeleteItem(usr_id, slotn);
 	sprintf(buffer, "UPDATE users SET usr_nslots = (usr_nslots + %d) WHERE usr_id = %d", addslot, usr_id);
+	mysql_query(connection, buffer);
+}
+
+bool MySQL::IsNewDayLogin(int usr_id) {
+	time_t tick;
+	struct tm now_time;
+	struct tm last_login_time;
+	char buffer[200];
+	sprintf(buffer, "SELECT usr_last_login FROM users WHERE usr_id = %d", usr_id);
+	mysql_query(connection, buffer);
+	MYSQL_RES *res = mysql_use_result(connection);
+	MYSQL_ROW result = mysql_fetch_row(res);
+	if (!res->row_count) return false;
+	if (result[0])
+	{
+		last_login_time.tm_year = atoi(result[0]) / 10000;
+		last_login_time.tm_mon = (atoi(result[0]) / 100) % 100; 
+		last_login_time.tm_mday = atoi(result[0]) % 100;
+	}
+	else
+	{
+		last_login_time.tm_year = 0;
+		last_login_time.tm_mon = 0;
+		last_login_time.tm_yday = 0;
+	}
+	mysql_free_result(res);
+	tick = time(NULL);
+	now_time = *localtime(&tick);
+	now_time.tm_year += 1900;
+	now_time.tm_mon++;
+	int sql_last_login_time = now_time.tm_year *10000 + now_time.tm_mon *100 + now_time.tm_mday;
+	printf("Last login time: %d-%d-%d = %d", now_time.tm_year, now_time.tm_mon, now_time.tm_mday, sql_last_login_time);
+	sprintf(buffer, "UPDATE users SET usr_last_login = %d WHERE usr_id = %d", sql_last_login_time, usr_id);
+	mysql_query(connection, buffer);
+	if (last_login_time.tm_year <= now_time.tm_year)
+		if (last_login_time.tm_mon <= now_time.tm_mon)
+			if (last_login_time.tm_mday < now_time.tm_mday)
+		return true;
+	return false;
+}
+
+void MySQL::VisitBonus(int code, int type, int base, int multiple, int usr_id)
+{
+	char buffer[300];
+	int Ele_Cal = base * multiple;
+	sprintf(buffer, "UPDATE users SET usr_code = (usr_code+%d),usr_%s = (usr_%s+%d) WHERE usr_id = %d", code, ElementTypes[type], ElementTypes[type], Ele_Cal, usr_id);
 	mysql_query(connection, buffer);
 }

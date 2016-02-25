@@ -139,6 +139,7 @@ CREATE TABLE `users` (
   `usr_scroll2` int(11) DEFAULT '0',
   `usr_scroll3` int(11) DEFAULT '0',
   `usr_mission` smallint(3) DEFAULT '1',
+  'usr_last_login' int(8) DEFAULT '0',
   PRIMARY KEY (`usr_id`),
   UNIQUE KEY `usr_id` (`usr_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
