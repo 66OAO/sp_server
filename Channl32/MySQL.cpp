@@ -12,8 +12,12 @@ MySQL::MySQL()
 	auto db = config.ReadString("db", "spgame");
 
 	connection = mysql_init(0);
-	if (!mysql_real_connect(connection, ip.c_str(), user.c_str(), pw.c_str(), db.c_str(), port, 0, 0))
+	if(mysql_real_connect(connection, ip.c_str(), user.c_str(), pw.c_str(), db.c_str(), port, 0, 0)) {
+		my_bool reconnect = 1;
+		mysql_options(connection, MYSQL_OPT_RECONNECT, &reconnect);
+	} else {
 		Log::Error("Unable to connect to MySQL server");
+	}
 }
 
 MySQL::~MySQL()
@@ -46,7 +50,11 @@ void MySQL::GetUserInfo(char *name, MyCharInfo &info)
 		" usr_earth, usr_wind, usr_coins FROM users WHERE usr_name = '{}'", name);
 
 	MYSQL_ROW result = mysql_fetch_row(res);
-	if (!res->row_count) return;
+	if (!result)
+	{
+		Log::Warning("No Data\n");
+		return;
+	}
 
 	info.usr_id = atoi(result[0]);
 	info.gender = atoi(result[1]);
@@ -530,7 +538,7 @@ void MySQL::GetExp(int usr_id, int usr_exp, const char *Elements, int Ammount)
 	} else {
 		Query("UPDATE users SET usr_points = (usr_points + {}), usr_code = (usr_code + {})  WHERE usr_id = {}", 
 			usr_exp, usr_exp, usr_id);
-}
+	}
 }
 
 void MySQL::AddCardSlot(int usr_id, int slotn)

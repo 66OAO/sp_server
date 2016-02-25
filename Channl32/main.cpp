@@ -1,5 +1,8 @@
 #include "ChannelServer.h"
+#ifdef _SAVELOG 0
 #define SAVELOG 0
+#endif
+
 Ini config("..\\config.ini", "CONFIG"); //For debug
 //Ini config(".//config.ini", "CONFIG"); //For Running
 HANDLE hConsoleOutput;

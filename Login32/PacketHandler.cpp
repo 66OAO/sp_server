@@ -82,7 +82,7 @@ void PacketHandler::Decrypt(unsigned char *buf)
 	timeinfo = localtime(&rawtime);
 
 	printf("---- Decrypted Data  ----\n");
-	printf("---- Time: %s ----", asctime(timeinfo));
+	printf("Time: %s", asctime(timeinfo));
 	for (int i = 0; i < buf[0]; i++)
 	{
 		if (i && i % 16 == 0)printf("\n");

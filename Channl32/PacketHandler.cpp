@@ -105,6 +105,8 @@ void PacketHandler::Handle(unsigned char *buf)
 		if (In_Room_Request->GameStart == 2) // 1 = Player change character , 2 = Player change team , 3 = Player ready
 		{
 			Info.usr_ready = (BYTE)In_Room_Request->Ready;
+			//if(In_Room_Request->Ready > 10)
+			//    Info.usr_ready = 0;
 			GetBigMatchNpcMultiplier();
 		}
 		HandleList.ProdcastRoomUpdate(Info.usr_room);
@@ -232,7 +234,7 @@ void PacketHandler::Handle(unsigned char *buf)
 
 PacketHandler::~PacketHandler()
 {
-	delete pack;
+	delete[] pack;
 	if (Info.usr_room)
 		RoomList.ExitPlayer(Info.usr_room, this);
 	Lobby.Delete(LobbyInfo.name);
@@ -439,7 +441,7 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
 		Join_Channel_PlayerData_Response.unk39 = 7; //7
 		Join_Channel_PlayerData_Response.unk40 = 0x14; //0x14
 		Join_Channel_PlayerData_Response.unk41 = 0; //0
-		if(MySql.IsNewDayLogin(Info.usr_id))
+		if (MySql.IsNewDayLogin(Info.usr_id))
 		{
 			Join_Channel_PlayerData_Response.VisitBonusCode = VisitBonus.GenerateVisitBonus(1, Info.usr_id);
 			Join_Channel_PlayerData_Response.VisitBonusElementType = VisitBonus.GenerateVisitBonus(2, Info.usr_id);
@@ -457,7 +459,7 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
 		Join_Channel_PlayerData_Response.bunk[6] = 0;
 		Join_Channel_PlayerData_Response.Rank = 101;
 		Join_Channel_PlayerData_Response.unk43 = 1; //1
-		Join_Channel_PlayerData_Response.maxroom = MAXROOM; //0x108
+		Join_Channel_PlayerData_Response.maxroom = MaxRoom; //0x108
 		memset((void*)&Join_Channel_PlayerData_Response.munk1, -1, 4 * 8); //-1
 		Join_Channel_PlayerData_Response.unk45 = 7; //7
 		Join_Channel_PlayerData_Response.unk46 = 0x120101; //0x120101
@@ -645,6 +647,7 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
 		buffer = (unsigned char*)&Room_PlayerList_Response;
 		break;
 	case ROOM_JOIN_RESPONSE:
+		cout << "-- ROOM_JOIN_RESPONSE --" << endl;
 		Joined = true;
 		if (GetRoomJoinResponse())
 			RoomList.ProdcastRoomJoinResponse2(this, Info.usr_room);
@@ -915,7 +918,7 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
 	break;
 	case ROOM_EXIT_RESPONSE:
 		GetExitRoomResponse();
-		for (int i = 0; i < MAXROOM; i++)
+		for (int i = 0; i < MaxRoom; i++)
 		{
 			if (RoomList.Rooms[i].n != -1) {
 				HandleList.ProdcastRoomUpdate(RoomList.Rooms[i].n);
