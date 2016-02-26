@@ -54,9 +54,11 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ReferencePath>$(ReferencePath)</ReferencePath>
+    <CustomBuildAfterTargets>Build</CustomBuildAfterTargets>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ReferencePath>$(ReferencePath)</ReferencePath>
+    <CustomBuildAfterTargets>Build</CustomBuildAfterTargets>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -80,6 +82,12 @@
       <SubSystem>Console</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
+    <CustomBuildStep>
+      <Command>robocopy "$(SolutionDir)lib" "$(SolutionDir)bin\$(ProjectName)_$(Configuration)" /NFL /NDL /NJH /NJS /nc /ns /np  || exit /B 0</Command>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Outputs>output</Outputs>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -102,6 +110,12 @@
       <TargetMachine>MachineX86</TargetMachine>
       <AdditionalDependencies>ws2_32.lib;libmysql.lib;stlx.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <CustomBuildStep>
+      <Command>robocopy "$(SolutionDir)lib" "$(SolutionDir)bin\$(ProjectName)_$(Configuration)" /NFL /NDL /NJH /NJS /nc /ns /np  || exit /B 0</Command>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Outputs>output</Outputs>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\shared\IOSocket.cpp" />
