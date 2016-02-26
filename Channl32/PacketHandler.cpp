@@ -568,7 +568,6 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
 				MySql.InsertNewItem(&Info, Shop_Buy_Request->item, Shop_Buy_Request->gf, Shop_Buy_Request->level, 0);
 				break;
 			}
-
 		}
 		else if (-1 < Shop_Buy_Request->slot < 96)
 		{

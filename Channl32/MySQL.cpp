@@ -408,19 +408,17 @@ void MySQL::GetMoneyAmmount(int id, int *cash, unsigned __int64 *code, char sign
 
 void MySQL::UpgradeCard(MyCharInfo *Info, CardUpgradeResponse *CUR)
 {
-	QuerySelect("SELECT itm_type, itm_gf, itm_level, itm_skill FROM items"
-		" WHERE itm_usr_id = {} AND itm_slot = {}",
+	QuerySelect("SELECT itm_type, itm_gf, itm_level, itm_skill FROM items WHERE itm_usr_id = {} AND itm_slot = {}",
 		Info->usr_id, CUR->Slot);
-
 	MYSQL_ROW result = mysql_fetch_row(res);
 	if (!result)
 		return;
-
 	ItemId Item;
 	CUR->Type = atoi(result[0]);
 	CUR->GF = atoi(result[1]);
 	CUR->Level = atoi(result[2]);
 	int old_skill = atoi(result[3]);
+	mysql_free_result(res);
 	String query;
 	if (CUR->UpgradeType == 1)
 	{
@@ -446,18 +444,42 @@ void MySQL::UpgradeCard(MyCharInfo *Info, CardUpgradeResponse *CUR)
 			Info->Wind -= EleCost;
 			query = format("UPDATE users SET usr_wind = (usr_wind-{}) WHERE usr_id = {}", EleCost, Info->usr_id);
 		}
+		if (!query.empty())
+		{
+			Query(query);
+			query = "";
+		}
 	}
-	else if (CUR->UpgradeType == 3)
-	{
-		query = format("UPDATE items SET itm_level = (itm_level - 1) WHERE itm_usr_id = {} AND itm_slot = {}",
-			Info->usr_id, CUR->Slot);
-	}
+	cout << query << endl;
 	CUR->WaterElements = Info->Water;
 	CUR->FireElements = Info->Fire;
 	CUR->EarthElements = Info->Earth;
 	CUR->WindElements = Info->Wind;
 	if (CUR->UpgradeType == 1 || CUR->UpgradeType == 3)
 	{
+		if (CUR->UpgradeType == 3)
+		{
+			QuerySelect("SELECT itm_level FROM items WHERE itm_usr_id = {} AND itm_slot = {}",
+				Info->usr_id, CUR->Slot);
+			MYSQL_ROW result = mysql_fetch_row(res);
+			if (!result)
+				return;
+			if (atoi(result[0]) == 1)
+				DeleteItem(Info->usr_id, CUR->Slot);
+			else
+			{
+				query = format("UPDATE items SET itm_level = (itm_level - 1) WHERE itm_usr_id = {} AND itm_slot = {}",
+					Info->usr_id, CUR->Slot);
+				cout << query << endl;
+			}
+			mysql_free_result(res);
+			if (!query.empty())
+			{
+				Query(query);
+				cout << mysql_error(connection) << endl;
+				query = "";
+			}
+		}
 		if (Item.UpgradeItem(CUR->GF, CUR->Level))
 		{
 			CUR->Level += 1;
@@ -473,11 +495,7 @@ void MySQL::UpgradeCard(MyCharInfo *Info, CardUpgradeResponse *CUR)
 		CUR->unk2 = 5;
 	}
 	CUR->Skill = Item.GenerateSkill(CUR->Level, CUR->Type, CUR->UpgradeType, old_skill);
-	mysql_free_result(res);
-	if(!query.empty())
-		Query(query);
-	Query("UPDATE items SET itm_level = {}, itm_skill = {}"
-		" WHERE itm_usr_id = {} AND itm_slot = {}",
+	Query("UPDATE items SET itm_level = {}, itm_skill = {} WHERE itm_usr_id = {} AND itm_slot = {}",
 		CUR->Level, CUR->Skill, Info->usr_id, CUR->Slot);
 }
 
@@ -559,20 +577,34 @@ void MySQL::AddCardSlot(int usr_id, int slotn)
 {
 	int addslot = 0;
 	int slot_type = 0;
+	int nslot = 0;
 	QuerySelect("SELECT itm_type FROM items WHERE itm_usr_id = {} AND itm_slot = {}",
 		usr_id, slotn);
 
 	MYSQL_ROW result = mysql_fetch_row(res);
 	if (!result) return;
 	if (result[0])
+	{
 		slot_type = atoi(result[0]);
+		mysql_free_result(res);
+	}
 	else return;
-	mysql_free_result(res);
+	QuerySelect("SELECT usr_nslots FROM users WHERE usr_id = {}",
+		usr_id);
+	MYSQL_ROW result2 = mysql_fetch_row(res);
+	if (!result2) return;
+	if (result2[0])
+	{
+		nslot = atoi(result[0]);
+		mysql_free_result(res);
+	}
+	else return;
 	if (slot_type == 2005) addslot = 12;
 	else if (slot_type == 2004) addslot = 6;
 	else addslot = 0;
+	if ((nslot + addslot) >= 96)
+		addslot = 0;
 	DeleteItem(usr_id, slotn);
-
 	Query("UPDATE users SET usr_nslots = (usr_nslots + {}) WHERE usr_id = {}",
 		addslot, usr_id);
 }
@@ -632,7 +664,7 @@ void MySQL::GoldForceCardUse(int usr_id, int slot, int type, int gfslot)
 	MYSQL_ROW result = mysql_fetch_row(res);
 	if (!result) return;
 	if (!result[0]) gfday = atoi(result[0]);
-	if(DeleteItem(usr_id, gfslot))
-	Query("UPDATE items SET itm_gf = (itm_gf + {}) WHERE itm_slot = {} AND itm_type = {} AND itm_usr_id = {}",
-		gfday, slot, type, usr_id);
+	if (DeleteItem(usr_id, gfslot))
+		Query("UPDATE items SET itm_gf = (itm_gf + {}) WHERE itm_slot = {} AND itm_type = {} AND itm_usr_id = {}",
+			gfday, slot, type, usr_id);
 }
