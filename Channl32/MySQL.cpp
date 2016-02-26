@@ -18,7 +18,6 @@ MySQL::MySQL()
 	}
 	else {
 		Log::Error("Unable to connect to MySQL server");
-		cout << mysql_error(connection) << endl;
 	}
 }
 
@@ -408,21 +407,27 @@ void MySQL::GetMoneyAmmount(int id, int *cash, unsigned __int64 *code, char sign
 
 void MySQL::UpgradeCard(MyCharInfo *Info, CardUpgradeResponse *CUR)
 {
-	QuerySelect("SELECT itm_type, itm_gf, itm_level, itm_skill FROM items"
-		" WHERE itm_usr_id = {} AND itm_slot = {}",
+	QuerySelect("SELECT itm_type, itm_gf, itm_level, itm_skill FROM items WHERE itm_usr_id = {} AND itm_slot = {}",
 		Info->usr_id, CUR->Slot);
-
 	MYSQL_ROW result = mysql_fetch_row(res);
 	if (!result)
 		return;
-
 	ItemId Item;
 	CUR->Type = atoi(result[0]);
 	CUR->GF = atoi(result[1]);
 	CUR->Level = atoi(result[2]);
 	int old_skill = atoi(result[3]);
+	mysql_free_result(res);
 	String query;
-	if (CUR->UpgradeType == 1)
+	CUR->WaterElements = Info->Water;
+	CUR->FireElements = Info->Fire;
+	CUR->EarthElements = Info->Earth;
+	CUR->WindElements = Info->Wind;
+	CUR->UpgradeResult = 5; // 1 level, 5 skill
+	switch (CUR->UpgradeType)
+	{
+	case 1://Element Level
+	case 2://Element Skill
 	{
 		int ItemSpirite = (CUR->Type % 100) / 10;
 		int EleCost = Item.GetUpgradeCost(CUR->Type, CUR->Level, CUR->UpgradeType);
@@ -446,38 +451,64 @@ void MySQL::UpgradeCard(MyCharInfo *Info, CardUpgradeResponse *CUR)
 			Info->Wind -= EleCost;
 			query = format("UPDATE users SET usr_wind = (usr_wind-{}) WHERE usr_id = {}", EleCost, Info->usr_id);
 		}
+		if (!query.empty())
+			Query(query);
 	}
-	else if (CUR->UpgradeType == 3)
+	break;
+	case 3://Level Fusion
+	case 4://Skill Fusion
+	case 5://Skill 1 Fusion
+	case 6://Skill 2 Fusion
 	{
-		query = format("UPDATE items SET itm_level = (itm_level - 1) WHERE itm_usr_id = {} AND itm_slot = {}",
-			Info->usr_id, CUR->Slot);
+		QuerySelect("SELECT itm_level,itm_slot FROM `items` WHERE itm_usr_id = {} AND itm_type = {} ORDER BY itm_level ASC LIMIT 1", Info->usr_id, CUR->UpgradeType + 2010);
+		MYSQL_ROW result = mysql_fetch_row(res);
+		if (!result)
+			return;
+		int fusionlevel = atoi(result[0]);
+		int fusionslot = atoi(result[1]);
+		mysql_free_result(res);
+		if (fusionlevel == 1)
+			DeleteItem(Info->usr_id, fusionslot);
+		else
+			query = format("UPDATE items SET itm_level = {} WHERE itm_usr_id = {} AND itm_slot = {}", --fusionlevel, Info->usr_id, fusionslot);
+		if (!query.empty())
+			Query(query);
 	}
-	CUR->WaterElements = Info->Water;
-	CUR->FireElements = Info->Fire;
-	CUR->EarthElements = Info->Earth;
-	CUR->WindElements = Info->Wind;
+	break;
+	case 7://Skill 1 - 1 Fusion
+	case 8://Skill 2 - 1 Fusion
+	case 9://Skill 2 - 2 Fusion
+	{
+		QuerySelect("SELECT itm_level,itm_slot FROM `items` WHERE itm_usr_id = {} AND itm_type = {} ORDER BY itm_level ASC LIMIT 1", Info->usr_id, (CUR->UpgradeType + 2011));
+		MYSQL_ROW result = mysql_fetch_row(res);
+		if (!result)
+			return;
+		int fusionlevel = atoi(result[0]);
+		int fusionslot = atoi(result[1]);
+		mysql_free_result(res);
+		if (fusionlevel == 1)
+			DeleteItem(Info->usr_id, fusionslot);
+		else
+			query = format("UPDATE items SET itm_level = {} WHERE itm_usr_id = {} AND itm_slot = {}", --fusionlevel, Info->usr_id, fusionslot);
+		if (!query.empty())
+			Query(query);
+	}
+	break;
+	}
 	if (CUR->UpgradeType == 1 || CUR->UpgradeType == 3)
 	{
 		if (Item.UpgradeItem(CUR->GF, CUR->Level))
 		{
 			CUR->Level += 1;
+			CUR->UpgradeResult = 1;
 		}
 		else
 		{
 			CUR->UpgradeType = 2;
-			CUR->unk2 = 5;
 		}
 	}
-	else
-	{
-		CUR->unk2 = 5;
-	}
 	CUR->Skill = Item.GenerateSkill(CUR->Level, CUR->Type, CUR->UpgradeType, old_skill);
-	mysql_free_result(res);
-	if(!query.empty())
-		Query(query);
-	Query("UPDATE items SET itm_level = {}, itm_skill = {}"
-		" WHERE itm_usr_id = {} AND itm_slot = {}",
+	Query("UPDATE items SET itm_level = {}, itm_skill = {} WHERE itm_usr_id = {} AND itm_slot = {}",
 		CUR->Level, CUR->Skill, Info->usr_id, CUR->Slot);
 }
 
@@ -559,20 +590,34 @@ void MySQL::AddCardSlot(int usr_id, int slotn)
 {
 	int addslot = 0;
 	int slot_type = 0;
+	int nslot = 0;
 	QuerySelect("SELECT itm_type FROM items WHERE itm_usr_id = {} AND itm_slot = {}",
 		usr_id, slotn);
 
 	MYSQL_ROW result = mysql_fetch_row(res);
 	if (!result) return;
 	if (result[0])
+	{
 		slot_type = atoi(result[0]);
+		mysql_free_result(res);
+	}
 	else return;
-	mysql_free_result(res);
+	QuerySelect("SELECT usr_nslots FROM users WHERE usr_id = {}",
+		usr_id);
+	MYSQL_ROW result2 = mysql_fetch_row(res);
+	if (!result2) return;
+	if (result2[0])
+	{
+		nslot = atoi(result[0]);
+		mysql_free_result(res);
+	}
+	else return;
 	if (slot_type == 2005) addslot = 12;
 	else if (slot_type == 2004) addslot = 6;
 	else addslot = 0;
+	if ((nslot + addslot) >= 96)
+		addslot = 0;
 	DeleteItem(usr_id, slotn);
-
 	Query("UPDATE users SET usr_nslots = (usr_nslots + {}) WHERE usr_id = {}",
 		addslot, usr_id);
 }
@@ -605,9 +650,6 @@ bool MySQL::IsNewDayLogin(int usr_id) {
 	now_time.tm_mon++;
 	int sql_last_login_time = now_time.tm_year * 10000 + now_time.tm_mon * 100 + now_time.tm_mday;
 
-	Log::Info("Last login time: {}-{}-{} = {}",
-		now_time.tm_year, now_time.tm_mon, now_time.tm_mday, sql_last_login_time);
-
 	Query("UPDATE users SET usr_last_login = {} WHERE usr_id = {}",
 		sql_last_login_time, usr_id);
 
@@ -632,7 +674,7 @@ void MySQL::GoldForceCardUse(int usr_id, int slot, int type, int gfslot)
 	MYSQL_ROW result = mysql_fetch_row(res);
 	if (!result) return;
 	if (!result[0]) gfday = atoi(result[0]);
-	if(DeleteItem(usr_id, gfslot))
-	Query("UPDATE items SET itm_gf = (itm_gf + {}) WHERE itm_slot = {} AND itm_type = {} AND itm_usr_id = {}",
-		gfday, slot, type, usr_id);
+	if (DeleteItem(usr_id, gfslot))
+		Query("UPDATE items SET itm_gf = (itm_gf + {}) WHERE itm_slot = {} AND itm_type = {} AND itm_usr_id = {}",
+			gfday, slot, type, usr_id);
 }

@@ -412,161 +412,34 @@ public:
 							return false;
 					}
 					return true;
-				break;
-				case TEAMPLAY_MODE:
-					if (RoomList.Rooms[i].blueteam == RoomList.Rooms[i].redteam) {
-						for (int j = 0; j < Rooms[i].p; j++) {
-							if (Rooms[i].Player[j] && !Rooms[i].Player[j]->Info.usr_ready)
-								return false;
-						}
-						return true;
-					}
-					else return false;
-				break;
+					break;
 				case DUEL_MODE:
-					if (RoomList.Rooms[i].blueteam == 1 && RoomList.Rooms[i].redteam == 1) return true;
-					else return false;
+					if (RoomList.Rooms[i].blueteam == 1 && RoomList.Rooms[i].redteam == 1)
+						if (RoomList.Rooms[i].Player[0]->Info.usr_ready && RoomList.Rooms[i].Player[1]->Info.usr_ready) return true;
+					return false;
 					break;
 				case HERO_MODE:
 					if (RoomList.Rooms[i].blueteam == 0 || RoomList.Rooms[i].redteam == 0) return false;
-					else return true;
+					for (int j = 0; j < Rooms[i].p; j++) {
+						if (Rooms[i].Player[j] && !Rooms[i].Player[j]->Info.usr_ready)
+							return false;
+					}
+					return true;
 					break;
+				case TEAMPLAY_MODE:
 				case INFINITY_SYMBOL_MODE:
-					if (RoomList.Rooms[i].blueteam == RoomList.Rooms[i].redteam)
-					{
-						for (int j = 0; j < Rooms[i].p; j++)
-						{
-							if (Rooms[i].Player[j] && !Rooms[i].Player[j]->Info.usr_ready)
-								return false;
-						}
-						return true;
-					}
-					else return false;
-				break;
 				case LUCKY3_MODE:
-					if (RoomList.Rooms[i].blueteam == RoomList.Rooms[i].redteam)
-					{
-						for (int j = 0; j < Rooms[i].p; j++)
-						{
-							if (Rooms[i].Player[j] && !Rooms[i].Player[j]->Info.usr_ready)
-								return false;
-						}
-						return true;
-					}
-					else return false;
-				break;
 				case ASSAULT_MODE:
-					if (RoomList.Rooms[i].blueteam == RoomList.Rooms[i].redteam)
-					{
-						for (int j = 0; j < Rooms[i].p; j++)
-						{
-							if (Rooms[i].Player[j] && !Rooms[i].Player[j]->Info.usr_ready)
-								return false;
-						}
-						return true;
-					}
-					else return false;
-				break;
 				case GAIN_SYMBOL_MODE:
-					if (RoomList.Rooms[i].blueteam == RoomList.Rooms[i].redteam)
-					{
-						for (int j = 0; j < Rooms[i].p; j++)
-						{
-							if (Rooms[i].Player[j] && !Rooms[i].Player[j]->Info.usr_ready)
-								return false;
-						}
-						return true;
-					}
-					else return false;
-				break;
 				case KING_SLAYER_MODE:
-					if (RoomList.Rooms[i].blueteam == RoomList.Rooms[i].redteam)
-					{
-						for (int j = 0; j < Rooms[i].p; j++)
-						{
-							if (Rooms[i].Player[j] && !Rooms[i].Player[j]->Info.usr_ready)
-								return false;
-						}
-						return true;
-					}
-					else return false;
-				break;
 				case MAGIC_LUCKY3_MODE:
-					if (RoomList.Rooms[i].blueteam == RoomList.Rooms[i].redteam)
-					{
-						for (int j = 0; j < Rooms[i].p; j++)
-						{
-							if (Rooms[i].Player[j] && !Rooms[i].Player[j]->Info.usr_ready)
-								return false;
-						}
-						return true;
-					}
-					else return false;
-				break;
 				case TOURNAMENT_MODE:
-				{
-					if (RoomList.Rooms[i].blueteam == RoomList.Rooms[i].redteam)
-					{
-						for (int j = 0; j < Rooms[i].p; j++)
-						{
-							if (Rooms[i].Player[j] && !Rooms[i].Player[j]->Info.usr_ready)
-								return false;
-						}
-						return true;
-					}
-					else return false;
-				}
-				break;
 				case SNOW_DODGE_MODE:
-					if (RoomList.Rooms[i].blueteam == RoomList.Rooms[i].redteam)
-					{
-						for (int j = 0; j < Rooms[i].p; j++)
-						{
-							if (Rooms[i].Player[j] && !Rooms[i].Player[j]->Info.usr_ready)
-								return false;
-						}
-						return true;
-					}
-					else return false;
-				break;
 				case RADNG_MODE:
-					if (RoomList.Rooms[i].blueteam == RoomList.Rooms[i].redteam)
-					{
-						for (int j = 0; j < Rooms[i].p; j++)
-						{
-							if (Rooms[i].Player[j] && !Rooms[i].Player[j]->Info.usr_ready)
-								return false;
-						}
-						return true;
-					}
-					else return false;
-				break;
 				case SOCCER_MODE:
-					if (RoomList.Rooms[i].blueteam == RoomList.Rooms[i].redteam)
-					{
-						for (int j = 0; j < Rooms[i].p; j++)
-						{
-							if (Rooms[i].Player[j] && !Rooms[i].Player[j]->Info.usr_ready)
-								return false;
-						}
-						return true;
-					}
-					else return false;
-				break;
 				case MOLE_MODE:
-					if (RoomList.Rooms[i].blueteam == RoomList.Rooms[i].redteam)
-					{
-						for (int j = 0; j < Rooms[i].p; j++)
-						{
-							if (Rooms[i].Player[j] && !Rooms[i].Player[j]->Info.usr_ready)
-								return false;
-						}
-						return true;
-					}
-					else return false;
-				break;
 				case ICE_HOCKEY_MODE:
-					if (RoomList.Rooms[i].blueteam == RoomList.Rooms[i].redteam)
+					if (RoomList.Rooms[i].blueteam == RoomList.Rooms[i].redteam && RoomList.Rooms[i].blueteam != 0)
 					{
 						for (int j = 0; j < Rooms[i].p; j++)
 						{
@@ -575,8 +448,8 @@ public:
 						}
 						return true;
 					}
-					else return false;
-				break;
+					return false;
+					break;
 				default:
 					/*for (int j = 0; j < Rooms[i].p; j++)
 					{
