@@ -3,7 +3,7 @@
 
 extern Ini config;
 
-cLoginServer::cLoginServer()
+LoginServer::LoginServer()
 {
 	//for (int i = 0; i < BUFFER_SIZE; i++)
 	  //  buffer[i] = 0;
@@ -12,12 +12,13 @@ cLoginServer::cLoginServer()
 	clientlen = sizeof(client);
 }
 
-cLoginServer::~cLoginServer()
+LoginServer::~LoginServer()
 {
+	Log::Out("Server Closing");
 	WSACleanup();
 }
 
-bool cLoginServer::Start()
+bool LoginServer::Start()
 {
 	if (WSAStartup(514, &wsaData))
 	{
@@ -56,21 +57,20 @@ bool cLoginServer::Start()
 	return true;
 }
 
-void Comm(void *param)
+void Comm(void *args)
 {
-	socketWithUID *args = (socketWithUID*)param;
-	SOCKET msg_socket = (SOCKET)args->msg_socket;
-	int usr_id = args->usr_id;
-	unsigned char buffer[2000];
-	int retbufsize = 0;
-	while (msg_socket)
+	SOCKET socket = (SOCKET)args;
+	int usr_id = -1;
+	u8 buffer[2048];
+
+	while (socket)
 	{
-		retbufsize = recv(msg_socket, (char*)buffer, sizeof(buffer), 0);
+		auto retbufsize = recv(socket, (char*)buffer, sizeof(buffer), 0);
 
 		if (!retbufsize)
 		{
 			Log::Info("Connection closed by client");
-			closesocket(msg_socket);
+			closesocket(socket);
 			if (usr_id != -1) {
 				Log::Info("User ID : {} Disconnect", usr_id);
 			}
@@ -80,7 +80,7 @@ void Comm(void *param)
 		if (retbufsize == SOCKET_ERROR)
 		{
 			Log::Info("Client socket closed");
-			closesocket(msg_socket);
+			closesocket(socket);
 			if (usr_id != -1) {
 				Log::Info("User ID : {} Disconnect", usr_id);
 			}
@@ -99,7 +99,7 @@ void Comm(void *param)
 			PacketHandler PackHandle(buffer, usr_id);
 			if (PackHandle.nOfPackets) {
 				Log::Info("Sending Response");
-				retbufsize = send(msg_socket, (char*)buffer, PackHandle.ServerResponse(buffer)*buffer[0], 0);
+				retbufsize = send(socket, (char*)buffer, PackHandle.ServerResponse(buffer)*buffer[0], 0);
 			}
 			else Log::Warning("Server has no response");
 		}
@@ -111,7 +111,7 @@ void Comm(void *param)
 	_endthread();
 }
 
-bool cLoginServer::CommLoop()
+bool LoginServer::CommLoop()
 {
 	bool bExit = false;
 	int retbufsize = 0;
@@ -124,18 +124,13 @@ bool cLoginServer::CommLoop()
 		}
 		else
 			Log::Out("Accept Client: {}", inet_ntoa(client.sin_addr));
-		int id = -1;
-		socketWithUID *arg;
-		arg = (socketWithUID *)malloc(sizeof(socketWithUID));
-		arg->msg_socket = (void*)msg_socket;
-		arg->usr_id = id;
-		_beginthread(Comm, 0, (void*)arg);
+		_beginthread(Comm, 0, (void*)msg_socket);
 	}
 
 	return true;
 }
 
-void cLoginServer::outBuffer()
+void LoginServer::outBuffer()
 {
 	/*
 	printf("---- Recieved Data From %s  ----\n",inet_ntoa(client.sin_addr));

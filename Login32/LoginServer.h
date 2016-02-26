@@ -5,10 +5,10 @@
 
 #include "PacketHandler.h"
 
-class cLoginServer {
+class LoginServer {
 public:
-	cLoginServer();
-	~cLoginServer();
+	LoginServer();
+	~LoginServer();
 	bool Start();
 	bool CommLoop();
 	void outBuffer();
@@ -21,9 +21,5 @@ private:
 	SOCKET listen_socket, msg_socket;
 };
 
-typedef struct {
-	void* msg_socket;
-	int usr_id;
-}socketWithUID;
 
 #endif
