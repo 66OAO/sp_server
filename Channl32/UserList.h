@@ -252,8 +252,12 @@ public:
 			}
 	}
 	void DeleteRoom(int roomnum) {
-		for (int i = 0; i < MaxRoom; i++)
-			if (Rooms[i].n == roomnum)Rooms[i].n = -1;
+		for(int i = 0; i < MaxRoom; i++) {
+			if(Rooms[i].n == roomnum) {
+				Rooms[i].n = -1;
+				return;
+			}
+		}
 	}
 	void GetLobbyRoomResponse(int n, LobbyRoomResponse *LRR) {
 		for (int i = 0; i < MaxRoom; i++)
