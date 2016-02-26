@@ -518,7 +518,7 @@ struct CardUpgradeResponse {
 	int state;
 	int Slot;
 	int UpgradeType; //1 = Lvl, 2 = Skill
-	int unk2; //1 lvl, 5 skill
+	int UpgradeResult; //1 lvl, 5 skill
 	int Level;
 	int Skill;
 	int Type;
