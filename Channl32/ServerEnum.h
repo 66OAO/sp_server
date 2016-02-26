@@ -326,7 +326,7 @@ public:
 
 		switch (UpgradeType)
 		{
-		case 2://Elements
+		case 2://Element Skill
 		case 4://Skill Fusion
 		default:
 		{

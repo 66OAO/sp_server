@@ -455,8 +455,11 @@ void MySQL::UpgradeCard(MyCharInfo *Info, CardUpgradeResponse *CUR)
 	CUR->FireElements = Info->Fire;
 	CUR->EarthElements = Info->Earth;
 	CUR->WindElements = Info->Wind;
-	if (CUR->UpgradeType == 1 || CUR->UpgradeType == 3)
+	CUR->UpgradeResult = 5; // 1 level, 5 skill
+	switch (CUR->UpgradeType)
 	{
+	case 1://Element Level
+	case 3://Level Fusion
 		if (CUR->UpgradeType == 3)
 		{
 			QuerySelect("SELECT itm_level FROM items WHERE itm_usr_id = {} AND itm_slot = {}",
@@ -483,20 +486,32 @@ void MySQL::UpgradeCard(MyCharInfo *Info, CardUpgradeResponse *CUR)
 		if (Item.UpgradeItem(CUR->GF, CUR->Level))
 		{
 			CUR->Level += 1;
+			CUR->UpgradeResult = 1;
 		}
 		else
 		{
 			CUR->UpgradeType = 2;
-			CUR->unk2 = 5;
 		}
-	}
-	else
-	{
-		CUR->unk2 = 5;
+		break;
+	case 2://Element Skill
+		break;
+	case 4://Skill Fusion
+		break;
+	case 5://Skill 1 Fusion
+		break;
+	case 6://Skill 2 Fusion
+		break;
+	case 7://Skill 1 - 1 Fusion
+		break;
+	case 8://Skill 2 - 1 Fusion
+		break;
+	case 9://Skill 2 - 2 Fusion
+		break;
 	}
 	CUR->Skill = Item.GenerateSkill(CUR->Level, CUR->Type, CUR->UpgradeType, old_skill);
 	Query("UPDATE items SET itm_level = {}, itm_skill = {} WHERE itm_usr_id = {} AND itm_slot = {}",
 		CUR->Level, CUR->Skill, Info->usr_id, CUR->Slot);
+	
 }
 
 
@@ -636,9 +651,6 @@ bool MySQL::IsNewDayLogin(int usr_id) {
 	now_time.tm_year += 1900;
 	now_time.tm_mon++;
 	int sql_last_login_time = now_time.tm_year * 10000 + now_time.tm_mon * 100 + now_time.tm_mday;
-
-	Log::Info("Last login time: {}-{}-{} = {}",
-		now_time.tm_year, now_time.tm_mon, now_time.tm_mday, sql_last_login_time);
 
 	Query("UPDATE users SET usr_last_login = {} WHERE usr_id = {}",
 		sql_last_login_time, usr_id);

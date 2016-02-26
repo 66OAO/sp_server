@@ -99,7 +99,7 @@ void PacketHandler::Handle(unsigned char *buf)
 		break;
 	case IN_ROOM_REQ:
 		In_Room_Request = (InRoomRequest*)buf;
-		if (In_Room_Request->GameStart == 1)// 0 = Player change character , 1 = Player change team , 2 = Player ready
+		if (In_Room_Request->GameStart == 0)// 0 = Player change character , 1 = Player change team , 2 = Player ready
 		{
 			Info.usr_char = In_Room_Request->Character;
 		}
@@ -606,7 +606,7 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
 		Card_Upgrade_Response.unk1 = 11036;
 		Card_Upgrade_Response.Slot = Card_Upgrade_Request->Slot;
 		Card_Upgrade_Response.UpgradeType = Card_Upgrade_Request->UpgradeType;// 1 = Lvl, 2 = Skill, 3 Level Fusion, 4 Skill Fusion, 5 Skill 1 Fusion, 6 Skill 2 Fusion, 7 Skill 1 - 1 Fusion, 8 Skill 2 - 1 Fusion, 9 Skill 2 - 2 Fusion
-		Card_Upgrade_Response.unk2 = Card_Upgrade_Request->UpgradeType; //1 lvl, 5 skill
+		Card_Upgrade_Response.UpgradeResult = Card_Upgrade_Request->UpgradeType; //1 lvl, 5 skill
 		Card_Upgrade_Response.UpgradeType2 = Card_Upgrade_Request->UpgradeType;
 		MySql.UpgradeCard(&Info, &Card_Upgrade_Response);
 		Card_Upgrade_Response.Code = Info.Code;
