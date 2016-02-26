@@ -3,7 +3,7 @@
 *.lo
 *.o
 *.obj
-.vs/*
+
 *.sdf
 *.opensdf
 # Precompiled Headers
@@ -28,8 +28,9 @@
 *.out
 *.app
 /builds
-/bin
+*.ini
 *.tss
-bin/config.ini
 *.pdb
 *.lnk
+config.ini
+/bin

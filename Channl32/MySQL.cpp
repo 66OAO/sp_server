@@ -18,7 +18,6 @@ MySQL::MySQL()
 	}
 	else {
 		Log::Error("Unable to connect to MySQL server");
-		cout << mysql_error(connection) << endl;
 	}
 }
 
@@ -420,7 +419,15 @@ void MySQL::UpgradeCard(MyCharInfo *Info, CardUpgradeResponse *CUR)
 	int old_skill = atoi(result[3]);
 	mysql_free_result(res);
 	String query;
-	if (CUR->UpgradeType == 1)
+	CUR->WaterElements = Info->Water;
+	CUR->FireElements = Info->Fire;
+	CUR->EarthElements = Info->Earth;
+	CUR->WindElements = Info->Wind;
+	CUR->UpgradeResult = 5; // 1 level, 5 skill
+	switch (CUR->UpgradeType)
+	{
+	case 1://Element Level
+	case 2://Element Skill
 	{
 		int ItemSpirite = (CUR->Type % 100) / 10;
 		int EleCost = Item.GetUpgradeCost(CUR->Type, CUR->Level, CUR->UpgradeType);
@@ -445,44 +452,51 @@ void MySQL::UpgradeCard(MyCharInfo *Info, CardUpgradeResponse *CUR)
 			query = format("UPDATE users SET usr_wind = (usr_wind-{}) WHERE usr_id = {}", EleCost, Info->usr_id);
 		}
 		if (!query.empty())
-		{
 			Query(query);
-			query = "";
-		}
 	}
-	cout << query << endl;
-	CUR->WaterElements = Info->Water;
-	CUR->FireElements = Info->Fire;
-	CUR->EarthElements = Info->Earth;
-	CUR->WindElements = Info->Wind;
-	CUR->UpgradeResult = 5; // 1 level, 5 skill
-	switch (CUR->UpgradeType)
-	{
-	case 1://Element Level
+	break;
 	case 3://Level Fusion
-		if (CUR->UpgradeType == 3)
-		{
-			QuerySelect("SELECT itm_level FROM items WHERE itm_usr_id = {} AND itm_slot = {}",
-				Info->usr_id, CUR->Slot);
-			MYSQL_ROW result = mysql_fetch_row(res);
-			if (!result)
-				return;
-			if (atoi(result[0]) == 1)
-				DeleteItem(Info->usr_id, CUR->Slot);
-			else
-			{
-				query = format("UPDATE items SET itm_level = (itm_level - 1) WHERE itm_usr_id = {} AND itm_slot = {}",
-					Info->usr_id, CUR->Slot);
-				cout << query << endl;
-			}
-			mysql_free_result(res);
-			if (!query.empty())
-			{
-				Query(query);
-				cout << mysql_error(connection) << endl;
-				query = "";
-			}
-		}
+	case 4://Skill Fusion
+	case 5://Skill 1 Fusion
+	case 6://Skill 2 Fusion
+	{
+		QuerySelect("SELECT itm_level,itm_slot FROM `items` WHERE itm_usr_id = {} AND itm_type = {} ORDER BY itm_level ASC LIMIT 1", Info->usr_id, CUR->UpgradeType + 2010);
+		MYSQL_ROW result = mysql_fetch_row(res);
+		if (!result)
+			return;
+		int fusionlevel = atoi(result[0]);
+		int fusionslot = atoi(result[1]);
+		mysql_free_result(res);
+		if (fusionlevel == 1)
+			DeleteItem(Info->usr_id, fusionslot);
+		else
+			query = format("UPDATE items SET itm_level = {} WHERE itm_usr_id = {} AND itm_slot = {}", --fusionlevel, Info->usr_id, fusionslot);
+		if (!query.empty())
+			Query(query);
+	}
+	break;
+	case 7://Skill 1 - 1 Fusion
+	case 8://Skill 2 - 1 Fusion
+	case 9://Skill 2 - 2 Fusion
+	{
+		QuerySelect("SELECT itm_level,itm_slot FROM `items` WHERE itm_usr_id = {} AND itm_type = {} ORDER BY itm_level ASC LIMIT 1", Info->usr_id, (CUR->UpgradeType + 2011));
+		MYSQL_ROW result = mysql_fetch_row(res);
+		if (!result)
+			return;
+		int fusionlevel = atoi(result[0]);
+		int fusionslot = atoi(result[1]);
+		mysql_free_result(res);
+		if (fusionlevel == 1)
+			DeleteItem(Info->usr_id, fusionslot);
+		else
+			query = format("UPDATE items SET itm_level = {} WHERE itm_usr_id = {} AND itm_slot = {}", --fusionlevel, Info->usr_id, fusionslot);
+		if (!query.empty())
+			Query(query);
+	}
+	break;
+	}
+	if (CUR->UpgradeType == 1 || CUR->UpgradeType == 3)
+	{
 		if (Item.UpgradeItem(CUR->GF, CUR->Level))
 		{
 			CUR->Level += 1;
@@ -492,26 +506,10 @@ void MySQL::UpgradeCard(MyCharInfo *Info, CardUpgradeResponse *CUR)
 		{
 			CUR->UpgradeType = 2;
 		}
-		break;
-	case 2://Element Skill
-		break;
-	case 4://Skill Fusion
-		break;
-	case 5://Skill 1 Fusion
-		break;
-	case 6://Skill 2 Fusion
-		break;
-	case 7://Skill 1 - 1 Fusion
-		break;
-	case 8://Skill 2 - 1 Fusion
-		break;
-	case 9://Skill 2 - 2 Fusion
-		break;
 	}
 	CUR->Skill = Item.GenerateSkill(CUR->Level, CUR->Type, CUR->UpgradeType, old_skill);
 	Query("UPDATE items SET itm_level = {}, itm_skill = {} WHERE itm_usr_id = {} AND itm_slot = {}",
 		CUR->Level, CUR->Skill, Info->usr_id, CUR->Slot);
-	
 }
 
 
