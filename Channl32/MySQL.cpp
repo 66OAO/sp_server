@@ -7,8 +7,8 @@ MySQL::MySQL()
 	config.SetSection("DB");
 	auto ip = config.ReadString("ip", "127.0.0.1");
 	u32 port = config.ReadInt("port", 3306);
-	auto user = config.ReadString("user", "root");
-	auto pw = config.ReadString("pw", "");
+	auto user = config.ReadString("user", "spgame");
+	auto pw = config.ReadString("pw", "spgame");
 	auto db = config.ReadString("db", "spgame");
 
 	connection = mysql_init(0);
@@ -18,6 +18,7 @@ MySQL::MySQL()
 	}
 	else {
 		Log::Error("Unable to connect to MySQL server");
+		cout << mysql_error(connection) << endl;
 	}
 }
 
