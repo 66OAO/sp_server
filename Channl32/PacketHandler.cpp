@@ -934,9 +934,7 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
 			{
 				if (Info.usr_team == 10) RoomList.Rooms[i].blueteam--;
 				else if (Info.usr_team == 20) RoomList.Rooms[i].redteam--;
-			}
-			if (RoomList.Rooms[i].n != -1) {
-				HandleList.ProdcastRoomUpdate(RoomList.Rooms[i].n);
+				break;
 			}
 		}
 	}
@@ -949,9 +947,7 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
 			{
 				if (Info.usr_team == 10) RoomList.Rooms[i].blueteam--;
 				else if (Info.usr_team == 20) RoomList.Rooms[i].redteam--;
-			}
-			if (RoomList.Rooms[i].n != -1) {
-				HandleList.ProdcastRoomUpdate(RoomList.Rooms[i].n);
+				break;
 			}
 		}
 		nOfPackets = 0;

@@ -21,5 +21,9 @@ private:
 	SOCKET listen_socket, msg_socket;
 };
 
+typedef struct {
+	void* msg_socket;
+	int usr_id;
+}socketWithUID;
 
 #endif
