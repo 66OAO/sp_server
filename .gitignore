@@ -6,9 +6,11 @@
 .vs/*
 *.sdf
 *.opensdf
+*.opendb
 # Precompiled Headers
 *.gch
 *.pch
+
 
 # Compiled Dynamic libraries
 *.so
