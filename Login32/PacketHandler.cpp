@@ -6,7 +6,7 @@ extern Ini config;
 IOSocket cIOSocket;
 int PacketHandler::nOfPackets = 0, PacketHandler::State = -1;
 
-PacketHandler::PacketHandler(unsigned char* buf)
+PacketHandler::PacketHandler(unsigned char* buf, int &socket_usr_id)
 {
 	nOfPackets = 0;
 	Decrypt(buf);
@@ -17,6 +17,7 @@ PacketHandler::PacketHandler(unsigned char* buf)
 		Login_Info = (LoginInfo*)buf;
 		Log::Info("Client login attempt: {} // {}", Login_Info->username, Login_Info->password);
 		GenerateResponse(LOGIN_RESPONSE);
+		socket_usr_id = usr_id;
 		break;
 	case SERVERINFO_REQ:
 	case AFTER_SERVERINFO_REQ:

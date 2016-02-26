@@ -56,13 +56,14 @@ bool cLoginServer::Start()
 	return true;
 }
 
-void Comm(void *msg_sock)
+void Comm(void *param)
 {
-	SOCKET msg_socket = (SOCKET)msg_sock;
+	socketWithUID *args = (socketWithUID*)param;
+	SOCKET msg_socket = (SOCKET)args->msg_socket;
+	int usr_id = args->usr_id;
 	unsigned char buffer[2000];
 	int retbufsize = 0;
-
-	while (msg_sock)
+	while (msg_socket)
 	{
 		retbufsize = recv(msg_socket, (char*)buffer, sizeof(buffer), 0);
 
@@ -70,6 +71,9 @@ void Comm(void *msg_sock)
 		{
 			Log::Info("Connection closed by client");
 			closesocket(msg_socket);
+			if (usr_id != -1) {
+				Log::Info("User ID : {} Disconnect", usr_id);
+			}
 			break;
 		}
 
@@ -77,6 +81,9 @@ void Comm(void *msg_sock)
 		{
 			Log::Info("Client socket closed");
 			closesocket(msg_socket);
+			if (usr_id != -1) {
+				Log::Info("User ID : {} Disconnect", usr_id);
+			}
 			break;
 		}
 		else Log::Out("recv {} bytes", retbufsize);
@@ -89,12 +96,14 @@ void Comm(void *msg_sock)
 
 		//outBuffer();
 		try {
-			PacketHandler PackHandle(buffer);
-			if(PackHandle.nOfPackets) {
+			PacketHandler PackHandle(buffer, usr_id);
+			if (PackHandle.nOfPackets) {
 				Log::Info("Sending Response");
 				retbufsize = send(msg_socket, (char*)buffer, PackHandle.ServerResponse(buffer)*buffer[0], 0);
-			} else Log::Warning("Server has no response");
-		} catch (const std::exception & e) {
+			}
+			else Log::Warning("Server has no response");
+		}
+		catch (const std::exception & e) {
 			Log::Error("Error handling client packet: {}", e.what());
 		}
 
@@ -106,7 +115,6 @@ bool cLoginServer::CommLoop()
 {
 	bool bExit = false;
 	int retbufsize = 0;
-
 	while (!bExit)
 	{
 		if ((msg_socket = accept(listen_socket, (struct sockaddr*)&client, &clientlen)) == INVALID_SOCKET)
@@ -116,7 +124,12 @@ bool cLoginServer::CommLoop()
 		}
 		else
 			Log::Out("Accept Client: {}", inet_ntoa(client.sin_addr));
-		_beginthread(Comm, 0, (void *)msg_socket);
+		int id = -1;
+		socketWithUID *arg;
+		arg = (socketWithUID *)malloc(sizeof(socketWithUID));
+		arg->msg_socket = (void*)msg_socket;
+		arg->usr_id = id;
+		_beginthread(Comm, 0, (void*)arg);
 	}
 
 	return true;

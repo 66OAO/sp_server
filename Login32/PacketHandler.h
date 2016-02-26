@@ -26,7 +26,7 @@ private:
 
 
 public:
-	PacketHandler(unsigned char*);
+	PacketHandler(unsigned char*, int&);
 	~PacketHandler();
 	int UpdateState();
 	int IdentifyPacketType();
