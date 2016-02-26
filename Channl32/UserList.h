@@ -186,6 +186,7 @@ public:
 				Rooms[i].master = 0;
 				newPlayer->Info.rm_master = 0;
 				newPlayer->Info.usr_mode = Rooms[i].mode;
+				if(!NoTeam(Rooms[i].mode))
 				newPlayer->Info.usr_team = 10;
 				Rooms[i].blueteam++;
 				Rooms[i].p++;
@@ -212,15 +213,23 @@ public:
 						newPlayer->Info.usr_slot = j;
 						newPlayer->Info.rm_master = Rooms[i].master;
 						newPlayer->Info.usr_mode = Rooms[i].mode;
-						if (Rooms[i].blueteam > Rooms[i].redteam)
-						{
-							newPlayer->Info.usr_team = 20;
-							Rooms[i].redteam++;
-						}
-						else
+						if (NoTeam(Rooms[i].mode))
 						{
 							newPlayer->Info.usr_team = 10;
 							Rooms[i].blueteam++;
+						}
+						else
+						{
+							if (Rooms[i].blueteam > Rooms[i].redteam)
+							{
+								newPlayer->Info.usr_team = 20;
+								Rooms[i].redteam++;
+							}
+							else
+							{
+								newPlayer->Info.usr_team = 10;
+								Rooms[i].blueteam++;
+							}
 						}
 						Rooms[i].p++;
 						join = true;
@@ -613,15 +622,15 @@ public:
 				}
 			}
 	}
-	bool IsQuestMode(int roomnum) {
-		int Quest_Mode[15] = { 11,18,23,12,19,24,13,20,25,14,21,26,16,22,27 };
+	bool NoTeam(int mode) {
+		int No_Team_Mode[15] = { 11,18,23,12,19,24,13,20,25,14,21,26,16,22,27 };
 		for (int i = 0; i < 15; i++) {
-			if (Quest_Mode[i] == Rooms[roomnum].mode) return true;
+			if (No_Team_Mode[i] == mode) return true;
 		}
 		return false;
 	}
 	int CheckRound(int roomnum, int deadslot) {
-		if (IsQuestMode(roomnum)) return false;
+		if (NoTeam(roomnum)) return false;
 		for (int i = 0; i < Rooms[roomnum].p; i++) {
 			if (Rooms[roomnum].Player[i] && Rooms[roomnum].Player[deadslot] && Rooms[roomnum].Player[i]->Info.usr_team == Rooms[roomnum].Player[deadslot]->Info.usr_team) {
 				if (Rooms[roomnum].life[deadslot] < Rooms[roomnum].life[i])
@@ -664,7 +673,7 @@ public:
 			}
 	}
 	bool CheckLife(int roomnum, int mode, int deathslot) {
-		if (IsQuestMode(roomnum)) {
+		if (NoTeam(roomnum)) {
 			for (int j = 0; j < Rooms[roomnum].p; j++)
 				if (Rooms[roomnum].life[j] > 0)return true;
 			return false;

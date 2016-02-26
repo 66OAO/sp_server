@@ -61,7 +61,7 @@ void PacketHandler::GetNewRoomMessage(LobbyRoomResponse* LRR) {
 void PacketHandler::GetInRoomPlayerList(RoomPlayerDataResponse* RPDR) {
 	RPDR->state = UpdateState();
 	RPDR->checksum = cIOSocket.MakeDigest((u8*)RPDR);
-	RPDR->unk8 = 10;
+	RPDR->unk8 = 0;
 	unsigned char msg[0x120];
 	memcpy(msg, RPDR, 0x120);
 	for (int i = 4; i < *(int*)msg; i++)
