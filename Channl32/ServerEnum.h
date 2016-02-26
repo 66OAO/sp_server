@@ -2,7 +2,7 @@
 #define __SERVERENUM_H__
 
 #define MISSION_MODE	0x2E
-#define MAXROOM			200
+#define MaxRoom			200
 
 enum Character {
 	None = 0,
@@ -428,6 +428,100 @@ public:
 		}
 		break;
 		case 7://Skill 1 - 1 Fusion
+		{
+			int a = Type % 10, b = IdentifyItem(Type);
+			int Skill1 = (old_skill / 1000000 % 10) + 10 * (old_skill / 10000000 % 10) + 100 * (old_skill / 100000000 % 10);
+			int Skill2 = (old_skill / 1000 % 10) + 10 * (old_skill / 10000 % 10) + 100 * (old_skill / 100000 % 10);
+			int Skill3 = (old_skill / 1 % 10) + 10 * (old_skill / 10 % 10) + 100 * (old_skill / 100 % 10);
+			if (a == 4 && b == ct_arm) //boots
+			{
+				for (int i = 0; i < sizeof(BootSkill1); i += 4) {
+					for (int j = 0; j < 4; j++) {
+						if (Skill2 == BootSkill1[i + j]) {
+							Skill2 = BootSkill1[i + Random::UInt(0, 4)];
+						}
+					}
+				}
+				Skill Sk(Skill1, Skill2, Skill3);
+				return Sk.getType();
+			}
+			if (a == 3 && b == ct_arm) //armor
+			{
+				for (int i = 0; i < sizeof(ArmorSkill1); i += 3) {
+					for (int j = 0; j < 3; j++) {
+						if (Skill2 == ArmorSkill1[i + j]) {
+							Skill2 = ArmorSkill1[i + Random::UInt(0, 3)];
+						}
+					}
+				}
+				Skill Sk(Skill1, Skill2, Skill3);
+				return Sk.getType();
+			}
+			if (a == 2 && b == ct_arm) //Pendant
+			{
+				for (int i = 0; i < sizeof(PenantSkill1); i += 4) {
+					for (int j = 0; j < 4; j++) {
+						if (Skill2 == PenantSkill1[i + j]) {
+							Skill2 = PenantSkill1[i + Random::UInt(0, 4)];
+						}
+					}
+				}
+				Skill Sk(Skill1, Skill2, Skill3);
+				return Sk.getType();
+			}
+			if (a == 1 && b == ct_arm) //Shield
+			{
+				for (int i = 0; i < sizeof(ShieldSkill1); i += 4) {
+					for (int j = 0; j < 4; j++) {
+						if (Skill2 == ShieldSkill1[i + j]) {
+							Skill2 = ShieldSkill1[i + Random::UInt(0, 4)];
+						}
+					}
+				}
+
+				Skill Sk(Skill1, Skill2, Skill3);
+				return Sk.getType();
+			}
+			if (b == ct_wpn)
+			{
+				if (a == 1 || a == 3)
+				{
+					if (Skill2 != 137) {
+						for (int i = 0; i < sizeof(WeaponSkill1); i += 5) {
+							for (int j = 0; j < 5; j++) {
+								if (Skill2 == WeaponSkill1[i + j]) {
+									Skill2 = WeaponSkill1[i + Random::UInt(0, 5)];
+								}
+							}
+						}
+					}
+				}
+				else if (a == 2 || a == 4)
+				{
+					if (Skill2 != 137) {
+						for (int i = 0; i < sizeof(WeaponSkill1); i += 6) {
+							for (int j = 0; j < 6; j++) {
+								if (Skill2 == WeaponSkill1[i + j]) {
+									Skill2 = WeaponSkill1[i + Random::UInt(0, 6)];
+								}
+							}
+						}
+					}
+				}
+				Skill Sk(Skill1, Skill2, Skill3);
+				return Sk.getType();
+			}
+			if (b == ct_mag)
+			{
+				do
+				{
+					Skill2 = MagicSkill[Random::UInt(_countof(MagicSkill))];
+				} while (Skill2 = Skill3);
+				Skill Sk(Skill1, Skill2, Skill3);
+				return Sk.getType();
+			}
+		}
+		break;
 		case 8://Skill 2 - 1 Fusion
 		{
 			int a = Type % 10, b = IdentifyItem(Type);
