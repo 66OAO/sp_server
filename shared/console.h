@@ -2,10 +2,15 @@
 #define CONSOLE_H
 #include <iostream>
 #include <windows.h>
+#include <atomic>
+#include <concurrency.h>
 
 
 namespace Log {
 	static const void _write(const string & str, WORD color = FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED) {
+		static std::atomic_flag _mutex;
+		lock_guard_flag lock(_mutex);
+
 		HANDLE hConsoleOutput = GetStdHandle(STD_OUTPUT_HANDLE);
 
 		SetConsoleTextAttribute(hConsoleOutput,
