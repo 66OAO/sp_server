@@ -434,22 +434,26 @@ void MySQL::UpgradeCard(MyCharInfo *Info, CardUpgradeResponse *CUR)
 		if (ItemSpirite == 1)
 		{
 			Info->Water -= EleCost;
-			query = format("UPDATE users SET usr_water = (usr_water-{}) WHERE usr_id = {}", EleCost, Info->usr_id);
+			query = format("UPDATE users SET usr_water = (usr_water-{}) WHERE usr_id = {}",
+				EleCost, Info->usr_id);
 		}
 		else if (ItemSpirite == 2)
 		{
 			Info->Fire -= EleCost;
-			query = format("UPDATE users SET usr_fire = (usr_fire-{}) WHERE usr_id = {}", EleCost, Info->usr_id);
+			query = format("UPDATE users SET usr_fire = (usr_fire-{}) WHERE usr_id = {}",
+				EleCost, Info->usr_id);
 		}
 		else if (ItemSpirite == 3)
 		{
 			Info->Earth -= EleCost;
-			query = format("UPDATE users SET usr_earth = (usr_earth-{}) WHERE usr_id = {}", EleCost, Info->usr_id);
+			query = format("UPDATE users SET usr_earth = (usr_earth-{}) WHERE usr_id = {}",
+				EleCost, Info->usr_id);
 		}
 		else if (ItemSpirite == 4)
 		{
 			Info->Wind -= EleCost;
-			query = format("UPDATE users SET usr_wind = (usr_wind-{}) WHERE usr_id = {}", EleCost, Info->usr_id);
+			query = format("UPDATE users SET usr_wind = (usr_wind-{}) WHERE usr_id = {}",
+				EleCost, Info->usr_id);
 		}
 		if (!query.empty())
 			Query(query);
@@ -460,7 +464,9 @@ void MySQL::UpgradeCard(MyCharInfo *Info, CardUpgradeResponse *CUR)
 	case 5://Skill 1 Fusion
 	case 6://Skill 2 Fusion
 	{
-		QuerySelect("SELECT itm_level,itm_slot FROM `items` WHERE itm_usr_id = {} AND itm_type = {} ORDER BY itm_level ASC LIMIT 1", Info->usr_id, CUR->UpgradeType + 2010);
+		QuerySelect("SELECT itm_level,itm_slot FROM `items` WHERE "
+			" itm_usr_id = {} AND itm_type = {} ORDER BY itm_level ASC LIMIT 1",
+			Info->usr_id, CUR->UpgradeType + 2010);
 		MYSQL_ROW result = mysql_fetch_row(res);
 		if (!result)
 			return;
@@ -470,7 +476,8 @@ void MySQL::UpgradeCard(MyCharInfo *Info, CardUpgradeResponse *CUR)
 		if (fusionlevel == 1)
 			DeleteItem(Info->usr_id, fusionslot);
 		else
-			query = format("UPDATE items SET itm_level = {} WHERE itm_usr_id = {} AND itm_slot = {}", --fusionlevel, Info->usr_id, fusionslot);
+			query = format("UPDATE items SET itm_level = {} WHERE itm_usr_id = {} AND itm_slot = {}",
+				--fusionlevel, Info->usr_id, fusionslot);
 		if (!query.empty())
 			Query(query);
 	}
@@ -479,7 +486,9 @@ void MySQL::UpgradeCard(MyCharInfo *Info, CardUpgradeResponse *CUR)
 	case 8://Skill 2 - 1 Fusion
 	case 9://Skill 2 - 2 Fusion
 	{
-		QuerySelect("SELECT itm_level,itm_slot FROM `items` WHERE itm_usr_id = {} AND itm_type = {} ORDER BY itm_level ASC LIMIT 1", Info->usr_id, (CUR->UpgradeType + 2011));
+		QuerySelect("SELECT itm_level,itm_slot FROM `items` WHERE "
+			" itm_usr_id = {} AND itm_type = {} ORDER BY itm_level ASC LIMIT 1",
+			Info->usr_id, (CUR->UpgradeType + 2011));
 		MYSQL_ROW result = mysql_fetch_row(res);
 		if (!result)
 			return;
@@ -489,7 +498,8 @@ void MySQL::UpgradeCard(MyCharInfo *Info, CardUpgradeResponse *CUR)
 		if (fusionlevel == 1)
 			DeleteItem(Info->usr_id, fusionslot);
 		else
-			query = format("UPDATE items SET itm_level = {} WHERE itm_usr_id = {} AND itm_slot = {}", --fusionlevel, Info->usr_id, fusionslot);
+			query = format("UPDATE items SET itm_level = {} WHERE itm_usr_id = {} AND itm_slot = {}",
+				--fusionlevel, Info->usr_id, fusionslot);
 		if (!query.empty())
 			Query(query);
 	}

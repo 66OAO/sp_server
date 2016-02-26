@@ -495,7 +495,7 @@ public:
 		{
 			int a = Type % 10, b = IdentifyItem(Type);
 			int Skill1 = (old_skill / 1000000);
-			int Skill2 = (old_skill / 1000 % 1000);
+			int Skill2 = (old_skill / 1000) % 1000;
 			int Skill3 = (old_skill % 1000);
 			if (a == 4 && b == ct_arm) //boots
 			{
@@ -575,7 +575,7 @@ public:
 		{
 			int a = Type % 10, b = IdentifyItem(Type);
 			int Skill1 = (old_skill / 1000000);
-			int Skill2 = (old_skill / 1000 % 1000);
+			int Skill2 = (old_skill / 1000) % 1000;
 			int Skill3 = 0;
 			if (a == 4 && b == ct_arm) //boots
 			{
@@ -626,7 +626,7 @@ public:
 		{
 			int a = Type % 10, b = IdentifyItem(Type);
 			int Skill1 = Random::UInt(1, (level + 1) * 4);
-			int Skill2 = (old_skill / 1000 % 1000);
+			int Skill2 = (old_skill / 1000) % 1000;
 			int Skill3 = (old_skill % 1000);
 			Skill Sk(Skill1, Skill2, Skill3);
 			return Sk.getType();
