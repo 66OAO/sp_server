@@ -99,15 +99,34 @@ void PacketHandler::Handle(unsigned char *buf)
 		break;
 	case IN_ROOM_REQ:
 		In_Room_Request = (InRoomRequest*)buf;
-		cout << "IN_ROOM_REQ " << IP << " Team : " << In_Room_Request->team << endl;
-		Info.usr_char = In_Room_Request->Character;
-		Info.usr_team = In_Room_Request->team;
-		if (In_Room_Request->GameStart == 2) // 1 = Player change character , 2 = Player change team , 3 = Player ready
+		if (In_Room_Request->GameStart == 1)// 0 = Player change character , 1 = Player change team , 2 = Player ready
+		{
+			Info.usr_char = In_Room_Request->Character;
+		}
+		if (In_Room_Request->GameStart == 1)
+		{
+			for (int i = 0;i < MaxRoom;i++)
+			{
+				if (RoomList.Rooms[i].n == Info.usr_room)
+				{
+					if (Info.usr_team == 10 && In_Room_Request->team == 20)
+					{
+						RoomList.Rooms[i].blueteam--;
+						RoomList.Rooms[i].redteam++;
+					}
+					else if (Info.usr_team == 20 && In_Room_Request->team == 10)
+					{
+						RoomList.Rooms[i].redteam--;
+						RoomList.Rooms[i].blueteam++;
+					}
+				}
+			}
+			Info.usr_team = In_Room_Request->team;
+		}
+		if (In_Room_Request->GameStart == 2)
 		{
 			Info.usr_ready = (BYTE)In_Room_Request->Ready;
-			//if(In_Room_Request->Ready > 10)
-			//    Info.usr_ready = 0;
-			GetBigBattleNpcMultiplier();
+			GetBigMatchNpcMultiplier();
 		}
 		HandleList.ProdcastRoomUpdate(Info.usr_room);
 		GenerateResponse(ROOM_PLAYERDATA_RESPONSE);
@@ -178,15 +197,15 @@ void PacketHandler::Handle(unsigned char *buf)
 		GenerateResponse(QUEST_LIFE_RESPONSE);
 		break;
 		*/
-	case BIGBATTLE_PLAYER_JOIN_REQ:
-		BigBattlePlayerJoin_Request = (BigBattlePlayerJoinRequest*)buf;
-		cout << "BIGBATTLE_PLAYER_JOIN_REQ" << endl;
-		GenerateResponse(BIGBATTLE_PLAYER_JOIN_RESPONSE);
+	case BIGMATCH_PLAYER_JOIN_REQ:
+		BigMatchPlayerJoin_Request = (BigMatchPlayerJoinRequest*)buf;
+		cout << "BIGMATCH_PLAYER_JOIN_REQ" << endl;
+		GenerateResponse(BIGMATCH_PLAYER_JOIN_RESPONSE);
 		break;
-	case BIGBATTLE_NPC_KO_REQ:
-		BigBattleNpcKo_Request = (BigBattleNpcKoRequest*)buf;
-		cout << "BIGBATTLE_NPC_KO_REQ" << endl;
-		GenerateResponse(BIGBATTLE_NPC_KO_RESPONSE);
+	case BIGMATCH_NPC_KO_REQ:
+		BigMatchNpcKo_Request = (BigMatchNpcKoRequest*)buf;
+		cout << "BIGMATCH_NPC_KO_REQ" << endl;
+		GenerateResponse(BIGMATCH_NPC_KO_RESPONSE);
 		break;
 	case PLAYER_KICK_REQ:
 		PlayerKick_Request = (PlayerKickRequest*)buf;
@@ -225,6 +244,11 @@ void PacketHandler::Handle(unsigned char *buf)
 		AddCardSlot_Request = (AddCardSlotRequest*)buf;
 		cout << "ADD_CARD_SLOT_REQ" << endl;
 		GenerateResponse(ADD_CARD_SLOT_RESPONSE);
+		break;
+	case GOLD_CHARGE_CARD_USE_REQ:
+		GoldChargeCardUse_Request = (GoldChargeCardUseRequest*)buf;
+		cout << "GOLD_CHARGE_CARD_USE_REQ" << endl;
+		GenerateResponse(GOLD_CHARGE_CARD_USE_RESPONSE);
 		break;
 	default:
 		cout << "-- UNKNOW_REQ --" << endl;
@@ -658,6 +682,7 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
 		buffer = (unsigned char*)&Room_PlayerList_Response;
 		break;
 	case ROOM_JOIN_RESPONSE:
+		cout << "-- ROOM_JOIN_RESPONSE --" << endl;
 		Joined = true;
 		if (GetRoomJoinResponse())
 			RoomList.ProdcastRoomJoinResponse2(this, Info.usr_room);
@@ -855,41 +880,41 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
 		nOfPackets = sizeof(respawn);
 		}
 		break;*/
-	case BIGBATTLE_PLAYER_JOIN_RESPONSE:
-		cout << "BIGBATTLE_PLAYER_JOIN_RESPONSE\n" << endl;
-		BigBattlePlayerJoin_Response.size = 0x38;
-		BigBattlePlayerJoin_Response.type = BIGBATTLE_PLAYER_JOIN_RESPONSE;
-		BigBattlePlayerJoin_Response.unk1 = 11036;
+	case BIGMATCH_PLAYER_JOIN_RESPONSE:
+		cout << "BIGMATCH_PLAYER_JOIN_RESPONSE\n" << endl;
+		BigMatchPlayerJoin_Response.size = 0x38;
+		BigMatchPlayerJoin_Response.type = BIGMATCH_PLAYER_JOIN_RESPONSE;
+		BigMatchPlayerJoin_Response.unk1 = 11036;
 		for (int i = 0; i < 32; i++)
-			BigBattlePlayerJoin_Response.slot[i] = BigBattlePlayerJoin_Request->slot[i];
-		BigBattlePlayerJoin_Response.state = UpdateState();
-		BigBattlePlayerJoin_Response.checksum = cIOSocket.MakeDigest((u8*)&BigBattlePlayerJoin_Response);
-		buffer = (unsigned char*)&BigBattlePlayerJoin_Response;
+			BigMatchPlayerJoin_Response.slot[i] = BigMatchPlayerJoin_Request->slot[i];
+		BigMatchPlayerJoin_Response.state = UpdateState();
+		BigMatchPlayerJoin_Response.checksum = cIOSocket.MakeDigest((u8*)&BigMatchPlayerJoin_Response);
+		buffer = (unsigned char*)&BigMatchPlayerJoin_Response;
 		break;
-	case BIGBATTLE_NPC_KO_RESPONSE:
-		BigBattleNpcKo_Response.size = 0xA4;
-		BigBattleNpcKo_Response.type = BIGBATTLE_NPC_KO_RESPONSE;
-		BigBattleNpcKo_Response.unk1 = 11036;
-		BigBattleNpcKo_Response.deadslot = BigBattleNpcKo_Request->deadslot;//The Dead Slot
-		BigBattleNpcKo_Response.zero = 0;
-		BigBattleNpcKo_Response.luckmul = Random::UInt(100);//Lucky Point Multiplier
-		BigBattleNpcKo_Response.multiplier = 10;//1
-		BigBattleNpcKo_Response.unk3 = 1;//1
-		BigBattleNpcKo_Response.unk4 = 1;//1
-		BigBattleNpcKo_Response.pointbase = 100;
-		BigBattleNpcKo_Response.sub = 0xFFFFFFFA;
-		for (int i = 0; i < 3; i++)BigBattleNpcKo_Response.zeros[i] = 0;
-		BigBattleNpcKo_Response.npcn2 = BigBattleNpcKo_Request->deadslot;
-		for (int i = 0; i < 20; i++)BigBattleNpcKo_Response.unks[i] = -1;
-		BigBattleNpcKo_Response.eleType = 1;
-		BigBattleNpcKo_Response.eleBase = 1;
-		BigBattleNpcKo_Response.eleMul = 2;
-		BigBattleNpcKo_Response.one = 1;
-		BigBattleNpcKo_Response.zero1 = 0;
-		BigBattleNpcKo_Response.unk5 = -1;
-		BigBattleNpcKo_Response.state = UpdateState();
-		BigBattleNpcKo_Response.checksum = cIOSocket.MakeDigest((u8*)&BigBattleNpcKo_Response);
-		buffer = (unsigned char*)&BigBattleNpcKo_Response;
+	case BIGMATCH_NPC_KO_RESPONSE:
+		BigMatchNpcKo_Response.size = 0xA4;
+		BigMatchNpcKo_Response.type = BIGMATCH_NPC_KO_RESPONSE;
+		BigMatchNpcKo_Response.unk1 = 11036;
+		BigMatchNpcKo_Response.deadslot = BigMatchNpcKo_Request->deadslot;//The Dead Slot
+		BigMatchNpcKo_Response.zero = 0;
+		BigMatchNpcKo_Response.luckmul = Random::UInt(100);//Lucky Point Multiplier
+		BigMatchNpcKo_Response.multiplier = 10;//1
+		BigMatchNpcKo_Response.unk3 = 1;//1
+		BigMatchNpcKo_Response.unk4 = 1;//1
+		BigMatchNpcKo_Response.pointbase = 100;
+		BigMatchNpcKo_Response.sub = 0xFFFFFFFA;
+		for (int i = 0; i < 3; i++)BigMatchNpcKo_Response.zeros[i] = 0;
+		BigMatchNpcKo_Response.npcn2 = BigMatchNpcKo_Request->deadslot;
+		for (int i = 0; i < 20; i++)BigMatchNpcKo_Response.unks[i] = -1;
+		BigMatchNpcKo_Response.eleType = 1;
+		BigMatchNpcKo_Response.eleBase = 1;
+		BigMatchNpcKo_Response.eleMul = 2;
+		BigMatchNpcKo_Response.one = 1;
+		BigMatchNpcKo_Response.zero1 = 0;
+		BigMatchNpcKo_Response.unk5 = -1;
+		BigMatchNpcKo_Response.state = UpdateState();
+		BigMatchNpcKo_Response.checksum = cIOSocket.MakeDigest((u8*)&BigMatchNpcKo_Response);
+		buffer = (unsigned char*)&BigMatchNpcKo_Response;
 		break;
 	case REVIVE_RESPONSE:
 		cout << "REVIVE_RESPONSE" << endl;
@@ -903,26 +928,17 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
 		break;
 	case ROOM_QUIT_RESPONSE:
 	{
-		int mode = Info.usr_mode;
-		int Quest_Mode[15] = { 11,18,23,12,19,24,13,20,25,14,21,26,16,22,27 };
-		for (int i = 0; i < 15; i++) {
-			if (Quest_Mode[i] == mode) {
-			}
-		}
-		switch (mode) {
-		case TEAMPLAY_MODE:
+		GetExitRoomResponse();
+		for (int i = 0;i < MaxRoom;i++)
 		{
-			int QuitTeam = 0;
-			for (int i = 0; i < RoomList.Rooms[Info.usr_room].p; i++)
+			if (RoomList.Rooms[i].n == Info.usr_room)
 			{
-				if (QuitTeam == Info.usr_team) QuitTeam++;
+				if (Info.usr_team == 10) RoomList.Rooms[i].blueteam--;
+				else if (Info.usr_team == 20) RoomList.Rooms[i].redteam--;
 			}
-		}
-		break;
-		case DUEL_MODE:
-			break;
-		default:
-			break;
+			if (RoomList.Rooms[i].n != -1) {
+				HandleList.ProdcastRoomUpdate(RoomList.Rooms[i].n);
+			}
 		}
 	}
 	break;
@@ -930,6 +946,11 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
 		GetExitRoomResponse();
 		for (int i = 0; i < MaxRoom; i++)
 		{
+			if (RoomList.Rooms[i].n == Info.usr_room)
+			{
+				if (Info.usr_team == 10) RoomList.Rooms[i].blueteam--;
+				else if (Info.usr_team == 20) RoomList.Rooms[i].redteam--;
+			}
 			if (RoomList.Rooms[i].n != -1) {
 				HandleList.ProdcastRoomUpdate(RoomList.Rooms[i].n);
 			}
@@ -995,8 +1016,19 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
 		AddCardSlot_Response.state = UpdateState();
 		AddCardSlot_Response.checksum = cIOSocket.MakeDigest((u8*)&AddCardSlot_Response);
 		buffer = (unsigned char*)&AddCardSlot_Response;
-		break;
 	}
+	break;
+	case GOLD_CHARGE_CARD_USE_RESPONSE:
+		memset(&GoldChargeCardUse_Response, 0, sizeof(GoldChargeCardUseResponse));
+		MySql.GoldForceCardUse(Info.usr_id, GoldChargeCardUse_Request->equipslot, GoldChargeCardUse_Request->equiptype, GoldChargeCardUse_Request->gfslot);
+		GoldChargeCardUse_Response.size = sizeof(GoldChargeCardUse_Response);
+		GoldChargeCardUse_Response.type = GOLD_CHARGE_CARD_USE_RESPONSE;
+		GoldChargeCardUse_Response.unk1 = 11036;
+		GoldChargeCardUse_Response.chargecheck = 1;
+		GoldChargeCardUse_Response.state = UpdateState();
+		GoldChargeCardUse_Response.checksum = cIOSocket.MakeDigest((u8*)&GoldChargeCardUse_Response);
+		buffer = (unsigned char*)&GoldChargeCardUse_Response;
+		break;
 	}
 }
 

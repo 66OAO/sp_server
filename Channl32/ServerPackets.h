@@ -35,15 +35,16 @@
 #define SPAWN_RESPONSE	17264
 #define MISSION_COMPLETE_RESPONSE 17208
 #define MISSION_AFTER_RESPONSE 17495
-#define BIGBATTLE_NPC_X_RESPONSE	17424
+#define BIGMATCH_NPC_X_RESPONSE	17424
 #define CARD_SEARCH_RESPONSE	17459
-#define BIGBATTLE_NPC_KO_RESPONSE  17303
-#define BIGBATTLE_PLAYER_JOIN_RESPONSE  17304 //guess
+#define BIGMATCH_NPC_KO_RESPONSE  17303
+#define BIGMATCH_PLAYER_JOIN_RESPONSE  17304 //guess
 #define PLAYER_KICK_RESPONSE	17185
 #define CHANGE_ROOMTITLE_RESPONSE	17257
 #define TRADE_SUCCESS_RESPONSE	17217
 #define SHOP_BUY_ELEMENTCARD_RESPONSE	17465
 #define ADD_CARD_SLOT_RESPONSE 17512
+#define GOLD_CHARGE_CARD_USE_RESPONSE 17284
 
 struct LobbyUserInfoResponse {
 	int size; //0x3C
@@ -704,7 +705,7 @@ struct MissionAfterResponse {
 	int unk3; //2
 };
 
-struct BigBattleNpcMultiplier {
+struct BigMatchNpcMultiplier {
 	int size; //0x38
 	int type;
 	int unk1; //11036
@@ -733,7 +734,7 @@ struct CardSearchResponse {
 	int skill[5];
 };
 
-struct BigBattleNpcKoResponse {
+struct BigMatchNpcKoResponse {
 	int size; //0xA4
 	int type;
 	int unk1; //11036
@@ -821,7 +822,7 @@ struct TradeSuccessResponse {
 	int WindElements;
 };
 
-struct BigBattlePlayerJoinResponse //Unknown Response
+struct BigMatchPlayerJoinResponse //Unknown Response
 {
 
 	int size; //0x04D8 1240byte
@@ -856,4 +857,13 @@ struct AddCardSlotResponse
 	int addcheck;
 };
 
+struct GoldChargeCardUseResponse
+{
+	int size; //0x18
+	int type;
+	int unk1; //11036
+	int checksum;
+	int state;
+	int chargecheck;
+};
 #endif

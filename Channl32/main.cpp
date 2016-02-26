@@ -1,8 +1,6 @@
 #include "ChannelServer.h"
+#define SAVELOG 0
 
-#ifdef _DEBUG
-#define DEBUG 0
-#endif
 Ini config("..\\config.ini", "CONFIG"); //For debug
 //Ini config(".//config.ini", "CONFIG"); //For Running
 HANDLE hConsoleOutput;
@@ -13,7 +11,7 @@ int main()
 	streambuf* coutBuf = cout.rdbuf();
 	ofstream of("packets.txt");
 	streambuf* fileBuf = of.rdbuf();
-	if (DEBUG)
+	if (SAVELOG)
 	{
 		cout.rdbuf(fileBuf);
 	}
@@ -33,7 +31,7 @@ int main()
 	delete CS;
 
 	cout << endl;
-	if (DEBUG)
+	if (SAVELOG)
 	{
 		of.flush();
 		of.close();
