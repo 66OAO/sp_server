@@ -17,6 +17,7 @@ private:
 	LoginInfo *Login_Info;
 	ServerInfoRequest *Server_Info_Request;
 	DefaultCharacterChangeRequest *Default_Character_Change_Request;
+	LoginStatusRequest *Login_Status_Request;
 
 	// Server Packet Structures
 	LoginResponse Login_Response;
