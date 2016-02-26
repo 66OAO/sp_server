@@ -186,8 +186,8 @@ public:
 				Rooms[i].master = 0;
 				newPlayer->Info.rm_master = 0;
 				newPlayer->Info.usr_mode = Rooms[i].mode;
-				if(!NoTeam(Rooms[i].mode))
-				newPlayer->Info.usr_team = 10;
+				if (!NoTeam(Rooms[i].mode))
+					newPlayer->Info.usr_team = 10;
 				Rooms[i].blueteam++;
 				Rooms[i].p++;
 				Rooms[i].mission = newPlayer->Info.Mission;
@@ -386,11 +386,19 @@ public:
 					}
 				}
 				switch (mode) {
+				case FIGHT_CLUB_MODE:
+				case MISSION_IMPOSSIBLE_300:
+				case COMMUNITY_MODE:
+				case INFINITY_SURVIVAL_II_MODE:
+				case INFINITY_KING_MODE:
+				case SURVUVAL_MODE:
+				case KING_SURVIVAL_MODE:
+					return true;
+					break;
 				case BIG_MATCH_SURVIVAL_MODE:
 				case BIG_MATCH_AUTO_TEAM_SURVIVAL_MODE:
 				case BIG_MATCH_DEATH_MATCH_MODE:
 				case CRYSTAL_CAPTURE_MODE:
-				{
 					if (Rooms[i].started)
 						return true;
 					if (RoomList.Rooms[i].blueteam == 0 || RoomList.Rooms[i].redteam == 0)
@@ -400,10 +408,8 @@ public:
 							return false;
 					}
 					return true;
-				}
 				break;
 				case TEAMPLAY_MODE:
-				{
 					if (RoomList.Rooms[i].blueteam == RoomList.Rooms[i].redteam) {
 						for (int j = 0; j < Rooms[i].p; j++) {
 							if (Rooms[i].Player[j] && !Rooms[i].Player[j]->Info.usr_ready)
@@ -412,28 +418,16 @@ public:
 						return true;
 					}
 					else return false;
-				}
 				break;
 				case DUEL_MODE:
-				{
-					if (RoomList.Rooms[i].blueteam == 1 && RoomList.Rooms[i].redteam == 1)
-						return true;
-					else
-						return false;
+					if (RoomList.Rooms[i].blueteam == 1 && RoomList.Rooms[i].redteam == 1) return true;
+					else return false;
 					break;
-				}
 				case HERO_MODE:
 					if (RoomList.Rooms[i].blueteam == 0 || RoomList.Rooms[i].redteam == 0) return false;
 					else return true;
 					break;
-				case INFINITY_SURVIVAL_II_MODE:
-					return true;
-					break;
-				case INFINITY_KING_MODE:
-					return true;
-					break;
 				case INFINITY_SYMBOL_MODE:
-				{
 					if (RoomList.Rooms[i].blueteam == RoomList.Rooms[i].redteam)
 					{
 						for (int j = 0; j < Rooms[i].p; j++)
@@ -444,16 +438,8 @@ public:
 						return true;
 					}
 					else return false;
-				}
 				break;
-				case SURVUVAL_MODE:
-					return true;
-					break;
-				case KING_SURVIVAL_MODE:
-					return true;
-					break;
 				case LUCKY3_MODE:
-				{
 					if (RoomList.Rooms[i].blueteam == RoomList.Rooms[i].redteam)
 					{
 						for (int j = 0; j < Rooms[i].p; j++)
@@ -464,10 +450,8 @@ public:
 						return true;
 					}
 					else return false;
-				}
 				break;
 				case ASSAULT_MODE:
-				{
 					if (RoomList.Rooms[i].blueteam == RoomList.Rooms[i].redteam)
 					{
 						for (int j = 0; j < Rooms[i].p; j++)
@@ -478,10 +462,8 @@ public:
 						return true;
 					}
 					else return false;
-				}
 				break;
 				case GAIN_SYMBOL_MODE:
-				{
 					if (RoomList.Rooms[i].blueteam == RoomList.Rooms[i].redteam)
 					{
 						for (int j = 0; j < Rooms[i].p; j++)
@@ -492,10 +474,8 @@ public:
 						return true;
 					}
 					else return false;
-				}
 				break;
 				case KING_SLAYER_MODE:
-				{
 					if (RoomList.Rooms[i].blueteam == RoomList.Rooms[i].redteam)
 					{
 						for (int j = 0; j < Rooms[i].p; j++)
@@ -506,10 +486,8 @@ public:
 						return true;
 					}
 					else return false;
-				}
 				break;
 				case MAGIC_LUCKY3_MODE:
-				{
 					if (RoomList.Rooms[i].blueteam == RoomList.Rooms[i].redteam)
 					{
 						for (int j = 0; j < Rooms[i].p; j++)
@@ -520,11 +498,7 @@ public:
 						return true;
 					}
 					else return false;
-				}
 				break;
-				case FIGHT_CLUB_MODE:
-					return true;
-					break;
 				case TOURNAMENT_MODE:
 				{
 					if (RoomList.Rooms[i].blueteam == RoomList.Rooms[i].redteam)
@@ -538,8 +512,8 @@ public:
 					}
 					else return false;
 				}
+				break;
 				case SNOW_DODGE_MODE:
-				{
 					if (RoomList.Rooms[i].blueteam == RoomList.Rooms[i].redteam)
 					{
 						for (int j = 0; j < Rooms[i].p; j++)
@@ -550,9 +524,8 @@ public:
 						return true;
 					}
 					else return false;
-				}
+				break;
 				case RADNG_MODE:
-				{
 					if (RoomList.Rooms[i].blueteam == RoomList.Rooms[i].redteam)
 					{
 						for (int j = 0; j < Rooms[i].p; j++)
@@ -563,9 +536,8 @@ public:
 						return true;
 					}
 					else return false;
-				}
+				break;
 				case SOCCER_MODE:
-				{
 					if (RoomList.Rooms[i].blueteam == RoomList.Rooms[i].redteam)
 					{
 						for (int j = 0; j < Rooms[i].p; j++)
@@ -576,9 +548,8 @@ public:
 						return true;
 					}
 					else return false;
-				}
+				break;
 				case MOLE_MODE:
-				{
 					if (RoomList.Rooms[i].blueteam == RoomList.Rooms[i].redteam)
 					{
 						for (int j = 0; j < Rooms[i].p; j++)
@@ -589,9 +560,8 @@ public:
 						return true;
 					}
 					else return false;
-				}
+				break;
 				case ICE_HOCKEY_MODE:
-				{
 					if (RoomList.Rooms[i].blueteam == RoomList.Rooms[i].redteam)
 					{
 						for (int j = 0; j < Rooms[i].p; j++)
@@ -602,15 +572,7 @@ public:
 						return true;
 					}
 					else return false;
-				}
-				case MISSION_IMPOSSIBLE_300:
-					return true;
-					break;
-				case COMMUNITY_MODE:
-					return true;
-					break;
-
-
+				break;
 				default:
 					/*for (int j = 0; j < Rooms[i].p; j++)
 					{
