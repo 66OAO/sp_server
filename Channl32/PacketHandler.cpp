@@ -757,9 +757,32 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
 		Spawn_Response.size = 0x38;
 		Spawn_Response.type = SPAWN_RESPONSE;
 		Spawn_Response.unk1 = 11036;
-		for (int i = 0; i < 7; i++)
-			Spawn_Response.slots[i] = true;//Set Ghost
-		Spawn_Response.slots[Info.usr_slot] = false;
+		for (int i = 0;i < MaxRoom;i++)
+		{
+			if (RoomList.Rooms[i].n == Info.usr_room)
+			{
+				for (int j = 0;j < RoomList.Rooms[i].maxp;j++)
+				{
+					if (!RoomList.Rooms[i].Player[j])
+						Spawn_Response.slots[j] = -1;
+					else if(RoomList.Rooms[i].Player[j] != RoomList.Rooms[i].Player[Info.usr_slot] && !RoomList.Rooms[i].Player[j]->Info.usr_ready) Spawn_Response.slots[j] = -1;
+					else  Spawn_Response.slots[j] = 0;
+				}
+				for (int j = 0;j < RoomList.Rooms[i].maxp;j++)
+				{
+					if (RoomList.Rooms[i].Player[j])
+					{
+						if (RoomList.Rooms[i].Player[j] != RoomList.Rooms[i].Player[Info.usr_slot] && RoomList.Rooms[i].Player[j]->Info.usr_ready)
+						{
+							Spawn_Response.slots[Info.usr_slot] = 1;
+							break;
+						}
+						Spawn_Response.slots[Info.usr_slot] = 0;
+					}
+					
+				}
+			}
+		}
 		Spawn_Response.zero = 0;
 		Spawn_Response.state = UpdateState();
 		Spawn_Response.checksum = cIOSocket.MakeDigest((u8*)&Spawn_Response);
@@ -841,7 +864,7 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
 		NpcList_Response.type = NPC_LIST_RESPONSE;
 		NpcList_Response.unk1 = 11036;
 		for (int i = 0; i < 33; i++)
-			NpcList_Response.levels[i] = Npc_List->npc[i].level;
+			NpcList_Response.levels[i] = 31;//Npc_List->npc[i].level;
 		NpcList_Response.state = UpdateState();
 		NpcList_Response.checksum = cIOSocket.MakeDigest((u8*)&NpcList_Response);
 		buffer = (unsigned char*)&NpcList_Response;
@@ -940,7 +963,6 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
 	}
 	break;
 	case ROOM_EXIT_RESPONSE:
-		GetExitRoomResponse();
 		for (int i = 0; i < MaxRoom; i++)
 		{
 			if (RoomList.Rooms[i].n == Info.usr_room)
@@ -950,6 +972,7 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
 				break;
 			}
 		}
+		GetExitRoomResponse();
 		nOfPackets = 0;
 		break;
 	case SHOP_BUY_ELEMENTCARD_RESPONSE:
