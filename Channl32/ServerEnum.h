@@ -1,9 +1,92 @@
 #ifndef __SERVERENUM_H__
 #define __SERVERENUM_H__
-
-#define MISSION_MODE	0x2E
+//CONFIG
 #define MaxRoom			200
 #define COMPENSATE_RATE 0.1
+//QUEST
+#define DUNGEON_QUEST_1_MODE 11
+#define FOREST_QUEST_1_MODE 18
+#define FLAME_QUEST_1_MODE 23
+#define DUNGEON_QUEST_2_MODE 12
+#define FOREST_QUEST_2_MODE 19
+#define FLAME_QUEST_2_MODE 24
+#define DUNGEON_QUEST_3_MODE 13
+#define FOREST_QUEST_3_MODE 20
+#define FLAME_QUEST_3_MODE 25
+#define DUNGEON_QUEST_4_MODE 14
+#define FOREST_QUEST_4_MODE 21
+#define FLAME_QUEST_4_MODE 26
+#define DUNGEON_QUEST_5_MODE 17
+#define FOREST_QUEST_5_MODE 22
+#define FLAME_QUEST_5_MODE 27
+//BIG_MATCH
+#define BIG_MATCH_SURVIVAL_MODE 33
+#define BIG_MATCH_AUTO_TEAM_SURVIVAL_MODE 34
+#define BIG_MATCH_DEATH_MATCH_MODE 35
+//BATTLE
+#define HERO_MODE 51
+#define INFINITY_SURVIVAL_II_MODE 48
+#define INFINITY_KING_MODE 50
+#define INFINITY_SYMBOL_MODE 49
+#define SURVUVAL_MODE 4
+#define KING_SURVIVAL_MODE 32
+#define TEAMPLAY_MODE 3
+#define CRYSTAL_CAPTURE_MODE 40
+#define DUEL_MODE 5
+#define LUCKY3_MODE 6
+#define ASSAULT_MODE 7
+#define GAIN_SYMBOL_MODE 31
+#define KING_SLAYER_MODE 9
+#define MAGIC_LUCKY3_MODE 10
+#define FIGHT_CLUB_MODE 15
+#define TOURNAMENT_MODE 16
+//ENJOY
+#define SNOW_DODGE_MODE 28
+#define RACING_MODE 30
+#define SOCCER_MODE 8
+#define MOLE_MODE 29
+#define ICE_HOCKEY_MODE 41
+//TRAINING
+#define MISSION_IMPOSSIBLE_300 47
+#define MOVEMENT_TRAINING_MODE 42
+#define SHORT_RANGE_ATTACK_TRAINING_MODE 43
+#define LONG_RANGE_ATTACK_TRAINING_MODE 44
+#define DEFENSE_TRAINING_MODE 45
+#define MISSION_TRAINING_MODE 46
+#define COMMUNITY_MODE 1
+
+const int QuestMode[] = {
+	DUNGEON_QUEST_1_MODE,
+	FOREST_QUEST_1_MODE,
+	FLAME_QUEST_1_MODE,
+	DUNGEON_QUEST_2_MODE,
+	FOREST_QUEST_2_MODE,
+	FLAME_QUEST_2_MODE,
+	DUNGEON_QUEST_3_MODE,
+	FOREST_QUEST_3_MODE,
+	FLAME_QUEST_3_MODE,
+	DUNGEON_QUEST_4_MODE,
+	FOREST_QUEST_4_MODE,
+	FLAME_QUEST_4_MODE,
+	DUNGEON_QUEST_5_MODE,
+	FOREST_QUEST_5_MODE,
+	FLAME_QUEST_5_MODE
+};
+const int NoTeamMode[] = {
+	BIG_MATCH_SURVIVAL_MODE,
+	INFINITY_SURVIVAL_II_MODE,
+	INFINITY_KING_MODE,
+	INFINITY_SYMBOL_MODE,
+	SURVUVAL_MODE,
+	KING_SURVIVAL_MODE,
+	ASSAULT_MODE,
+	KING_SLAYER_MODE,
+	FIGHT_CLUB_MODE,
+	TOURNAMENT_MODE,
+	SNOW_DODGE_MODE,
+	ICE_HOCKEY_MODE,
+	COMMUNITY_MODE
+};
 
 enum Character {
 	None = 0,
@@ -242,10 +325,10 @@ const int PenantSkill1[] = { 114, 115, 116, 117, 172, 173, 174, 175, 176, 177, 1
 const int PenantSkill2[] = { 349, 350, 351, 352, 357, 358, 359, 360, 361, 362, 363, 364, 365, 366, 367, 368 };
 
 const int ShieldSkill1[] = { 102, 103, 104, 105, 106, 107, 108, 109, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197 };
-const int ShieldSkill2[] = { 348, 349, 350, 351, 352, 357, 358, 359, 360, 361, 362, 363, 364, 372, 373, 374, 375, 376, 380, 381, 382, 383, 384, 385, 386, 387, 388, 389, 390, 391, 392, 393, 394, 395, 396, 397, 398, 399, 400, 401, 402, 403, 404, 405, 406, 407, 408, 409, 410, 411, 412, 413, 414, 415, 416, 417, 418, 419, 420, 421, 422, 423, 424, 425, 426, 427, 428, 429, 430, 431, 432, 433, 434, 435 };
+const int ShieldSkill2[] = { 348, 349, 350, 351, 352, 357, 358, 359, 360, 361, 362, 363, 364, 373, 374, 375, 376, 380, 381, 382, 383, 384, 385, 386, 387, 388, 389, 390, 391, 392, 393, 394, 395, 396, 397, 398, 399, 400, 401, 402, 403, 404, 405, 406, 407, 408, 409, 410, 411, 412, 413, 414, 415, 416, 417, 418, 419, 420, 421, 422, 423, 424, 425, 426, 427, 428, 429, 430, 431, 432, 433, 434, 435 };
 
 const int ArmorSkill1[] = { 107, 108, 109, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197 };
-const int ArmorSkill2[] = { 372, 373, 374, 375, 376, 380, 381, 382, 383, 384, 385, 386, 387, 388, 389, 390, 391, 392, 393, 394, 395, 396, 397, 398, 399, 400, 401, 402, 403, 404, 405, 406, 407, 408, 409, 410, 411, 412, 413, 414, 415, 416, 417, 418, 419, 420, 421, 422, 423, 424, 425, 426, 427, 428, 429, 430, 431, 432, 433, 434, 435 };
+const int ArmorSkill2[] = { 373, 374, 375, 376, 380, 381, 382, 383, 384, 385, 386, 387, 388, 389, 390, 391, 392, 393, 394, 395, 396, 397, 398, 399, 400, 401, 402, 403, 404, 405, 406, 407, 408, 409, 410, 411, 412, 413, 414, 415, 416, 417, 418, 419, 420, 421, 422, 423, 424, 425, 426, 427, 428, 429, 430, 431, 432, 433, 434, 435 };
 
 const int WeaponSkill1[] = { 100,118,119,120,121,122,123,124,125,126,127,128,129,130,131,132,133,134,135,136,137,138,139,140,141 };
 const int MeleeWpnSkill2[] = { 200,201,300,301,302,303,304,306,314,315,316,317,318,319,320,321,322,323,324,325,326,327,328,329,330,331,332,333,334,335,336,337,338,339,340,341,342,343,344,345,346,347,348,373,374,375,376,377,378,379,380,381,382,383,384,385,386,387,388,389,390,391,392,393,394,395,396,397,398,399,400,401,402,403,404,405,406,407,408,409,410,411,412,413,414,415,416,417,418,419,420,421,422,423,424,425,426,427,428,429,430,431,432,433,434,435 };
@@ -446,7 +529,7 @@ public:
 		{
 			int a = Type % 10, b = IdentifyItem(Type);
 			int Skill1 = Random::UInt(1, (level + 1) * 4);
-			int Skill2 = (old_skill % 1000);
+			int Skill2 = (old_skill / 1000) % 1000;
 			int Skill3 = 0;
 			if (a == 4 && b == ct_arm) //boots
 			{
@@ -502,7 +585,7 @@ public:
 			if (a == 4 && b == ct_arm) //boots
 			{
 				if (SkillRoll(Skill2, { 110,156,157,158,159 }))
-					if (SkillRoll(Skill2, { 103,160,161,162,163 }))
+					if (SkillRoll(Skill2, { 111,160,161,162,163 }))
 						if (SkillRoll(Skill2, { 112,164,165,166,167 }))
 							if (SkillRoll(Skill2, { 113,168,169,170,171 }));
 							else Skill2 = BootSkill1[Random::UInt(_countof(BootSkill1))];
@@ -517,9 +600,9 @@ public:
 							if (SkillRoll(Skill2, { 184,185 }))//Defense
 								if (SkillRoll(Skill2, { 154,155,109,196,197 }))//Hit dalay bounce
 									if (SkillRoll(Skill2, { 150,151,107,192,193 }));//Hit delay
-							else Skill2 = BootSkill1[Random::UInt(_countof(BootSkill1))];
-							Skill Sk(Skill1, Skill2, Skill3);
-							return Sk.getType();
+									else Skill2 = BootSkill1[Random::UInt(_countof(BootSkill1))];
+									Skill Sk(Skill1, Skill2, Skill3);
+									return Sk.getType();
 			}
 			if (a == 2 && b == ct_arm) //Pendant
 			{
@@ -539,9 +622,9 @@ public:
 							if (SkillRoll(Skill2, { 105,108,148,149,152,153,190,191,194,195 }))
 								if (SkillRoll(Skill2, { 107,150,151,192,193 }))
 									if (SkillRoll(Skill2, { 109,154,155,196,197 }));
-							else Skill2 = BootSkill1[Random::UInt(_countof(BootSkill1))];
-							Skill Sk(Skill1, Skill2, Skill3);
-							return Sk.getType();
+									else Skill2 = BootSkill1[Random::UInt(_countof(BootSkill1))];
+									Skill Sk(Skill1, Skill2, Skill3);
+									return Sk.getType();
 			}
 			if (b == ct_wpn)
 			{
@@ -551,8 +634,8 @@ public:
 							if (SkillRoll(Skill2, { 132,133,134,135,136 }))
 								if (SkillRoll(Skill2, { 138,139,140,141 }));
 								else Skill2 = BootSkill1[Random::UInt(_countof(BootSkill1))];
-				Skill Sk(Skill1, Skill2, Skill3);
-				return Sk.getType();
+								Skill Sk(Skill1, Skill2, Skill3);
+								return Sk.getType();
 			}
 			if (b == ct_mag)
 			{

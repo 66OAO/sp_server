@@ -205,9 +205,9 @@ struct CreateRoomResponse {
 	int character; //0xA0
 	int unk03; //0x74F59300
 	int maxcardlevel; //-1
-	char allowcritsheild;
-	char unk3; //0
+	char unk3;
 	char unk4; //0
+	char allowcritsheild; //0
 	char unk5; //0
 };
 

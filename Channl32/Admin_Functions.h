@@ -16,7 +16,7 @@ void PacketHandler::SendGmMessage(char *text) {
 	MySql.InsertMsg(Chat_Request->senderId, "GM", Chat_Request->msg);
 	for (int i = 0; i < 13; i++)
 		Chat_Request->senderId[i] = Chat_Request->recieverId[i] = 0;
-	HandleList.ProdcastChat(0, Chat_Request);
+	HandleList.BroadcastChat(0, Chat_Request);
 }
 
 void PacketHandler::DisconnectPlayer(char *name) {
@@ -42,10 +42,10 @@ void PacketHandler::KickPlayer(char *cmd) {
 			else if (room[0] == '.')nroom = Info.usr_room;
 			if (nroom == -1)return;
 			if (nslot >= 0 && nslot < 8)
-				RoomList.ProdcastKickResponse(nroom, nslot);
+				RoomList.BroadcastKickResponse(nroom, nslot);
 			else if (nslot == 100) {
 				for (int i = 0; i < 8; i++)
-					RoomList.ProdcastKickResponse(nroom, i);
+					RoomList.BroadcastKickResponse(nroom, i);
 			}
 }
 
@@ -57,6 +57,6 @@ void PacketHandler::RevivePlayer(char *cmd) {
 	RR.locationy = 0;
 	for (int i = 0; i < 8; i++) {
 		RR.Slot = i;
-		RoomList.ProdcastReviveResponse(&RR, Info.usr_room);
+		RoomList.BroadcastReviveResponse(&RR, Info.usr_room);
 	}
 }

@@ -435,7 +435,7 @@ void MySQL::UpgradeCard(MyCharInfo *Info, CardUpgradeResponse *CUR)
 			levelUpFailed = true;
 		}
 	}
-
+	int CompensateNum = 0;
 	// caculating costs of upgrade
 	switch (CUR->UpgradeType)
 	{
@@ -444,9 +444,7 @@ void MySQL::UpgradeCard(MyCharInfo *Info, CardUpgradeResponse *CUR)
 	{
 		int ItemSpirite = (CUR->Type % 100) / 10;
 		int EleCost = Item.GetUpgradeCost(CUR->Type, CUR->Level, CUR->UpgradeType);
-		int CompensateNum = COMPENSATE_RATE * EleCost + Random::UInt(1, COMPENSATE_RATE * EleCost);
-		
-
+		if(CUR->Level > 4) CompensateNum = COMPENSATE_RATE * EleCost + COMPENSATE_RATE * (rand() % EleCost);
 		if (ItemSpirite == 1)
 		{
 			Info->Water -= EleCost;
@@ -478,11 +476,6 @@ void MySQL::UpgradeCard(MyCharInfo *Info, CardUpgradeResponse *CUR)
 		if (!query.empty())
 			Query(query);
 
-		CUR->CompensateNum = CompensateNum;
-		CUR->WaterElements = Info->Water;
-		CUR->FireElements = Info->Fire;
-		CUR->EarthElements = Info->Earth;
-		CUR->WindElements = Info->Wind;
 	}
 	break;
 	case 3://Level Fusion
@@ -533,6 +526,11 @@ void MySQL::UpgradeCard(MyCharInfo *Info, CardUpgradeResponse *CUR)
 	}
 
 	CUR->Skill = Item.GenerateSkill(CUR->Level, CUR->Type, CUR->UpgradeType, old_skill);
+	CUR->CompensateNum = CompensateNum;
+	CUR->WaterElements = Info->Water;
+	CUR->FireElements = Info->Fire;
+	CUR->EarthElements = Info->Earth;
+	CUR->WindElements = Info->Wind;
 	Query("UPDATE items SET itm_level = {}, itm_skill = {} WHERE itm_usr_id = {} AND itm_slot = {}",
 		CUR->Level, CUR->Skill, Info->usr_id, CUR->Slot);
 }
