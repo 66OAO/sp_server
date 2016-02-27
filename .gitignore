@@ -4,8 +4,6 @@
 *.o
 *.obj
 
-*.sdf
-*.opensdf
 # Precompiled Headers
 *.gch
 *.pch
@@ -13,9 +11,6 @@
 # Compiled Dynamic libraries
 *.so
 *.dylib
-
-# Fortran module files
-*.mod
 
 # Compiled Static libraries
 *.lai
@@ -27,10 +22,15 @@
 *.exe
 *.out
 *.app
-/builds
 *.ini
 *.tss
 *.pdb
 *.lnk
-config.ini
+
+# Visual Studio
+*.suo
+*.sdf
+*.opensdf
+
+/builds
 /bin
