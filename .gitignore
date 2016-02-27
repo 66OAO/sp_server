@@ -16,9 +16,6 @@
 *.so
 *.dylib
 
-# Fortran module files
-*.mod
-
 # Compiled Static libraries
 *.lai
 *.la
@@ -29,9 +26,15 @@
 *.exe
 *.out
 *.app
-/builds
-/bin
+*.ini
 *.tss
-bin/config.ini
 *.pdb
 *.lnk
+
+# Visual Studio
+*.suo
+*.sdf
+*.opensdf
+
+/builds
+/bin

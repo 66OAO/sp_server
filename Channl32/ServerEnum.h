@@ -321,17 +321,81 @@ public:
 		}
 		return 0;
 	}
+	bool SkillRoll(int skill, const std::initializer_list<int> & list) {
+		if (std::find(list.begin(), list.end(), skill) != list.end()) {
+			auto it = list.begin();
+			std::advance(it, Random::UInt(list.size() - 1));
+			skill = *it;
+			return true;
+		}
+		return false;
+	}
 	int GenerateSkill(int level, int Type, int UpgradeType, int old_skill)
 	{
-
 		switch (UpgradeType)
 		{
+		case 2://Element Skill
+		case 4://Skill Fusion
+		default:
+		{
+			int a = Type % 10, b = IdentifyItem(Type);
+			int Skill1 = Random::UInt(1, (level + 1) * 4);
+			int Skill2 = 0, Skill3 = 0;
+			if (a == 4 && b == ct_arm) //boots
+			{
+				Skill2 = BootSkill1[Random::UInt(_countof(BootSkill1))];
+				Skill3 = BootSkill2[Random::UInt(_countof(BootSkill2))];
+				Skill Sk(Skill1, Skill2, Skill3);
+				return Sk.getType();
+			}
+			if (a == 3 && b == ct_arm) //armor
+			{
+				Skill2 = ArmorSkill1[Random::UInt(_countof(ArmorSkill1))];
+				Skill3 = ArmorSkill2[Random::UInt(_countof(ArmorSkill2))];
+				Skill Sk(Skill1, Skill2, Skill3);
+				return Sk.getType();
+			}
+			if (a == 2 && b == ct_arm) //Pendant
+			{
+				Skill2 = PenantSkill1[Random::UInt(_countof(PenantSkill1))];
+				Skill3 = PenantSkill2[Random::UInt(_countof(PenantSkill2))];
+				Skill Sk(Skill1, Skill2, Skill3);
+				return Sk.getType();
+			}
+			if (a == 1 && b == ct_arm) //Shield
+			{
+				Skill2 = ShieldSkill1[Random::UInt(_countof(ShieldSkill1))];
+				Skill3 = ShieldSkill2[Random::UInt(_countof(ShieldSkill2))];
+				Skill Sk(Skill1, Skill2, Skill3);
+				return Sk.getType();
+			}
+			if (b == ct_wpn)
+			{
+				Skill2 = WeaponSkill1[Random::UInt(_countof(WeaponSkill1))];
+				if (a == 1 || a == 3)
+				{
+					Skill3 = MeleeWpnSkill2[Random::UInt(_countof(MeleeWpnSkill2))];
+				}
+				else if (a == 2 || a == 4) {
+					Skill3 = RangedWpnSkill2[Random::UInt(_countof(RangedWpnSkill2))];
+				}
+				Skill Sk(Skill1, Skill2, Skill3);
+				return Sk.getType();
+			}
+			if (b == ct_mag) {
+				Skill2 = MagicSkill[Random::UInt(_countof(MagicSkill))];
+				Skill3 = MagicSkill[Random::UInt(_countof(MagicSkill))];
+				Skill Sk(Skill1, Skill2, Skill3);
+				return Sk.getType();
+			}
+		}
+		break;
 		case 5://Skill 1 Fusion
 		{
 			int a = Type % 10, b = IdentifyItem(Type);
-			int Skill1 = (old_skill / 1000000 % 10) + 10 * (old_skill / 10000000 % 10) + 100 * (old_skill / 100000000 % 10);
+			int Skill1 = (old_skill / 1000000);
 			int Skill2 = 0;
-			int Skill3 = (old_skill / 1 % 10) + 10 * (old_skill / 10 % 10) + 100 * (old_skill / 100 % 10);
+			int Skill3 = (old_skill % 1000);
 			if (a == 4 && b == ct_arm) //boots
 			{
 				Skill2 = BootSkill1[Random::UInt(_countof(BootSkill1))];
@@ -380,7 +444,7 @@ public:
 		{
 			int a = Type % 10, b = IdentifyItem(Type);
 			int Skill1 = Random::UInt(1, (level + 1) * 4);
-			int Skill2 = (old_skill / 1000 % 10) + 10 * (old_skill / 10000 % 10) + 100 * (old_skill / 100000 % 10);
+			int Skill2 = (old_skill % 1000);
 			int Skill3 = 0;
 			if (a == 4 && b == ct_arm) //boots
 			{
@@ -430,93 +494,78 @@ public:
 		case 7://Skill 1 - 1 Fusion
 		{
 			int a = Type % 10, b = IdentifyItem(Type);
-			int Skill1 = (old_skill / 1000000 % 10) + 10 * (old_skill / 10000000 % 10) + 100 * (old_skill / 100000000 % 10);
-			int Skill2 = (old_skill / 1000 % 10) + 10 * (old_skill / 10000 % 10) + 100 * (old_skill / 100000 % 10);
-			int Skill3 = (old_skill / 1 % 10) + 10 * (old_skill / 10 % 10) + 100 * (old_skill / 100 % 10);
+			int Skill1 = (old_skill / 1000000);
+			int Skill2 = (old_skill / 1000) % 1000;
+			int Skill3 = (old_skill % 1000);
 			if (a == 4 && b == ct_arm) //boots
 			{
-				for (int i = 0; i < sizeof(BootSkill1); i += 4) {
-					for (int j = 0; j < 4; j++) {
-						if (Skill2 == BootSkill1[i + j]) {
-							Skill2 = BootSkill1[i + Random::UInt(0, 4)];
-						}
-					}
-				}
-				Skill Sk(Skill1, Skill2, Skill3);
-				return Sk.getType();
+				if (SkillRoll(Skill2, { 110,156,157,158,159 }))
+					if (SkillRoll(Skill2, { 103,160,161,162,163 }))
+						if (SkillRoll(Skill2, { 112,164,165,166,167 }))
+							if (SkillRoll(Skill2, { 113,168,169,170,171 }));
+							else Skill2 = BootSkill1[Random::UInt(_countof(BootSkill1))];
+							Skill Sk(Skill1, Skill2, Skill3);
+							return Sk.getType();
 			}
 			if (a == 3 && b == ct_arm) //armor
 			{
-				for (int i = 0; i < sizeof(ArmorSkill1); i += 3) {
-					for (int j = 0; j < 3; j++) {
-						if (Skill2 == ArmorSkill1[i + j]) {
-							Skill2 = ArmorSkill1[i + Random::UInt(0, 3)];
-						}
-					}
-				}
-				Skill Sk(Skill1, Skill2, Skill3);
-				return Sk.getType();
+				if (SkillRoll(Skill2, { 102,106,144,145,186,187 }))
+					if (SkillRoll(Skill2, { 103,142,143,184,185 }))
+						if (SkillRoll(Skill2, { 104,146,147,188,189 }))
+							if (SkillRoll(Skill2, { 113,168,169,170,171 }));
+							else Skill2 = BootSkill1[Random::UInt(_countof(BootSkill1))];
+							Skill Sk(Skill1, Skill2, Skill3);
+							return Sk.getType();
 			}
 			if (a == 2 && b == ct_arm) //Pendant
 			{
-				for (int i = 0; i < sizeof(PenantSkill1); i += 4) {
-					for (int j = 0; j < 4; j++) {
-						if (Skill2 == PenantSkill1[i + j]) {
-							Skill2 = PenantSkill1[i + Random::UInt(0, 4)];
-						}
-					}
-				}
-				Skill Sk(Skill1, Skill2, Skill3);
-				return Sk.getType();
+				if (SkillRoll(Skill2, { 102,106,144,145,186,187 }))
+					if (SkillRoll(Skill2, { 103,142,143,184,185 }))
+						if (SkillRoll(Skill2, { 104,146,147,188,189 }))
+							if (SkillRoll(Skill2, { 113,168,169,170,171 }));
+							else Skill2 = BootSkill1[Random::UInt(_countof(BootSkill1))];
+							Skill Sk(Skill1, Skill2, Skill3);
+							return Sk.getType();
 			}
 			if (a == 1 && b == ct_arm) //Shield
 			{
-				for (int i = 0; i < sizeof(ShieldSkill1); i += 4) {
-					for (int j = 0; j < 4; j++) {
-						if (Skill2 == ShieldSkill1[i + j]) {
-							Skill2 = ShieldSkill1[i + Random::UInt(0, 4)];
-						}
-					}
-				}
-
-				Skill Sk(Skill1, Skill2, Skill3);
-				return Sk.getType();
+				if (SkillRoll(Skill2, { 105,108 }))
+					if (SkillRoll(Skill2, { 103,142,143,184,185 }))
+						if (SkillRoll(Skill2, { 104,146,147,188,189 }))
+							if (SkillRoll(Skill2, { 113,168,169,170,171 }));
+							else Skill2 = BootSkill1[Random::UInt(_countof(BootSkill1))];
+							Skill Sk(Skill1, Skill2, Skill3);
+							return Sk.getType();
 			}
 			if (b == ct_wpn)
 			{
 				if (a == 1 || a == 3)
 				{
-					if (Skill2 != 137) {
-						for (int i = 0; i < sizeof(WeaponSkill1); i += 5) {
-							for (int j = 0; j < 5; j++) {
-								if (Skill2 == WeaponSkill1[i + j]) {
-									Skill2 = WeaponSkill1[i + Random::UInt(0, 5)];
-								}
-							}
-						}
-					}
+					if (SkillRoll(Skill2, { 105,108 }))
+						if (SkillRoll(Skill2, { 103,142,143,184,185 }))
+							if (SkillRoll(Skill2, { 104,146,147,188,189 }))
+								if (SkillRoll(Skill2, { 113,168,169,170,171 }));
+								else Skill2 = BootSkill1[Random::UInt(_countof(BootSkill1))];
 				}
 				else if (a == 2 || a == 4)
 				{
-					if (Skill2 != 137) {
-						for (int i = 0; i < sizeof(WeaponSkill1); i += 6) {
-							for (int j = 0; j < 6; j++) {
-								if (Skill2 == WeaponSkill1[i + j]) {
-									Skill2 = WeaponSkill1[i + Random::UInt(0, 6)];
-								}
-							}
-						}
-					}
+					if (SkillRoll(Skill2, { 105,108 }))
+						if (SkillRoll(Skill2, { 103,142,143,184,185 }))
+							if (SkillRoll(Skill2, { 104,146,147,188,189 }))
+								if (SkillRoll(Skill2, { 113,168,169,170,171 }));
+								else Skill2 = BootSkill1[Random::UInt(_countof(BootSkill1))];
 				}
 				Skill Sk(Skill1, Skill2, Skill3);
 				return Sk.getType();
 			}
 			if (b == ct_mag)
 			{
-				do
+				for (int i = 385;i < 436;i += 5)
 				{
-					Skill2 = MagicSkill[Random::UInt(_countof(MagicSkill))];
-				} while (Skill2 = Skill3);
+					if (i < Skill2 < i + 6)
+						Skill2 = Random::UInt(i + 1, i + 5);
+					break;
+				}
 				Skill Sk(Skill1, Skill2, Skill3);
 				return Sk.getType();
 			}
@@ -525,8 +574,8 @@ public:
 		case 8://Skill 2 - 1 Fusion
 		{
 			int a = Type % 10, b = IdentifyItem(Type);
-			int Skill1 = (old_skill / 1000000 % 10) + 10 * (old_skill / 10000000 % 10) + 100 * (old_skill / 100000000 % 10);
-			int Skill2 = (old_skill / 1000 % 10) + 10 * (old_skill / 10000 % 10) + 100 * (old_skill / 100000 % 10);
+			int Skill1 = (old_skill / 1000000);
+			int Skill2 = (old_skill / 1000) % 1000;
 			int Skill3 = 0;
 			if (a == 4 && b == ct_arm) //boots
 			{
@@ -577,67 +626,10 @@ public:
 		{
 			int a = Type % 10, b = IdentifyItem(Type);
 			int Skill1 = Random::UInt(1, (level + 1) * 4);
-			int Skill2 = (old_skill / 1000 % 10) + 10 * (old_skill / 10000 % 10) + 100 * (old_skill / 100000 % 10);
-			int Skill3 = (old_skill / 1 % 10) + 10 * (old_skill / 10 % 10) + 100 * (old_skill / 100 % 10);
+			int Skill2 = (old_skill / 1000) % 1000;
+			int Skill3 = (old_skill % 1000);
 			Skill Sk(Skill1, Skill2, Skill3);
 			return Sk.getType();
-		}
-		break;
-		case 2://Elements
-		case 4://Skill Fusion
-		default:
-		{
-			int sizeofBootSkill1 = sizeof(BootSkill1);
-			int a = Type % 10, b = IdentifyItem(Type);
-			int Skill1 = Random::UInt(1, (level + 1) * 4);
-			int Skill2 = 0, Skill3 = 0;
-			if (a == 4 && b == ct_arm) //boots
-			{
-				Skill2 = BootSkill1[Random::UInt(20)];
-				Skill3 = BootSkill2[Random::UInt(20)];
-				Skill Sk(Skill1, Skill2, Skill3);
-				return Sk.getType();
-			}
-			if (a == 3 && b == ct_arm) //armor
-			{
-				Skill2 = ArmorSkill1[Random::UInt(30)];
-				Skill3 = ArmorSkill2[Random::UInt(61)];
-				Skill Sk(Skill1, Skill2, Skill3);
-				return Sk.getType();
-			}
-			if (a == 2 && b == ct_arm) //Pendant
-			{
-				Skill2 = PenantSkill1[Random::UInt(12)];
-				Skill3 = PenantSkill2[Random::UInt(16)];
-				Skill Sk(Skill1, Skill2, Skill3);
-				return Sk.getType();
-			}
-			if (a == 1 && b == ct_arm) //Shield
-			{
-				Skill2 = ShieldSkill1[Random::UInt(35)];
-				Skill3 = ShieldSkill2[Random::UInt(74)];
-				Skill Sk(Skill1, Skill2, Skill3);
-				return Sk.getType();
-			}
-			if (b == ct_wpn)
-			{
-				Skill2 = WeaponSkill1[Random::UInt(25)];
-				if (a == 1 || a == 3)
-				{
-					Skill3 = MeleeWpnSkill2[Random::UInt(106)];
-				}
-				else if (a == 2 || a == 4) {
-					Skill3 = RangedWpnSkill2[Random::UInt(107)];
-				}
-				Skill Sk(Skill1, Skill2, Skill3);
-				return Sk.getType();
-			}
-			if (b == ct_mag) {
-				Skill2 = MagicSkill[Random::UInt(104)];
-				Skill3 = MagicSkill[Random::UInt(104)];
-				Skill Sk(Skill1, Skill2, Skill3);
-				return Sk.getType();
-			}
 		}
 		break;
 		}

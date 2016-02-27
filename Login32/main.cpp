@@ -7,15 +7,11 @@ int main()
 {
 	hConsoleOutput = GetStdHandle(STD_OUTPUT_HANDLE);
 	//printf("%x\n",sizeof(TrainingDoneResponse));
-	cLoginServer *LoginServer = new cLoginServer;
+	UniquePtr<LoginServer> login_server = MakeUnique<LoginServer>();
 
-	if (LoginServer->Start())
+	if (login_server->Start())
 		printf("----- Server Started -----\n");
 
-	LoginServer->CommLoop();
-	delete LoginServer;
-
-	printf("Server Closing\n");
-
+	login_server->CommLoop();
 	return 0;
 }

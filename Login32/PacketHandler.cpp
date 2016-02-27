@@ -34,6 +34,16 @@ PacketHandler::PacketHandler(unsigned char* buf, int &socket_usr_id)
 		Log::Info("TRAINING_DONE_REQ");
 		GenerateResponse(TRAINING_DONE_RESPONSE);
 		break;
+	case LOGIN_STATUS_REQ:
+		Login_Status_Request = (LoginStatusRequest*)buf;
+		Log::Info("LOGIN_STATUS_REQ");
+		if (Login_Status_Request->status == 1) {
+			Log::Info("Client Logout : {} ", Login_Status_Request->username);
+		}
+		else {
+			Log::Info("Client Quit Channel : {} ", Login_Status_Request->username);
+		}
+		break;
 	}
 }
 

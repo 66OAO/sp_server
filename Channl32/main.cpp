@@ -18,17 +18,17 @@ int main()
 	//cout << hex << sizeof(QuestGainResponse) << endl;
 	hConsoleOutput = GetStdHandle(STD_OUTPUT_HANDLE);
 
-	ChannelServer *CS = new ChannelServer;
-
-	config.SetSection("CHANNELS");
-	u32 port = config.ReadInt("port", 9303);
-
-	if (CS->Start(port))
 	{
-		Log::Out("----- Channel Server Started -----\n");
+		UniquePtr<ChannelServer> channel_server = MakeUnique<ChannelServer>();
+
+		config.SetSection("CHANNELS");
+		u32 port = config.ReadInt("port", 9303);
+
+		if(channel_server->Start(port)) {
+			Log::Out("----- Channel Server Started -----\n");
+		}
+		channel_server->CommLoop();
 	}
-	CS->CommLoop();
-	delete CS;
 
 	cout << endl;
 	if (SAVELOG)
