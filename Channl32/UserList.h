@@ -80,6 +80,8 @@ struct LobbyRoom {
 	PacketHandler *Player[8];
 	int blueteam;
 	int redteam;
+	int allowscroll;
+	int autoteam;
 	//NpcList npc;
 };
 
@@ -98,6 +100,8 @@ public:
 			Rooms[i].started = false;
 			Rooms[i].blueteam = 0;
 			Rooms[i].redteam = 0;
+			Rooms[i].allowscroll = 0;
+			Rooms[i].autoteam = 0;
 			for (int j = 0; j < 8; j++) {
 				Rooms[i].level[j] = -99;
 				Rooms[i].gender[j] = false;
@@ -155,6 +159,8 @@ public:
 				Rooms[i].gender[0] = gender;
 				Rooms[i].users[0] = s;
 				Rooms[i].Player[0] = newPlayer;
+				Rooms[i].allowscroll = CRR->allowscrolls;
+				Rooms[i].autoteam = CRR->autoteam;
 				newPlayer->Info.usr_slot = 0;
 				Rooms[i].master = 0;
 				newPlayer->Info.rm_master = 0;

@@ -211,15 +211,19 @@ bool PacketHandler::GetRoomJoinResponse()
 	bool join = RoomList.JoinRoom(this, &LobbyInfo.name, Room_Join_Request->roomnumber, Info.gender, Info.Level);
 	if (join)RoomList.GetRoomData(&Room_Join_Response);
 	Room_Join_Response.unk2 = !join;
-
-	Room_Join_Response.unk05 = 0;//(Room_Join_Response.mode >= 12 && Room_Join_Response.mode <= 27) ? 1 : 0; //1 scroll
-																										 //Room_Join_Response.unk06 = 1; unknow
-																										 //Room_Join_Response.unk07 = 1; dont set ..
-																										 //
-
+	for (int i = 0;i < MaxRoom; i++)
+	{ 
+		if(RoomList.Rooms[i].n == Room_Join_Request->roomnumber)
+		{ 
+			Room_Join_Response.unk10 = RoomList.Rooms[i].autoteam; // auto team
+			Room_Join_Response.unk05 = RoomList.Rooms[i].allowscroll;
+		}
+	}
+	//(Room_Join_Response.mode >= 12 && Room_Join_Response.mode <= 27) ? 1 : 0; //1 scroll
+	//Room_Join_Response.unk06 = 1; unknow
+	 //Room_Join_Response.unk07 = 1; dont set ..
 	Room_Join_Response.Slot = Info.usr_slot; //1
 	Room_Join_Response.unk09 = 111; //0xA
-	Room_Join_Response.unk10 = 1; // auto team
 	Room_Join_Response.unk11 = -1; // limit
 	Room_Join_Response.unk12 = 1;
 	//Room_Join_Response.unk13 = 1;
