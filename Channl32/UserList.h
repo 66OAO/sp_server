@@ -379,12 +379,12 @@ public:
 		for (int i = 0; i < MaxRoom; i++)
 			if (Rooms[i].n == n) {
 				int mode = Rooms[i].mode;
-				int Quest_Mode[15] = { 11,18,23,12,19,24,13,20,25,14,21,26,16,22,27 };
+				int Quest_Mode[15] = { 11,12,13,14,17,18,19,20,21,22,23,24,25,26,27 };
 				for (int j = 0; j < 15; j++) {
 					if (Quest_Mode[j] == Rooms[i].mode) {
 						if (Rooms[i].started) return true;
-						for (int k = 0; k < Rooms[i].p; k++) {
-							if (!Rooms[i].Player[k]->Info.usr_ready) return false;
+						for (int k = 0; k < Rooms[i].maxp; k++) {
+							if (Rooms[i].Player[k] && !Rooms[i].Player[k]->Info.usr_ready) return false;
 						}
 						return true;
 					}
@@ -462,8 +462,8 @@ public:
 			}
 	}
 	bool NoTeam(int mode) {
-		int No_Team_Mode[15] = { 11,18,23,12,19,24,13,20,25,14,21,26,16,22,27 };
-		for (int i = 0; i < 15; i++) {
+		int No_Team_Mode[17] = { 1,11,18,23,12,19,24,13,20,25,14,15,21,26,16,22,27 };
+		for (int i = 0; i < 17; i++) {
 			if (No_Team_Mode[i] == mode) return true;
 		}
 		return false;
@@ -556,7 +556,7 @@ public:
 
 	}
 	void ProdcastDeathResponse(PlayerKilledRequest *PK, int n) {
-		cout << "-- PlayerKilledRequest --" << endl;
+		cout << "-- ProdcastDeathResponse --" << endl;
 		PlayerKilledResponse PKR;
 		PKR.size = 0xAC;
 		PKR.type = PLAYER_KILLED_RESPONSE;
@@ -573,7 +573,7 @@ public:
 		PKR.unk8 = 1; //1
 		for (int i = 0; i < 6; i++)PKR.zeros[i] = 0;
 		for (int i = 0; i < 16; i++)PKR.unks[i] = -1;
-		PKR.unk01 = 2; //maybe kills
+		PKR.unk01 = 0; //maybe kills
 		PKR.unk02 = 1; //0,1 maybe king
 		PKR.unk03 = 1; //1
 		//PKR.canRespawn = Info.quest; //0

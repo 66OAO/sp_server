@@ -266,7 +266,7 @@ void PacketHandler::GetRoomCreateResponse() {
 	Create_Room_Response.character = Info.DefaultCharacter + 120; //0x0A
 	Create_Room_Response.unk03 = 0x74F59300; //0x74F59300
 	Create_Room_Response.maxcardlevel = Create_Room_Request->maxcardlevel;
-	Create_Room_Response.allowcritsheild = Create_Room_Request->allowcritsheild;
+	Create_Room_Response.allowcritsheild = 1;
 	Create_Room_Response.unk3 = Create_Room_Request->unk3; //0
 	Create_Room_Response.unk4 = Create_Room_Request->unk4; //0
 	Create_Room_Response.unk5 = Create_Room_Request->unk5; //0

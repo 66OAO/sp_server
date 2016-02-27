@@ -321,14 +321,14 @@ public:
 		}
 		return 0;
 	}
-	bool SkillRoll(int skill, const std::initializer_list<int> & list) {
+	bool SkillRoll(int &skill, const std::initializer_list<int> & list) {
 		if (std::find(list.begin(), list.end(), skill) != list.end()) {
 			auto it = list.begin();
 			std::advance(it, Random::UInt(list.size() - 1));
 			skill = *it;
-			return true;
+			return false;
 		}
-		return false;
+		return true;
 	}
 	int GenerateSkill(int level, int Type, int UpgradeType, int old_skill)
 	{
@@ -509,62 +509,60 @@ public:
 			}
 			if (a == 3 && b == ct_arm) //armor
 			{
-				if (SkillRoll(Skill2, { 102,106,144,145,186,187 }))
-					if (SkillRoll(Skill2, { 103,142,143,184,185 }))
-						if (SkillRoll(Skill2, { 104,146,147,188,189 }))
-							if (SkillRoll(Skill2, { 113,168,169,170,171 }));
+				if (SkillRoll(Skill2, { 190,191,152,153,148,149,108,194,195 }))//Bounce
+					if (SkillRoll(Skill2, { 188,189,146,147,143 }))//Defense delay
+						if (SkillRoll(Skill2, { 186,187,144,145 }))//Damage
+							if (SkillRoll(Skill2, { 184,185 }))//Defense
+								if (SkillRoll(Skill2, { 154,155,109,196,197 }))//Hit dalay bounce
+									if (SkillRoll(Skill2, { 150,151,107,192,193 }));//Hit delay
 							else Skill2 = BootSkill1[Random::UInt(_countof(BootSkill1))];
 							Skill Sk(Skill1, Skill2, Skill3);
 							return Sk.getType();
 			}
 			if (a == 2 && b == ct_arm) //Pendant
 			{
-				if (SkillRoll(Skill2, { 102,106,144,145,186,187 }))
-					if (SkillRoll(Skill2, { 103,142,143,184,185 }))
-						if (SkillRoll(Skill2, { 104,146,147,188,189 }))
-							if (SkillRoll(Skill2, { 113,168,169,170,171 }));
+				if (SkillRoll(Skill2, { 114,172,173 }))//Hp recovery
+					if (SkillRoll(Skill2, { 115,174,175 }))
+						if (SkillRoll(Skill2, { 116,176,177 }))
+							if (SkillRoll(Skill2, { 117,178,179 }));
 							else Skill2 = BootSkill1[Random::UInt(_countof(BootSkill1))];
 							Skill Sk(Skill1, Skill2, Skill3);
 							return Sk.getType();
 			}
 			if (a == 1 && b == ct_arm) //Shield
 			{
-				if (SkillRoll(Skill2, { 105,108 }))
-					if (SkillRoll(Skill2, { 103,142,143,184,185 }))
+				if (SkillRoll(Skill2, { 102,106,144,145,186,187 }))
+					if (SkillRoll(Skill2, { 103,143,184,185 }))
 						if (SkillRoll(Skill2, { 104,146,147,188,189 }))
-							if (SkillRoll(Skill2, { 113,168,169,170,171 }));
+							if (SkillRoll(Skill2, { 105,108,148,149,152,153,190,191,194,195 }))
+								if (SkillRoll(Skill2, { 107,150,151,192,193 }))
+									if (SkillRoll(Skill2, { 109,154,155,196,197 }));
 							else Skill2 = BootSkill1[Random::UInt(_countof(BootSkill1))];
 							Skill Sk(Skill1, Skill2, Skill3);
 							return Sk.getType();
 			}
 			if (b == ct_wpn)
 			{
-				if (a == 1 || a == 3)
-				{
-					if (SkillRoll(Skill2, { 105,108 }))
-						if (SkillRoll(Skill2, { 103,142,143,184,185 }))
-							if (SkillRoll(Skill2, { 104,146,147,188,189 }))
-								if (SkillRoll(Skill2, { 113,168,169,170,171 }));
+				if (SkillRoll(Skill2, { 100,118,119,120,121 }))
+					if (SkillRoll(Skill2, { 122,123,124,125,126 }))
+						if (SkillRoll(Skill2, { 127,128,129,130,131 }))
+							if (SkillRoll(Skill2, { 132,133,134,135,136 }))
+								if (SkillRoll(Skill2, { 138,139,140,141 }));
 								else Skill2 = BootSkill1[Random::UInt(_countof(BootSkill1))];
-				}
-				else if (a == 2 || a == 4)
-				{
-					if (SkillRoll(Skill2, { 105,108 }))
-						if (SkillRoll(Skill2, { 103,142,143,184,185 }))
-							if (SkillRoll(Skill2, { 104,146,147,188,189 }))
-								if (SkillRoll(Skill2, { 113,168,169,170,171 }));
-								else Skill2 = BootSkill1[Random::UInt(_countof(BootSkill1))];
-				}
 				Skill Sk(Skill1, Skill2, Skill3);
 				return Sk.getType();
 			}
 			if (b == ct_mag)
 			{
-				for (int i = 385;i < 436;i += 5)
+				if (372 < Skill2 < 377) Skill2 = Random::UInt(373, 376);
+				if (376 < Skill2 < 381) Skill2 = Random::UInt(377, 380);
+				for (int i = 380;i < 436;i += 5)
 				{
 					if (i < Skill2 < i + 6)
+					{
 						Skill2 = Random::UInt(i + 1, i + 5);
-					break;
+						break;
+					}
 				}
 				Skill Sk(Skill1, Skill2, Skill3);
 				return Sk.getType();
