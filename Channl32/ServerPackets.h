@@ -525,7 +525,7 @@ struct CardUpgradeResponse {
 	int GF;
 	int unk5;
 	int UpgradeType2;
-	int unk6;
+	int CompensateNum;
 	int unk7;
 	unsigned __int64 Code;
 	int WaterElements;
