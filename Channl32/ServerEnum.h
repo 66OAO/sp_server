@@ -3,6 +3,7 @@
 
 #define MISSION_MODE	0x2E
 #define MaxRoom			200
+#define COMPENSATE_RATE 0.1
 
 enum Character {
 	None = 0,
@@ -334,6 +335,7 @@ public:
 	{
 		switch (UpgradeType)
 		{
+		case 1://Level Up
 		case 2://Element Skill
 		case 4://Skill Fusion
 		default:

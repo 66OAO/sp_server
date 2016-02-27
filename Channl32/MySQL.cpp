@@ -420,6 +420,23 @@ void MySQL::UpgradeCard(MyCharInfo *Info, CardUpgradeResponse *CUR)
 	mysql_free_result(res);
 	String query;
 	CUR->UpgradeResult = 5; // 1 level, 5 skill
+
+	// try to upgrade and get a result
+	bool levelUpFailed = false;
+	if (CUR->UpgradeType == 1 || CUR->UpgradeType == 3)
+	{
+		if (Item.UpgradeItem(CUR->GF, CUR->Level))
+		{
+			CUR->Level += 1;
+			CUR->UpgradeResult = 1;
+		}
+		else
+		{
+			levelUpFailed = true;
+		}
+	}
+
+	// caculating costs of upgrade
 	switch (CUR->UpgradeType)
 	{
 	case 1://Element Level
@@ -427,32 +444,41 @@ void MySQL::UpgradeCard(MyCharInfo *Info, CardUpgradeResponse *CUR)
 	{
 		int ItemSpirite = (CUR->Type % 100) / 10;
 		int EleCost = Item.GetUpgradeCost(CUR->Type, CUR->Level, CUR->UpgradeType);
+		int CompensateNum = COMPENSATE_RATE * EleCost + Random::UInt(1, COMPENSATE_RATE * EleCost);
+		
+
 		if (ItemSpirite == 1)
 		{
 			Info->Water -= EleCost;
-			query = format("UPDATE users SET usr_water = (usr_water-{}) WHERE usr_id = {}",
-				EleCost, Info->usr_id);
+			if (levelUpFailed) Info->Water += CompensateNum;
+			query = format("UPDATE users SET usr_water = {} WHERE usr_id = {}",
+				Info->Water, Info->usr_id);
 		}
 		else if (ItemSpirite == 2)
 		{
 			Info->Fire -= EleCost;
-			query = format("UPDATE users SET usr_fire = (usr_fire-{}) WHERE usr_id = {}",
-				EleCost, Info->usr_id);
+			if (levelUpFailed) Info->Fire += CompensateNum;
+			query = format("UPDATE users SET usr_fire = {} WHERE usr_id = {}",
+				Info->Fire, Info->usr_id);
 		}
 		else if (ItemSpirite == 3)
 		{
 			Info->Earth -= EleCost;
-			query = format("UPDATE users SET usr_earth = (usr_earth-{}) WHERE usr_id = {}",
-				EleCost, Info->usr_id);
+			if (levelUpFailed) Info->Earth += CompensateNum;
+			query = format("UPDATE users SET usr_earth = {} WHERE usr_id = {}",
+				Info->Earth, Info->usr_id);
 		}
 		else if (ItemSpirite == 4)
 		{
 			Info->Wind -= EleCost;
-			query = format("UPDATE users SET usr_wind = (usr_wind-{}) WHERE usr_id = {}",
-				EleCost, Info->usr_id);
+			if (levelUpFailed) Info->Wind += CompensateNum;
+			query = format("UPDATE users SET usr_wind = {} WHERE usr_id = {}",
+				Info->Wind, Info->usr_id);
 		}
 		if (!query.empty())
 			Query(query);
+
+		CUR->CompensateNum = CompensateNum;
 		CUR->WaterElements = Info->Water;
 		CUR->FireElements = Info->Fire;
 		CUR->EarthElements = Info->Earth;
@@ -505,18 +531,7 @@ void MySQL::UpgradeCard(MyCharInfo *Info, CardUpgradeResponse *CUR)
 	}
 	break;
 	}
-	if (CUR->UpgradeType == 1 || CUR->UpgradeType == 3)
-	{
-		if (Item.UpgradeItem(CUR->GF, CUR->Level))
-		{
-			CUR->Level += 1;
-			CUR->UpgradeResult = 1;
-		}
-		else
-		{
-			CUR->UpgradeType = 2;
-		}
-	}
+
 	CUR->Skill = Item.GenerateSkill(CUR->Level, CUR->Type, CUR->UpgradeType, old_skill);
 	Query("UPDATE items SET itm_level = {}, itm_skill = {} WHERE itm_usr_id = {} AND itm_slot = {}",
 		CUR->Level, CUR->Skill, Info->usr_id, CUR->Slot);
