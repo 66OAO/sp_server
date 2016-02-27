@@ -419,10 +419,6 @@ void MySQL::UpgradeCard(MyCharInfo *Info, CardUpgradeResponse *CUR)
 	int old_skill = atoi(result[3]);
 	mysql_free_result(res);
 	String query;
-	CUR->WaterElements = Info->Water;
-	CUR->FireElements = Info->Fire;
-	CUR->EarthElements = Info->Earth;
-	CUR->WindElements = Info->Wind;
 	CUR->UpgradeResult = 5; // 1 level, 5 skill
 	switch (CUR->UpgradeType)
 	{
@@ -457,6 +453,10 @@ void MySQL::UpgradeCard(MyCharInfo *Info, CardUpgradeResponse *CUR)
 		}
 		if (!query.empty())
 			Query(query);
+		CUR->WaterElements = Info->Water;
+		CUR->FireElements = Info->Fire;
+		CUR->EarthElements = Info->Earth;
+		CUR->WindElements = Info->Wind;
 	}
 	break;
 	case 3://Level Fusion
