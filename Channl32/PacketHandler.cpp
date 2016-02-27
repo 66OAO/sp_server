@@ -864,7 +864,7 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
 		NpcList_Response.type = NPC_LIST_RESPONSE;
 		NpcList_Response.unk1 = 11036;
 		for (int i = 0; i < 33; i++)
-			NpcList_Response.levels[i] = 31;//Npc_List->npc[i].level;
+			NpcList_Response.levels[i] = Npc_List->npc[i].level;
 		NpcList_Response.state = UpdateState();
 		NpcList_Response.checksum = cIOSocket.MakeDigest((u8*)&NpcList_Response);
 		buffer = (unsigned char*)&NpcList_Response;
