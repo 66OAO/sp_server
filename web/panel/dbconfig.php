@@ -3,7 +3,7 @@
 
 	$db_host = "localhost";
 	$db_name = "spgame";
-	$db_user = "spgame";
+	$db_user = "root";
 	$db_pass = "spgame";
 	
 	try{

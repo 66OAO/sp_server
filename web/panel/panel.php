@@ -25,6 +25,7 @@ include("navbar.php");
 	<div class="container">
            <form class="form-signin" id="register-form">
         <h2 class="form-signin-heading"><center>彩虹冒險用戶管理</center></h2><hr />
+        <h2><center>歡迎使用用戶自助管理平台</center></h2>
         </div>  
 </form>
     </div>

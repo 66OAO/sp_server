@@ -24,7 +24,7 @@ $row = $stmt->fetch();
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="http://127.0.0.1/" target="_blank" title="Coding Cage Programming Blog">Survival Project</a>
+          <a class="navbar-brand" href="http://127.0.0.1/panel/panel.php" title="Survival Project">Survival Project</a>
         </div>
         <div id="navbar" class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
@@ -61,6 +61,8 @@ if ($connection) {
               功能表 <span class="caret"></span></a>
               <ul class="dropdown-menu">
                 <li><a href="status.php">用戶狀態</a></li>
+                <li role="separator" class="divider"></li>
+                <li><a href="changepw.php">更改密碼</a></li>
                 <li role="separator" class="divider"></li>
                 <li><a href="#">增加白卡</a></li>
               </ul>
