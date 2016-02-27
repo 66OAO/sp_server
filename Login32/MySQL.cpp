@@ -43,9 +43,9 @@ void MySQL::GetUserInfo(int id, MyCharInfo &info)
 	MYSQL_ROW result = mysql_fetch_row(res);
 	if (!result) return;
 	info.DefaultCharacter = atoi(result[0]);
-	info.Points = _atoi64(result[1]);
-	info.Code = _atoi64(result[2]);
-	info.Level = _atoi64(result[3]);
+	info.Points = atoull(result[1]);
+	info.Code = atoull(result[2]);
+	info.Level = atoi(result[3]);
 	if (info.Level > 0 && info.Level <= 12)
 		info.UserType = 10;
 	else if (info.Level > 12 && info.Level <= 16)
