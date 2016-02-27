@@ -1,3 +1,4 @@
+#include<algorithm>
 LobbyList::LobbyList()
 {
 	count = 0;
@@ -159,9 +160,7 @@ public:
 				Rooms[i].master = 0;
 				newPlayer->Info.rm_master = 0;
 				newPlayer->Info.usr_mode = Rooms[i].mode;
-				//if (!NoTeam(Rooms[i].mode))
-					newPlayer->Info.usr_team = 0;
-				Rooms[i].blueteam++;
+				SetTeam(newPlayer, i);
 				Rooms[i].p++;
 				Rooms[i].mission = newPlayer->Info.Mission;
 				break;
@@ -174,9 +173,6 @@ public:
 				if (Rooms[i].p == Rooms[i].maxp) {
 					break;
 				}
-				/*if (!(Rooms[i].mode >= 12 && Rooms[i].mode <= 27) && Rooms[i].mode != 1 && Rooms[i].started == true) {
-					break;
-				}*/
 				for (int j = 0; j < 8; j++)
 					if (Rooms[i].users[j] == 0) {
 						Rooms[i].level[j] = level;
@@ -186,24 +182,7 @@ public:
 						newPlayer->Info.usr_slot = j;
 						newPlayer->Info.rm_master = Rooms[i].master;
 						newPlayer->Info.usr_mode = Rooms[i].mode;
-						if (NoTeam(Rooms[i].mode))
-						{
-							newPlayer->Info.usr_team = 10;
-							Rooms[i].blueteam++;
-						}
-						else
-						{
-							if (Rooms[i].blueteam > Rooms[i].redteam)
-							{
-								newPlayer->Info.usr_team = 20;
-								Rooms[i].redteam++;
-							}
-							else
-							{
-								newPlayer->Info.usr_team = 10;
-								Rooms[i].blueteam++;
-							}
-						}
+						SetTeam(newPlayer, i);
 						Rooms[i].p++;
 						join = true;
 						break;
@@ -225,8 +204,8 @@ public:
 			}
 	}
 	void DeleteRoom(int roomnum) {
-		for(int i = 0; i < MaxRoom; i++) {
-			if(Rooms[i].n == roomnum) {
+		for (int i = 0; i < MaxRoom; i++) {
+			if (Rooms[i].n == roomnum) {
 				Rooms[i].n = -1;
 				return;
 			}
@@ -284,7 +263,7 @@ public:
 				//if(Rooms[i].mode >= 12 && Rooms[i].mode <= 27)
 					//Room_PlayerData_Response.team = 0xA; //0xA
 				Room_PlayerData_Response.mission = Rooms[i].mission;
-				if (CheckReady(n))  Rooms[i].started = true;
+				if (CheckReady(i))  Rooms[i].started = true;
 				else Rooms[i].started = false;
 
 				for (int j = 0; j < 8; j++)
@@ -334,7 +313,7 @@ public:
 					if (Rooms[i].Player[j] == newPlayer) {
 						//if(Rooms[i].mode >= 12 && Rooms[i].mode <= 27)
 							//Room_PlayerData_Response.team = 0xA;
-						if (CheckReady(n))  Rooms[i].started = true;
+						if (CheckReady(i))  Rooms[i].started = true;
 						else Rooms[i].started = false;
 						Room_PlayerData_Response.Slot = j;
 						Rooms[i].Player[j]->GetInRoomData(&Room_PlayerData_Response, Rooms[i].started);
@@ -347,105 +326,123 @@ public:
 				break;
 			}
 	}
-
-	void SetTeam(int room,int mode,int slot) {
-		int ;
-	}
-	bool CheckReady(int n) {
-		for (int i = 0; i < MaxRoom; i++)
-			if (Rooms[i].n == n) {
-				int mode = Rooms[i].mode;
-				int Quest_Mode[15] = { 11,12,13,14,17,18,19,20,21,22,23,24,25,26,27 };
-				for (int j = 0; j < 15; j++) {
-					if (Quest_Mode[j] == Rooms[i].mode) {
-						if (Rooms[i].started) return true;
-						for (int k = 0; k < Rooms[i].maxp; k++) {
-							if (Rooms[i].Player[k] && !Rooms[i].Player[k]->Info.usr_ready) return false;
-						}
-						return true;
-					}
-				}
-				switch (mode) {
-				case FIGHT_CLUB_MODE:
-				case MISSION_IMPOSSIBLE_300:
-				case COMMUNITY_MODE:
-				case INFINITY_SURVIVAL_II_MODE:
-				case INFINITY_KING_MODE:
-				case SURVUVAL_MODE:
-				case KING_SURVIVAL_MODE:
-				case BIG_MATCH_SURVIVAL_MODE:
-				case BIG_MATCH_AUTO_TEAM_SURVIVAL_MODE:
-				case BIG_MATCH_DEATH_MATCH_MODE:
-					return true;
-					break;
-				case CRYSTAL_CAPTURE_MODE:
-					if (Rooms[i].started)
-						return true;
-					if (RoomList.Rooms[i].blueteam == 0 || RoomList.Rooms[i].redteam == 0)
-						return false;
-					for (int j = 0; j < Rooms[i].p; j++) {
-						if (!Rooms[i].Player[j]->Info.usr_ready)
-							return false;
-					}
-					return true;
-					break;
-				case DUEL_MODE:
-					if (RoomList.Rooms[i].blueteam == 1 && RoomList.Rooms[i].redteam == 1)
-						if (RoomList.Rooms[i].Player[0]->Info.usr_ready && RoomList.Rooms[i].Player[1]->Info.usr_ready) return true;
-					return false;
-					break;
-				case HERO_MODE:
-					if (RoomList.Rooms[i].blueteam == 0 || RoomList.Rooms[i].redteam == 0) return false;
-					for (int j = 0; j < Rooms[i].p; j++) {
-						if (Rooms[i].Player[j] && !Rooms[i].Player[j]->Info.usr_ready)
-							return false;
-					}
-					return true;
-					break;
-				case TEAMPLAY_MODE:
-				case INFINITY_SYMBOL_MODE:
-				case LUCKY3_MODE:
-				case ASSAULT_MODE:
-				case GAIN_SYMBOL_MODE:
-				case KING_SLAYER_MODE:
-				case MAGIC_LUCKY3_MODE:
-				case TOURNAMENT_MODE:
-				case SNOW_DODGE_MODE:
-				case RACING_MODE:
-				case SOCCER_MODE:
-				case MOLE_MODE:
-				case ICE_HOCKEY_MODE:
-					if ((RoomList.Rooms[i].blueteam == RoomList.Rooms[i].redteam) && RoomList.Rooms[i].blueteam != 0)
-					{
-						for (int j = 0; j < Rooms[i].p; j++)
-						{
-							if (Rooms[i].Player[j] && !Rooms[i].Player[j]->Info.usr_ready)
-								return false;
-						}
-						return true;
-					}
-					return false;
-					break;
-				default:
-					/*for (int j = 0; j < Rooms[i].p; j++)
-					{
-						if (!Rooms[i].Player[j]->Info.usr_ready)
-							return false;
-					}*/
-					return false;
-					break;
-				}
+	bool CheckReady(int i) {
+		int mode = Rooms[i].mode;
+		if (InArray(mode, QuestMode, 15))
+		{
+			if (Rooms[i].started) return true;
+			for (int k = 0; k < Rooms[i].maxp; k++) {
+				if (Rooms[i].Player[k] && !Rooms[i].Player[k]->Info.usr_ready) return false;
 			}
+			return true;
+		}
+		switch (mode) {
+		case FIGHT_CLUB_MODE:
+		case MISSION_IMPOSSIBLE_300:
+		case COMMUNITY_MODE:
+		case INFINITY_SURVIVAL_II_MODE:
+		case INFINITY_KING_MODE:
+		case SURVUVAL_MODE:
+		case KING_SURVIVAL_MODE:
+		case BIG_MATCH_SURVIVAL_MODE:
+		case BIG_MATCH_AUTO_TEAM_SURVIVAL_MODE:
+		case BIG_MATCH_DEATH_MATCH_MODE:
+			return true;
+			break;
+		case CRYSTAL_CAPTURE_MODE:
+			if (Rooms[i].started)
+				return true;
+			if (Rooms[i].blueteam == 0 || Rooms[i].redteam == 0)
+				return false;
+			for (int j = 0; j < Rooms[i].p; j++) {
+				if (!Rooms[i].Player[j]->Info.usr_ready)
+					return false;
+			}
+			return true;
+			break;
+		case DUEL_MODE:
+			if (Rooms[i].blueteam == 1 && Rooms[i].redteam == 1)
+				if (Rooms[i].Player[0]->Info.usr_ready && Rooms[i].Player[1]->Info.usr_ready) return true;
+			return false;
+			break;
+		case HERO_MODE:
+			if (Rooms[i].blueteam == 0 || Rooms[i].redteam == 0) return false;
+			for (int j = 0; j < Rooms[i].p; j++) {
+				if (Rooms[i].Player[j] && !Rooms[i].Player[j]->Info.usr_ready)
+					return false;
+			}
+			return true;
+			break;
+		case TEAMPLAY_MODE:
+		case INFINITY_SYMBOL_MODE:
+		case LUCKY3_MODE:
+		case ASSAULT_MODE:
+		case GAIN_SYMBOL_MODE:
+		case KING_SLAYER_MODE:
+		case MAGIC_LUCKY3_MODE:
+		case TOURNAMENT_MODE:
+		case SNOW_DODGE_MODE:
+		case RACING_MODE:
+		case SOCCER_MODE:
+		case MOLE_MODE:
+		case ICE_HOCKEY_MODE:
+			if ((Rooms[i].blueteam == Rooms[i].redteam) && Rooms[i].blueteam != 0)
+			{
+				for (int j = 0; j < Rooms[i].p; j++)
+				{
+					if (Rooms[i].Player[j] && !Rooms[i].Player[j]->Info.usr_ready)
+						return false;
+				}
+				return true;
+			}
+			return false;
+			break;
+		default:
+			/*for (int j = 0; j < Rooms[i].p; j++)
+			{
+				if (!Rooms[i].Player[j]->Info.usr_ready)
+					return false;
+			}*/
+			return false;
+			break;
+		}
 	}
-	bool NoTeam(int mode) {
-		int NoTeamMode[] = { 1,11,12,13,14,15,17,18,19,20,21,23,24,25,26,16,22,27 };
-		for (int i = 0; i < _countof(NoTeamMode); i++) {
-			if (NoTeamMode[i] == mode) return true;
+
+	void SetTeam(PacketHandler *p, int i) {
+
+		if (InArray(p->Info.usr_mode, QuestMode, 15))
+		{
+			p->Info.usr_team = 10;
+			Rooms[i].blueteam++;
+			return;
+		}
+		if (InArray(p->Info.usr_mode, NoTeamMode, 13))
+		{
+			p->Info.usr_team = 0;
+			return;
+		}
+		if (Rooms[i].blueteam > Rooms[i].redteam)
+		{
+			p->Info.usr_team = 20;
+			Rooms[i].redteam++;
+			return;
+		}
+		else
+		{
+			p->Info.usr_team = 10;
+			Rooms[i].blueteam++;
+			return;
+		}
+	}
+	bool InArray(int num, const int list[], int size) {
+		for (int i = 0; i < size;i++)
+		{
+			if (list[i] == num) return true;
 		}
 		return false;
 	}
 	int CheckRound(int roomnum, int deadslot) {
-		if (NoTeam(roomnum)) return false;
+		if (InArray(roomnum, QuestMode, 15)) return false;
 		for (int i = 0; i < Rooms[roomnum].p; i++) {
 			if (Rooms[roomnum].Player[i] && Rooms[roomnum].Player[deadslot] && Rooms[roomnum].Player[i]->Info.usr_team == Rooms[roomnum].Player[deadslot]->Info.usr_team) {
 				if (Rooms[roomnum].life[deadslot] < Rooms[roomnum].life[i])
@@ -488,8 +485,8 @@ public:
 			}
 	}
 	bool CheckLife(int roomnum, int mode, int deathslot) {
-		if (NoTeam(roomnum)) {
-			for (int j = 0; j < Rooms[roomnum].p; j++)
+		if (InArray(mode, QuestMode, 15)) {
+			for (int j = 0; j < Rooms[roomnum].maxp; j++)
 				if (Rooms[roomnum].life[j] > 0)return true;
 			return false;
 		}
