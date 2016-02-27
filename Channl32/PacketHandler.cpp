@@ -37,7 +37,7 @@ void PacketHandler::Handle(unsigned char *buf)
 		cout << Join_Channel_Request->unkn << endl;
 		GetUserInfo();
 		Lobby.Insert(LobbyInfo);
-		HandleList.ProdcastLobbyInfo(this, &LobbyInfo, true);
+		HandleList.BroadcastLobbyInfo(this, &LobbyInfo, true);
 		GenerateResponse(JOIN_CHANNEL_RESPONSE);
 		break;
 	case SHOP_JOIN_REQ:
@@ -128,7 +128,7 @@ void PacketHandler::Handle(unsigned char *buf)
 			Info.usr_ready = (BYTE)In_Room_Request->Ready;
 			GetBigMatchNpcMultiplier();
 		}
-		HandleList.ProdcastRoomUpdate(Info.usr_room);
+		HandleList.BroadcastRoomUpdate(Info.usr_room);
 		GenerateResponse(ROOM_PLAYERDATA_RESPONSE);
 		break;
 	case IN_GAME_REQ:
@@ -159,7 +159,7 @@ void PacketHandler::Handle(unsigned char *buf)
 	case PLAYER_KILLED_REQ:
 		Player_Killed_Request = (PlayerKilledRequest*)buf;
 		cout << "PLAYER_KILLED_REQ" << endl;
-		RoomList.ProdcastDeathResponse(Player_Killed_Request, Info.usr_room);
+		RoomList.BroadcastDeathResponse(Player_Killed_Request, Info.usr_room);
 		break;
 	case TRADE_REQ:
 		memcpy(&Trade_Struct, buf, sizeof(TradeStruct));
@@ -168,7 +168,7 @@ void PacketHandler::Handle(unsigned char *buf)
 	case NPC_LIST_REQ:
 		Npc_List = (NpcList*)buf;
 		//RoomList.SetNpcList(Npc_List,Info.usr_room);
-		RoomList.ProdcastNpcList(this, Npc_List, Info.usr_room);
+		RoomList.BroadcastNpcList(this, Npc_List, Info.usr_room);
 		GenerateResponse(NPC_LIST_RESPONSE);
 		break;
 	case BUY_SCROLL_REQ:
@@ -267,13 +267,13 @@ PacketHandler::~PacketHandler()
 		strcpy(Room_Exit_Response.username, LobbyInfo.name.c_str());
 		Room_Exit_Response.state = UpdateState();
 		Room_Exit_Response.checksum = cIOSocket.MakeDigest((u8*)&Room_Exit_Response);
-		RoomList.ProdcastPlayerExitRoom(this, &Room_Exit_Response, Info.usr_room);
+		RoomList.BroadcastPlayerExitRoom(this, &Room_Exit_Response, Info.usr_room);
 		if (RoomList.ExitPlayer(Info.usr_room, this)) {
-			HandleList.ProdcastNewRoom(this, 0, false, Info.usr_room);
+			HandleList.BroadcastNewRoom(this, 0, false, Info.usr_room);
 		}
 	}
 	Lobby.Delete(LobbyInfo.name);
-	HandleList.ProdcastLobbyInfo(this, &LobbyInfo, false);
+	HandleList.BroadcastLobbyInfo(this, &LobbyInfo, false);
 	HandleList.Delete(this);
 }
 
@@ -306,7 +306,7 @@ int PacketHandler::UpdateState(int S)
 int PacketHandler::IdentifyPacketType(unsigned char* buf)
 {
 	int Handler_ipt = *(int*)(buf + 4);
-	cout << "-- IdentifyPacketType: " << Handler_ipt << " --" << endl;
+	cout << "-- IdentifyPacketType: " << Handler_ipt<<" = " <<dec << Handler_ipt << " --" << endl;
 	return Handler_ipt;
 }
 
@@ -610,7 +610,7 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
 		Card_Upgrade_Response.UpgradeType2 = Card_Upgrade_Request->UpgradeType;
 		MySql.UpgradeCard(&Info, &Card_Upgrade_Response);
 		Card_Upgrade_Response.Code = Info.Code;
-		if (Info.usr_room != -1)RoomList.ProdcastInRoomUpgrade(this, &Card_Upgrade_Response, Info.usr_room);
+		if (Info.usr_room != -1)RoomList.BroadcastInRoomUpgrade(this, &Card_Upgrade_Response, Info.usr_room);
 		Card_Upgrade_Response.state = UpdateState();
 		Card_Upgrade_Response.checksum = cIOSocket.MakeDigest((u8*)&Card_Upgrade_Response);
 		buffer = (unsigned char*)&Card_Upgrade_Response;
@@ -664,7 +664,7 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
 			}
 		}
 		else {
-			HandleList.ProdcastChat(this, Chat_Request);
+			HandleList.BroadcastChat(this, Chat_Request);
 			if (Chat_Request->chatType != 1)
 				MySql.InsertMsg(Chat_Request->senderId, (char*)ChatTypes[Chat_Request->chatType], Chat_Request->msg);
 			else MySql.InsertMsg(Chat_Request->senderId, Chat_Request->recieverId, Chat_Request->msg);
@@ -684,7 +684,7 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
 		cout << "-- ROOM_JOIN_RESPONSE --" << endl;
 		Joined = true;
 		if (GetRoomJoinResponse())
-			RoomList.ProdcastRoomJoinResponse2(this, Info.usr_room);
+			RoomList.BroadcastRoomJoinResponse2(this, Info.usr_room);
 		break;
 	case ROOM_CREATE_RESPONSE:
 		GetRoomCreateResponse();
@@ -706,8 +706,8 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
 		break;
 	case CHANGE_ROOMTITLE_RESPONSE:
 		if (RoomTitleChange_Request->room == Info.usr_room) {
-			RoomList.ProdcastChangeTitle(RoomTitleChange_Request);
-			HandleList.ProdcastRoomUpdate(Info.usr_room);
+			RoomList.BroadcastChangeTitle(RoomTitleChange_Request);
+			HandleList.BroadcastRoomUpdate(Info.usr_room);
 		}
 		nOfPackets = 0;
 		break;
@@ -884,7 +884,7 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
 		QuestGain_Response.eleType = Random::UInt(1, 4);
 		QuestGain_Response.eleBase = Random::UInt(1, 5);
 		QuestGain_Response.eleMul = Random::UInt(1, 100);
-		RoomList.ProdcastExpGain(&QuestGain_Response, Info.usr_room);
+		RoomList.BroadcastExpGain(&QuestGain_Response, Info.usr_room);
 		nOfPackets = 0;
 		break;
 		/*
@@ -905,7 +905,7 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
 	case BIGMATCH_PLAYER_JOIN_RESPONSE:
 		cout << "BIGMATCH_PLAYER_JOIN_RESPONSE\n" << endl;
 		BigMatchPlayerJoin_Response.size = 0x38;
-		BigMatchPlayerJoin_Response.type = BIGMATCH_PLAYER_JOIN_RESPONSE;
+		BigMatchPlayerJoin_Response.type = 17305;//BIGMATCH_PLAYER_JOIN_RESPONSE;
 		BigMatchPlayerJoin_Response.unk1 = 11036;
 		for (int i = 0; i < 32; i++)
 			BigMatchPlayerJoin_Response.slot[i] = BigMatchPlayerJoin_Request->slot[i];
@@ -940,12 +940,12 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
 		break;
 	case REVIVE_RESPONSE:
 		cout << "REVIVE_RESPONSE" << endl;
-		RoomList.ProdcastReviveResponse(Revive_Response, Info.usr_room);
+		RoomList.BroadcastReviveResponse(Revive_Response, Info.usr_room);
 		nOfPackets = 1;
 		break;
 	case PLAYER_KICK_RESPONSE:
 		if (Info.usr_slot == Info.rm_master)
-			RoomList.ProdcastKickResponse(Info.usr_room, PlayerKick_Request->slot);
+			RoomList.BroadcastKickResponse(Info.usr_room, PlayerKick_Request->slot);
 		nOfPackets = 0;
 		break;
 	case ROOM_QUIT_RESPONSE:

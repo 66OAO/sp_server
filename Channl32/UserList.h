@@ -1,30 +1,3 @@
-#define HERO_MODE 51
-#define INFINITY_SURVIVAL_II_MODE 48
-#define INFINITY_KING_MODE 50
-#define INFINITY_SYMBOL_MODE 49
-#define SURVUVAL_MODE 4
-#define KING_SURVIVAL_MODE 32
-#define TEAMPLAY_MODE 3
-#define CRYSTAL_CAPTURE_MODE 40
-#define DUEL_MODE 5
-#define LUCKY3_MODE 6
-#define ASSAULT_MODE 7
-#define GAIN_SYMBOL_MODE 31
-#define KING_SLAYER_MODE 9
-#define MAGIC_LUCKY3_MODE 10
-#define FIGHT_CLUB_MODE 15
-#define TOURNAMENT_MODE 16
-#define BIG_MATCH_SURVIVAL_MODE 33
-#define BIG_MATCH_AUTO_TEAM_SURVIVAL_MODE 34
-#define BIG_MATCH_DEATH_MATCH_MODE 35
-#define SNOW_DODGE_MODE 28
-#define RADNG_MODE 30
-#define SOCCER_MODE 8
-#define MOLE_MODE 29
-#define ICE_HOCKEY_MODE 41
-#define MISSION_IMPOSSIBLE_300 47
-#define COMMUNITY_MODE 1
-
 LobbyList::LobbyList()
 {
 	count = 0;
@@ -186,8 +159,8 @@ public:
 				Rooms[i].master = 0;
 				newPlayer->Info.rm_master = 0;
 				newPlayer->Info.usr_mode = Rooms[i].mode;
-				if (!NoTeam(Rooms[i].mode))
-					newPlayer->Info.usr_team = 10;
+				//if (!NoTeam(Rooms[i].mode))
+					newPlayer->Info.usr_team = 0;
 				Rooms[i].blueteam++;
 				Rooms[i].p++;
 				Rooms[i].mission = newPlayer->Info.Mission;
@@ -201,9 +174,9 @@ public:
 				if (Rooms[i].p == Rooms[i].maxp) {
 					break;
 				}
-				if (!(Rooms[i].mode >= 12 && Rooms[i].mode <= 27) && Rooms[i].mode != 1 && Rooms[i].started == true) {
+				/*if (!(Rooms[i].mode >= 12 && Rooms[i].mode <= 27) && Rooms[i].mode != 1 && Rooms[i].started == true) {
 					break;
-				}
+				}*/
 				for (int j = 0; j < 8; j++)
 					if (Rooms[i].users[j] == 0) {
 						Rooms[i].level[j] = level;
@@ -235,7 +208,7 @@ public:
 						join = true;
 						break;
 					}
-				ProdcastInRoomPlayerData(newPlayer, n);
+				BroadcastInRoomPlayerData(newPlayer, n);
 				break;
 			}
 		return join;
@@ -320,13 +293,13 @@ public:
 						Rooms[i].Player[j]->GetInRoomData(&Room_PlayerData_Response, Rooms[i].started);
 						memcpy(pack + (0x118 * count), &Room_PlayerData_Response, 0x118);
 						count++;
-						ProdcastInRoomPlayerData(Rooms[i].Player[j], n);
+						BroadcastInRoomPlayerData(Rooms[i].Player[j], n);
 					}
 				break;
 			}
 		return count;
 	}
-	void ProdcastChangeTitle(RoomTitleChangeRequest *R) {
+	void BroadcastChangeTitle(RoomTitleChangeRequest *R) {
 		RoomTitleChangeResponse RTCR;
 		RTCR.size = 0x34;
 		RTCR.type = CHANGE_ROOMTITLE_RESPONSE;
@@ -341,7 +314,7 @@ public:
 			}
 
 	}
-	void ProdcastInRoomPlayerData(PacketHandler *newPlayer, int n) {
+	void BroadcastInRoomPlayerData(PacketHandler *newPlayer, int n) {
 		RoomPlayerDataResponse Room_PlayerData_Response;
 		memset(&Room_PlayerData_Response, 0, sizeof(RoomPlayerDataResponse));
 		Room_PlayerData_Response.size = 0x118;
@@ -361,7 +334,6 @@ public:
 					if (Rooms[i].Player[j] == newPlayer) {
 						//if(Rooms[i].mode >= 12 && Rooms[i].mode <= 27)
 							//Room_PlayerData_Response.team = 0xA;
-
 						if (CheckReady(n))  Rooms[i].started = true;
 						else Rooms[i].started = false;
 						Room_PlayerData_Response.Slot = j;
@@ -374,6 +346,10 @@ public:
 
 				break;
 			}
+	}
+
+	void SetTeam(int room,int mode,int slot) {
+		int ;
 	}
 	bool CheckReady(int n) {
 		for (int i = 0; i < MaxRoom; i++)
@@ -397,11 +373,11 @@ public:
 				case INFINITY_KING_MODE:
 				case SURVUVAL_MODE:
 				case KING_SURVIVAL_MODE:
-					return true;
-					break;
 				case BIG_MATCH_SURVIVAL_MODE:
 				case BIG_MATCH_AUTO_TEAM_SURVIVAL_MODE:
 				case BIG_MATCH_DEATH_MATCH_MODE:
+					return true;
+					break;
 				case CRYSTAL_CAPTURE_MODE:
 					if (Rooms[i].started)
 						return true;
@@ -435,11 +411,11 @@ public:
 				case MAGIC_LUCKY3_MODE:
 				case TOURNAMENT_MODE:
 				case SNOW_DODGE_MODE:
-				case RADNG_MODE:
+				case RACING_MODE:
 				case SOCCER_MODE:
 				case MOLE_MODE:
 				case ICE_HOCKEY_MODE:
-					if (RoomList.Rooms[i].blueteam == RoomList.Rooms[i].redteam && RoomList.Rooms[i].blueteam != 0)
+					if ((RoomList.Rooms[i].blueteam == RoomList.Rooms[i].redteam) && RoomList.Rooms[i].blueteam != 0)
 					{
 						for (int j = 0; j < Rooms[i].p; j++)
 						{
@@ -462,9 +438,9 @@ public:
 			}
 	}
 	bool NoTeam(int mode) {
-		int No_Team_Mode[17] = { 1,11,18,23,12,19,24,13,20,25,14,15,21,26,16,22,27 };
-		for (int i = 0; i < 17; i++) {
-			if (No_Team_Mode[i] == mode) return true;
+		int NoTeamMode[] = { 1,11,12,13,14,15,17,18,19,20,21,23,24,25,26,16,22,27 };
+		for (int i = 0; i < _countof(NoTeamMode); i++) {
+			if (NoTeamMode[i] == mode) return true;
 		}
 		return false;
 	}
@@ -478,7 +454,7 @@ public:
 		}
 		return true;
 	}
-	void ProdcastPlayerExitRoom(PacketHandler *player, RoomExitResponse *RER, int n) {
+	void BroadcastPlayerExitRoom(PacketHandler *player, RoomExitResponse *RER, int n) {
 		for (int i = 0; i < MaxRoom; i++)
 			if (Rooms[i].n == n) {
 				for (int j = 0; j < 8; j++)
@@ -498,7 +474,7 @@ public:
 					}
 			}
 	}
-	void ProdcastInRoomUpgrade(PacketHandler *newPlayer, CardUpgradeResponse *CUR, int n) {
+	void BroadcastInRoomUpgrade(PacketHandler *newPlayer, CardUpgradeResponse *CUR, int n) {
 		CUR->unk5 = newPlayer->Info.usr_slot;
 		for (int i = 0; i < MaxRoom; i++)
 			if (Rooms[i].n == n) {
@@ -553,10 +529,9 @@ public:
 			return 2;
 			break;
 		}
-
 	}
-	void ProdcastDeathResponse(PlayerKilledRequest *PK, int n) {
-		cout << "-- ProdcastDeathResponse --" << endl;
+	void BroadcastDeathResponse(PlayerKilledRequest *PK, int n) {
+		cout << "-- BroadcastDeathResponse --" << endl;
 		PlayerKilledResponse PKR;
 		PKR.size = 0xAC;
 		PKR.type = PLAYER_KILLED_RESPONSE;
@@ -573,7 +548,7 @@ public:
 		PKR.unk8 = 1; //1
 		for (int i = 0; i < 6; i++)PKR.zeros[i] = 0;
 		for (int i = 0; i < 16; i++)PKR.unks[i] = -1;
-		PKR.unk01 = 0; //maybe kills
+		PKR.unk01 = 1; //maybe kills
 		PKR.unk02 = 1; //0,1 maybe king
 		PKR.unk03 = 1; //1
 		//PKR.canRespawn = Info.quest; //0
@@ -628,7 +603,7 @@ public:
 				}
 			}
 	}
-	void ProdcastRoomJoinResponse2(PacketHandler *player, int n) {
+	void BroadcastRoomJoinResponse2(PacketHandler *player, int n) {
 		for (int i = 0; i < MaxRoom; i++)
 			if (Rooms[i].n == n) {
 				for (int j = 0; j < 8; j++)
@@ -636,7 +611,7 @@ public:
 						if (Rooms[i].Player[j] != player)Rooms[i].Player[j]->GetJoinResponse2();
 			}
 	}
-	void ProdcastNpcList(PacketHandler *pMaster, NpcList *npc, int n) {
+	void BroadcastNpcList(PacketHandler *pMaster, NpcList *npc, int n) {
 		for (int i = 0; i < MaxRoom; i++)
 			if (Rooms[i].n == n) {
 				for (int j = 0; j < 8; j++)
@@ -644,7 +619,7 @@ public:
 						if (Rooms[i].Player[j] != pMaster)Rooms[i].Player[j]->GetNpcList(npc);
 			}
 	}
-	void ProdcastExpGain(QuestGainResponse *packet, int n) {
+	void BroadcastExpGain(QuestGainResponse *packet, int n) {
 		for (int i = 0; i < MaxRoom; i++)
 			if (Rooms[i].n == n) {
 				for (int j = 0; j < 8; j++)
@@ -652,7 +627,7 @@ public:
 						Rooms[i].Player[j]->GetExpGainResponse(packet);
 			}
 	}
-	void ProdcastReviveResponse(ReviveResponse *Revive_Response, int n) {
+	void BroadcastReviveResponse(ReviveResponse *Revive_Response, int n) {
 		Revive_Response->type = REVIVE_RESPONSE;
 		for (int i = 0; i < MaxRoom; i++)
 			if (Rooms[i].n == n) {
@@ -664,7 +639,7 @@ public:
 			}
 
 	}
-	void ProdcastKickResponse(int n, int slot) {
+	void BroadcastKickResponse(int n, int slot) {
 		for (int i = 0; i < MaxRoom; i++)
 			if (Rooms[i].n == n) {
 				int x = Rooms[i].master;
@@ -836,7 +811,7 @@ public:
 		else
 			cout << "Unable to update " << s << "client : UDPLIST" << endl;
 	}
-	void ProdcastChat(PacketHandler* pHandler, ChatRequest *Chat_Request) {
+	void BroadcastChat(PacketHandler* pHandler, ChatRequest *Chat_Request) {
 		ChatResponse Chat_Response;
 		memset(&Chat_Response, 0, sizeof(Chat_Response));
 		Chat_Response.size = 0x7C;
@@ -848,7 +823,7 @@ public:
 		for (UserHandle *p = root; p; p = p->ptr)
 			if (pHandler != p->Handler)p->Handler->GetChatMessage(&Chat_Response);
 	}
-	void ProdcastLobbyInfo(PacketHandler* pHandler, LobbyUser* LobbyInfo, bool b) {
+	void BroadcastLobbyInfo(PacketHandler* pHandler, LobbyUser* LobbyInfo, bool b) {
 		LobbyUserInfoResponse Lobby_UserInfo_Response;
 		memset(&Lobby_UserInfo_Response, 0, sizeof(Lobby_UserInfo_Response));
 		Lobby_UserInfo_Response.size = 0x3C;
@@ -864,7 +839,7 @@ public:
 		for (UserHandle *p = root; p; p = p->ptr)
 			if (pHandler != p->Handler)p->Handler->GetLobbyMessage(&Lobby_UserInfo_Response);
 	}
-	void ProdcastNewRoom(PacketHandler* pHandler, CreateRoomResponse *CRR, bool b, int roomnum = 0) {
+	void BroadcastNewRoom(PacketHandler* pHandler, CreateRoomResponse *CRR, bool b, int roomnum = 0) {
 		LobbyRoomResponse LRR;
 		memset(&LRR, 0, sizeof(LRR));
 		LRR.size = 0xB0;
@@ -899,7 +874,7 @@ public:
 			if (pHandler != p->Handler)p->Handler->GetNewRoomMessage(&LRR);
 
 	}
-	void ProdcastRoomUpdate(int room) {
+	void BroadcastRoomUpdate(int room) {
 		LobbyRoomResponse LRR;
 		LRR.size = 0xB0;
 		LRR.type = NEW_ROOM_RESPONSE;

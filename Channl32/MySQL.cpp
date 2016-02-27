@@ -420,13 +420,22 @@ void MySQL::UpgradeCard(MyCharInfo *Info, CardUpgradeResponse *CUR)
 	mysql_free_result(res);
 	String query;
 	CUR->UpgradeResult = 5; // 1 level, 5 skill
+	int EleCost = Item.GetUpgradeCost(CUR->Type, CUR->Level, CUR->UpgradeType);
+	int FailedCompensate = 0;
+	if (CUR->UpgradeType == 1 || CUR->UpgradeType == 3)
+	{
+		if (Item.UpgradeItem(CUR->GF, CUR->Level))
+		{
+			CUR->Level += 1;
+			CUR->UpgradeResult = 1;
+		}
+	}
 	switch (CUR->UpgradeType)
 	{
 	case 1://Element Level
 	case 2://Element Skill
 	{
 		int ItemSpirite = (CUR->Type % 100) / 10;
-		int EleCost = Item.GetUpgradeCost(CUR->Type, CUR->Level, CUR->UpgradeType);
 		if (ItemSpirite == 1)
 		{
 			Info->Water -= EleCost;
@@ -504,18 +513,6 @@ void MySQL::UpgradeCard(MyCharInfo *Info, CardUpgradeResponse *CUR)
 			Query(query);
 	}
 	break;
-	}
-	if (CUR->UpgradeType == 1 || CUR->UpgradeType == 3)
-	{
-		if (Item.UpgradeItem(CUR->GF, CUR->Level))
-		{
-			CUR->Level += 1;
-			CUR->UpgradeResult = 1;
-		}
-		else
-		{
-			CUR->UpgradeType = 2;
-		}
 	}
 	CUR->Skill = Item.GenerateSkill(CUR->Level, CUR->Type, CUR->UpgradeType, old_skill);
 	Query("UPDATE items SET itm_level = {}, itm_skill = {} WHERE itm_usr_id = {} AND itm_slot = {}",

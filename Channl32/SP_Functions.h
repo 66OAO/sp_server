@@ -77,7 +77,7 @@ void PacketHandler::GetExitRoomResponse() {
 	Room_Exit_Response.unk1 = 11036;
 	Room_Exit_Response.exitslot = Info.usr_slot;
 	strcpy(Room_Exit_Response.username, LobbyInfo.name.c_str());
-	RoomList.ProdcastPlayerExitRoom(this, &Room_Exit_Response, Info.usr_room);
+	RoomList.BroadcastPlayerExitRoom(this, &Room_Exit_Response, Info.usr_room);
 	Room_Exit_Response.state = UpdateState();
 	Room_Exit_Response.checksum = cIOSocket.MakeDigest((u8*)&Room_Exit_Response);
 	buffer = (unsigned char*)&Room_Exit_Response;
@@ -85,16 +85,16 @@ void PacketHandler::GetExitRoomResponse() {
 		buffer[i] = ~((BYTE)(buffer[i] << 3) | (BYTE)(buffer[i] >> 5));
 	send(msg_socket, (char*)buffer, *(int*)buffer, 0);
 	if (RoomList.ExitPlayer(Info.usr_room, this)) {
-		HandleList.ProdcastNewRoom(this, 0, false, Info.usr_room);
+		HandleList.BroadcastNewRoom(this, 0, false, Info.usr_room);
 	}
 	LastPosition = 0;
 	Info.usr_char = Info.DefaultCharacter + Info.premium;
 	Info.usr_room = -1;
 	Lobby.Insert(LobbyInfo);
-	HandleList.ProdcastLobbyInfo(this, &LobbyInfo, true);
+	HandleList.BroadcastLobbyInfo(this, &LobbyInfo, true);
 	GenerateResponse(LOBBY_USERINFO_RESPONSE);
 	send(msg_socket, (char*)pack.data(), nOfPackets, 0);
-	//HandleList.ProdcastRoomUpdate(Info.usr_room);
+	//HandleList.BroadcastRoomUpdate(Info.usr_room);
 	GetRoomListResponse();
 }
 
@@ -212,12 +212,14 @@ bool PacketHandler::GetRoomJoinResponse()
 	if (join)RoomList.GetRoomData(&Room_Join_Response);
 	Room_Join_Response.unk2 = !join;
 
-	Room_Join_Response.unk05 = (Room_Join_Response.mode >= 12 && Room_Join_Response.mode <= 27) ? 1 : 0; //1 scroll
+	Room_Join_Response.unk05 = 0;//(Room_Join_Response.mode >= 12 && Room_Join_Response.mode <= 27) ? 1 : 0; //1 scroll
 																										 //Room_Join_Response.unk06 = 1; unknow
 																										 //Room_Join_Response.unk07 = 1; dont set ..
-																										 //Room_Join_Response.unk10 = 1; // auto team
+																										 //
+
 	Room_Join_Response.Slot = Info.usr_slot; //1
 	Room_Join_Response.unk09 = 111; //0xA
+	Room_Join_Response.unk10 = 1; // auto team
 	Room_Join_Response.unk11 = -1; // limit
 	Room_Join_Response.unk12 = 1;
 	//Room_Join_Response.unk13 = 1;
@@ -225,8 +227,8 @@ bool PacketHandler::GetRoomJoinResponse()
 	Room_Join_Response.checksum = cIOSocket.MakeDigest((u8*)&Room_Join_Response);
 	buffer = (unsigned char*)&Room_Join_Response;
 	if (join)Lobby.Delete(LobbyInfo.name);
-	if (join)HandleList.ProdcastLobbyInfo(this, &LobbyInfo, false);
-	if (join)HandleList.ProdcastRoomUpdate(Info.usr_room);
+	if (join)HandleList.BroadcastLobbyInfo(this, &LobbyInfo, false);
+	if (join)HandleList.BroadcastRoomUpdate(Info.usr_room);
 	for (int i = 4; i < *(int*)buffer; i++)
 		buffer[i] = ~((BYTE)(buffer[i] << 3) | (BYTE)(buffer[i] >> 5));
 	send(msg_socket, (char*)buffer, *(int*)buffer, 0);
@@ -261,21 +263,21 @@ void PacketHandler::GetRoomCreateResponse() {
 	strcpy(Create_Room_Response.password, Create_Room_Request->password);
 	Create_Room_Response.capacity = Create_Room_Request->capacity;
 	Create_Room_Response.allowscrolls = Create_Room_Request->allowscrolls; //1
-	Create_Room_Response.autoteam = Create_Room_Request->autoteam; //1
+	Create_Room_Response.autoteam = 1; //1
 	Create_Room_Response.unk2 = 12;
 	Create_Room_Response.character = Info.DefaultCharacter + 120; //0x0A
 	Create_Room_Response.unk03 = 0x74F59300; //0x74F59300
 	Create_Room_Response.maxcardlevel = Create_Room_Request->maxcardlevel;
-	Create_Room_Response.allowcritsheild = 1;
-	Create_Room_Response.unk3 = Create_Room_Request->unk3; //0
-	Create_Room_Response.unk4 = Create_Room_Request->unk4; //0
-	Create_Room_Response.unk5 = Create_Room_Request->unk5; //0
+	Create_Room_Response.unk4 = 0;
+	Create_Room_Response.unk3 = -1;//Create_Room_Request->unk3; //0
+	Create_Room_Response.allowcritsheild = 1;//allowcritsheild 
+	Create_Room_Response.unk5 = 0;//Create_Room_Request->unk5; //0
 	Create_Room_Response.checksum = cIOSocket.MakeDigest((u8*)&Create_Room_Response);
 	buffer = (unsigned char*)&Create_Room_Response;
 	RoomList.CreateRoom(this, &LobbyInfo.name, &Create_Room_Response, Info.gender, Info.Level);
-	HandleList.ProdcastNewRoom(this, &Create_Room_Response, true);
+	HandleList.BroadcastNewRoom(this, &Create_Room_Response, true);
 	Lobby.Delete(LobbyInfo.name);
-	HandleList.ProdcastLobbyInfo(this, &LobbyInfo, false);
+	HandleList.BroadcastLobbyInfo(this, &LobbyInfo, false);
 	for (int i = 4; i < *(int*)buffer; i++)
 		buffer[i] = ~((BYTE)(buffer[i] << 3) | (BYTE)(buffer[i] >> 5));
 	send(msg_socket, (char*)buffer, *(int*)buffer, 0);
@@ -492,13 +494,13 @@ void PacketHandler::GetKickResponse(int slot) {
 	send(msg_socket, (char*)msg, *(int*)msg, 0);
 	if (Info.usr_slot == slot) {
 		if (RoomList.ExitPlayer(Info.usr_room, this))
-			HandleList.ProdcastNewRoom(this, 0, false, Info.usr_room);
+			HandleList.BroadcastNewRoom(this, 0, false, Info.usr_room);
 		Info.usr_char = Info.DefaultCharacter + Info.premium;
 		Lobby.Insert(LobbyInfo);
-		HandleList.ProdcastLobbyInfo(this, &LobbyInfo, true);
+		HandleList.BroadcastLobbyInfo(this, &LobbyInfo, true);
 		GenerateResponse(LOBBY_USERINFO_RESPONSE);
 		send(msg_socket, (char*)pack.data(), nOfPackets, 0);
-		HandleList.ProdcastRoomUpdate(Info.usr_room);
+		HandleList.BroadcastRoomUpdate(Info.usr_room);
 		Info.usr_room = -1;
 	}
 }
