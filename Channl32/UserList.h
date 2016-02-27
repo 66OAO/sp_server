@@ -1,4 +1,3 @@
-#include<algorithm>
 LobbyList::LobbyList()
 {
 	count = 0;

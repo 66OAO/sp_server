@@ -2,6 +2,7 @@
 #define __SERVERENUM_H__
 //CONFIG
 #define MaxRoom			200
+#define COMPENSATE_RATE 0.1
 //QUEST
 #define DUNGEON_QUEST_1_MODE 11
 #define FOREST_QUEST_1_MODE 18

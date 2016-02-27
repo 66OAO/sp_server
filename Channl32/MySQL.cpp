@@ -435,7 +435,7 @@ void MySQL::UpgradeCard(MyCharInfo *Info, CardUpgradeResponse *CUR)
 			levelUpFailed = true;
 		}
 	}
-
+	int CompensateNum = 0;
 	// caculating costs of upgrade
 	switch (CUR->UpgradeType)
 	{
@@ -443,12 +443,8 @@ void MySQL::UpgradeCard(MyCharInfo *Info, CardUpgradeResponse *CUR)
 	case 2://Element Skill
 	{
 		int ItemSpirite = (CUR->Type % 100) / 10;
-		int CompensateNum = COMPENSATE_RATE * EleCost + Random::UInt(1, COMPENSATE_RATE * EleCost);
-		
-
-		int CompensateNum = COMPENSATE_RATE * EleCost + Random::UInt(1, COMPENSATE_RATE * EleCost);
-		
-
+		int EleCost = Item.GetUpgradeCost(CUR->Type, CUR->Level, CUR->UpgradeType);
+		if(CUR->Level > 4) CompensateNum = COMPENSATE_RATE * EleCost + COMPENSATE_RATE * (rand() % EleCost);
 		if (ItemSpirite == 1)
 		{
 			Info->Water -= EleCost;
