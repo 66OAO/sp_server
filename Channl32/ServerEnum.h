@@ -328,9 +328,9 @@ const int ShieldSkill1[] = { 102, 103, 104, 105, 106, 107, 108, 109, 143, 144, 1
 const int ShieldSkill2[] = { 348, 349, 350, 351, 352, 357, 358, 359, 360, 361, 362, 363, 364, 373, 374, 375, 376, 380, 381, 382, 383, 384, 385, 386, 387, 388, 389, 390, 391, 392, 393, 394, 395, 396, 397, 398, 399, 400, 401, 402, 403, 404, 405, 406, 407, 408, 409, 410, 411, 412, 413, 414, 415, 416, 417, 418, 419, 420, 421, 422, 423, 424, 425, 426, 427, 428, 429, 430, 431, 432, 433, 434, 435 };
 
 const int ArmorSkill1[] = { 107, 108, 109, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197 };
-const int ArmorSkill2[] = { 373, 374, 375, 376, 380, 381, 382, 383, 384, 385, 386, 387, 388, 389, 390, 391, 392, 393, 394, 395, 396, 397, 398, 399, 400, 401, 402, 403, 404, 405, 406, 407, 408, 409, 410, 411, 412, 413, 414, 415, 416, 417, 418, 419, 420, 421, 422, 423, 424, 425, 426, 427, 428, 429, 430, 431, 432, 433, 434, 435 };
+const int ArmorSkill2[] = { 307, 309, 328, 340, 348, 373, 374, 375, 376, 380, 381, 382, 383, 384, 385, 386, 387, 388, 389, 390, 391, 392, 393, 394, 395, 396, 397, 398, 399, 400, 401, 402, 403, 404, 405, 406, 407, 408, 409, 410, 411, 412, 413, 414, 415, 416, 417, 418, 419, 420, 421, 422, 423, 424, 425, 426, 427, 428, 429, 430, 431, 432, 433, 434, 435 };
 
-const int WeaponSkill1[] = { 100,118,119,120,121,122,123,124,125,126,127,128,129,130,131,132,133,134,135,136,137,138,139,140,141 };
+const int WeaponSkill1[] = { 100,118,119,120,121,122,123,124,125,126,127,128,129,130,131,132,133,134,135,136,138,139,140,141 };
 const int MeleeWpnSkill2[] = { 200,201,300,301,302,303,304,306,314,315,316,317,318,319,320,321,322,323,324,325,326,327,328,329,330,331,332,333,334,335,336,337,338,339,340,341,342,343,344,345,346,347,348,373,374,375,376,377,378,379,380,381,382,383,384,385,386,387,388,389,390,391,392,393,394,395,396,397,398,399,400,401,402,403,404,405,406,407,408,409,410,411,412,413,414,415,416,417,418,419,420,421,422,423,424,425,426,427,428,429,430,431,432,433,434,435 };
 const int RangedWpnSkill2[] = { 202,203,204,300,301,302,303,304,306,314,315,316,317,318,319,320,321,322,323,324,325,326,327,328,329,330,331,332,333,334,335,336,337,338,339,340,341,342,343,344,345,346,347,348,373,374,375,376,377,378,379,380,381,382,383,384,385,386,387,388,389,390,391,392,393,394,395,396,397,398,399,400,401,402,403,404,405,406,407,408,409,410,411,412,413,414,415,416,417,418,419,420,421,422,423,424,425,426,427,428,429,430,431,432,433,434,435 };
 const int MagicSkill[] = { 300,301,302,303,304,306,314,315,316,317,318,319,320,321,322,323,324,325,326,327,328,329,330,331,332,333,334,335,336,337,338,339,340,341,342,343,344,345,346,347,348,373,374,375,376,377,378,379,380,381,382,383,384,385,386,387,388,389,390,391,392,393,394,395,396,397,398,399,400,401,402,403,404,405,406,407,408,409,410,411,412,413,414,415,416,417,418,419,420,421,422,423,424,425,426,427,428,429,430,431,432,433,434,435 };
@@ -584,69 +584,66 @@ public:
 			int Skill3 = (old_skill % 1000);
 			if (a == 4 && b == ct_arm) //boots
 			{
-				if (SkillRoll(Skill2, { 110,156,157,158,159 }))
-					if (SkillRoll(Skill2, { 111,160,161,162,163 }))
-						if (SkillRoll(Skill2, { 112,164,165,166,167 }))
-							if (SkillRoll(Skill2, { 113,168,169,170,171 }));
-							else Skill2 = BootSkill1[Random::UInt(_countof(BootSkill1))];
-							Skill Sk(Skill1, Skill2, Skill3);
-							return Sk.getType();
+				if (SkillRoll(Skill2, { 110,156,157,158,159 }))//Acceleration
+					if (SkillRoll(Skill2, { 111,160,161,162,163 }))//Max speed
+						if (SkillRoll(Skill2, { 112,164,165,166,167 }))//BP decrease
+							if (SkillRoll(Skill2, { 113,168,169,170,171 }));//Acceleration and bp decrease
+				Skill Sk(Skill1, Skill2, Skill3);
+				return Sk.getType();
 			}
 			if (a == 3 && b == ct_arm) //armor
 			{
 				if (SkillRoll(Skill2, { 190,191,152,153,148,149,108,194,195 }))//Bounce
-					if (SkillRoll(Skill2, { 188,189,146,147,143 }))//Defense delay
-						if (SkillRoll(Skill2, { 186,187,144,145 }))//Damage
-							if (SkillRoll(Skill2, { 184,185 }))//Defense
+					if (SkillRoll(Skill2, { 188,189,146,147 }))//Defense time decrease
+						if (SkillRoll(Skill2, { 102,106,186,187,144,145 }))//Damage
+							if (SkillRoll(Skill2, { 103,142,143,184,185 }))//Defense time increase
 								if (SkillRoll(Skill2, { 154,155,109,196,197 }))//Hit dalay bounce
 									if (SkillRoll(Skill2, { 150,151,107,192,193 }));//Hit delay
-									else Skill2 = BootSkill1[Random::UInt(_countof(BootSkill1))];
-									Skill Sk(Skill1, Skill2, Skill3);
-									return Sk.getType();
+				Skill Sk(Skill1, Skill2, Skill3);
+				return Sk.getType();
 			}
 			if (a == 2 && b == ct_arm) //Pendant
 			{
 				if (SkillRoll(Skill2, { 114,172,173 }))//Hp recovery
-					if (SkillRoll(Skill2, { 115,174,175 }))
-						if (SkillRoll(Skill2, { 116,176,177 }))
-							if (SkillRoll(Skill2, { 117,178,179 }));
-							else Skill2 = BootSkill1[Random::UInt(_countof(BootSkill1))];
-							Skill Sk(Skill1, Skill2, Skill3);
-							return Sk.getType();
+					if (SkillRoll(Skill2, { 115,174,175 }))//Mp recovery
+						if (SkillRoll(Skill2, { 116,176,177 }))//Bp recovery
+							if (SkillRoll(Skill2, { 117,178,179 }));//Hp,mp,bp recovery
+				Skill Sk(Skill1, Skill2, Skill3);
+				return Sk.getType();
 			}
 			if (a == 1 && b == ct_arm) //Shield
 			{
-				if (SkillRoll(Skill2, { 102,106,144,145,186,187 }))
-					if (SkillRoll(Skill2, { 103,143,184,185 }))
-						if (SkillRoll(Skill2, { 104,146,147,188,189 }))
-							if (SkillRoll(Skill2, { 105,108,148,149,152,153,190,191,194,195 }))
-								if (SkillRoll(Skill2, { 107,150,151,192,193 }))
-									if (SkillRoll(Skill2, { 109,154,155,196,197 }));
-									else Skill2 = BootSkill1[Random::UInt(_countof(BootSkill1))];
-									Skill Sk(Skill1, Skill2, Skill3);
-									return Sk.getType();
+				if (SkillRoll(Skill2, { 102,106,144,145,186,187 }))//Damage reduction
+					if (SkillRoll(Skill2, { 103,143,184,185 }))//Defence time increase
+						if (SkillRoll(Skill2, { 104,146,147,188,189 }))//Dodge time decrease
+							if (SkillRoll(Skill2, { 105,108,148,149,152,153,190,191,194,195 }))//Vibrational decrease
+								if (SkillRoll(Skill2, { 107,150,151,192,193 }))//Attack delay decrease
+									if (SkillRoll(Skill2, { 109,154,155,196,197 }));//Attack delay & Bounce
+				Skill Sk(Skill1, Skill2, Skill3);
+				return Sk.getType();
 			}
 			if (b == ct_wpn)
 			{
-				if (SkillRoll(Skill2, { 100,118,119,120,121 }))
-					if (SkillRoll(Skill2, { 122,123,124,125,126 }))
-						if (SkillRoll(Skill2, { 127,128,129,130,131 }))
-							if (SkillRoll(Skill2, { 132,133,134,135,136 }))
-								if (SkillRoll(Skill2, { 138,139,140,141 }));
-								else Skill2 = BootSkill1[Random::UInt(_countof(BootSkill1))];
-								Skill Sk(Skill1, Skill2, Skill3);
-								return Sk.getType();
+				if (SkillRoll(Skill2, { 100,118,119,120,121 }))//Damage increase
+					if (SkillRoll(Skill2, { 122,123,124,125,126 }))//Attack delay increase
+						if (SkillRoll(Skill2, { 127,128,129,130,131 }))//Attack time decrease
+							if (SkillRoll(Skill2, { 132,133,134,135,136 }))//Mp usage decrease
+								if (SkillRoll(Skill2, { 138,139,140,141 }));//Critical attack
+				Skill Sk(Skill1, Skill2, Skill3);
+				return Sk.getType();
 			}
 			if (b == ct_mag)
 			{
-				if (372 < Skill2 < 377) Skill2 = Random::UInt(373, 376);
-				if (376 < Skill2 < 381) Skill2 = Random::UInt(377, 380);
-				for (int i = 380;i < 436;i += 5)
-				{
-					if (i < Skill2 < i + 6)
+				if (Skill2 > 372 && Skill2 < 377) Skill2 = Random::UInt(373, 376);//Disable recovery
+				else if (Skill2 > 376 && Skill2 < 381) Skill2 = Random::UInt(377, 380);//Stop moving
+				else {
+					for (int i = 380;i < 436;i += 5)//Enemy attack slowdown.Disable skill
 					{
-						Skill2 = Random::UInt(i + 1, i + 5);
-						break;
+						if (Skill2 > i && Skill2 < i + 6)
+						{
+							Skill2 = Random::UInt(i + 1, i + 5);
+							break;
+						}
 					}
 				}
 				Skill Sk(Skill1, Skill2, Skill3);

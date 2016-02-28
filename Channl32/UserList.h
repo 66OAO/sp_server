@@ -212,6 +212,8 @@ public:
 		for (int i = 0; i < MaxRoom; i++) {
 			if (Rooms[i].n == roomnum) {
 				Rooms[i].n = -1;
+				Rooms[i].blueteam = 0;
+				Rooms[i].redteam = 0;
 				return;
 			}
 		}
@@ -367,7 +369,8 @@ public:
 			break;
 		case DUEL_MODE:
 			if (Rooms[i].blueteam == 1 && Rooms[i].redteam == 1)
-				if (Rooms[i].Player[0]->Info.usr_ready && Rooms[i].Player[1]->Info.usr_ready) return true;
+				if (Rooms[i].Player[0] && Rooms[i].Player[1])
+					if (Rooms[i].Player[0]->Info.usr_ready && Rooms[i].Player[1]->Info.usr_ready) return true;
 			return false;
 			break;
 		case HERO_MODE:
@@ -706,6 +709,8 @@ public:
 						player->Info.usr_ready = 0;
 						player->Info.usr_slot = -1;
 						player->Info.usr_char = player->Info.DefaultCharacter;
+						if (Rooms[i].Player[j]->Info.usr_team == 10) RoomList.Rooms[i].blueteam--;
+						if (Rooms[i].Player[j]->Info.usr_team == 20) RoomList.Rooms[i].redteam--;
 						//Rooms[i].Player[j] = 0;
 						memset(&Rooms[i].Player[j], 0, sizeof(Rooms[i].Player[j]));
 						memset(&Rooms[i].users[j], 0, sizeof(Rooms[i].users[j]));
