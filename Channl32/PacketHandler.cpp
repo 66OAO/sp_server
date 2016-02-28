@@ -949,18 +949,7 @@ void PacketHandler::GenerateResponse(int ResponsePacketType)
 		nOfPackets = 0;
 		break;
 	case ROOM_QUIT_RESPONSE:
-	{
 		GetExitRoomResponse();
-		for (int i = 0;i < MaxRoom;i++)
-		{
-			if (RoomList.Rooms[i].n == Info.usr_room)
-			{
-				if (Info.usr_team == 10) RoomList.Rooms[i].blueteam--;
-				else if (Info.usr_team == 20) RoomList.Rooms[i].redteam--;
-				break;
-			}
-		}
-	}
 	break;
 	case ROOM_EXIT_RESPONSE:
 		for (int i = 0; i < MaxRoom; i++)
